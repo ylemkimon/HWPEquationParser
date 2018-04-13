@@ -18,8 +18,8 @@ public class QuestionBuilder implements Updatable {
         }
     }
 
-    private StringBuilder textBuilder = new StringBuilder();
-    private StringBuilder expTextBuilder = new StringBuilder();
+    private final StringBuilder textBuilder = new StringBuilder();
+    private final StringBuilder expTextBuilder = new StringBuilder();
 
     public StringBuilder getTextBuilder() {
         return textBuilder;
@@ -49,7 +49,7 @@ public class QuestionBuilder implements Updatable {
         String expText = expTextBuilder.toString().trim();
 
         int nlIndex = expText.indexOf('\n');
-        String firstLine = nlIndex != -1 ? expText.substring(0, nlIndex) : expText;
+        String firstLine = nlIndex == -1 ? expText : expText.substring(0, nlIndex);
         String answer = ANSWER_PATTERN.matcher(firstLine).replaceAll("");
 
         Map<Integer, String> choices = new HashMap<>(5);

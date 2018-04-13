@@ -3,9 +3,10 @@ package kim.ylem.heparser.atoms;
 import kim.ylem.heparser.AtomMap;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Accent extends Atom {
-    private static final HashMap<String, String> accentMap = new HashMap<>();
+    private static final Map<String, String> accentMap = new HashMap<>();
 
     public static void register() {
         accentMap.put("acute", "\\acute");

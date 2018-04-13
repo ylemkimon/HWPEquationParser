@@ -2,12 +2,14 @@ package kim.ylem.heparser.atoms;
 
 import kim.ylem.heparser.AtomMap;
 
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Matrix extends Atom {
-    private static final HashMap<String, String> matrixMap = new HashMap<>();
+    private static final Map<String, String> matrixMap = new HashMap<>();
 
     public static void register() {
         matrixMap.put("matrix", "matrix");
@@ -23,7 +25,7 @@ public class Matrix extends Atom {
         AtomMap.putAll(matrixMap, Matrix.class);
     }
 
-    private LinkedList<LinkedList<Group>> rows = new LinkedList<>();
+    private final Deque<LinkedList<Group>> rows = new LinkedList<>();
 
     private final String function;
 

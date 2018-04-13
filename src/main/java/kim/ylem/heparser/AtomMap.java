@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class AtomMap  {
-    public static TreeMap<String, Class> map = new TreeMap<>(Comparator.comparingInt(String::length).reversed()
+    public static TreeMap<String, Class<?>> map = new TreeMap<>(Comparator.comparingInt(String::length).reversed()
             .thenComparing(java.util.function.Function.identity()));
 
     static {
@@ -24,7 +24,7 @@ public class AtomMap  {
         UnderOver.register();
     }
 
-    public static void put(String key, Class value) {
+    public static void put(String key, Class<?> value) {
         map.put(key, value);
         map.putIfAbsent(key.toUpperCase(), value);
         if (key.length() > 1) {
@@ -36,11 +36,11 @@ public class AtomMap  {
         map.remove(key);
     }
 
-    public static void putAll(Map<String, String> atomMap, Class value) {
+    public static void putAll(Map<String, String> atomMap, Class<?> value) {
         atomMap.keySet().forEach(key -> put(key, value));
     }
 
-    public static void putAllExact(Map<String, String> atomMap, Class value) {
+    public static void putAllExact(Map<String, String> atomMap, Class<?> value) {
         atomMap.keySet().forEach(key -> map.put(key, value));
     }
 }

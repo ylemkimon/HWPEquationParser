@@ -3,9 +3,10 @@ package kim.ylem.heparser.atoms;
 import kim.ylem.heparser.AtomMap;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Limit extends Atom {
-    private static final HashMap<String, String> limitMap = new HashMap<>();
+    private static final Map<String, String> limitMap = new HashMap<>();
 
     public static void register() {
         limitMap.put("lim", "\\lim");

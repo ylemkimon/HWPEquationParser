@@ -3,9 +3,10 @@ package kim.ylem.heparser.atoms;
 import kim.ylem.heparser.AtomMap;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class LargeOp extends Atom {
-    private static final HashMap<String, String> largeOpMap = new HashMap<>();
+    private static final Map<String, String> largeOpMap = new HashMap<>();
 
     public static void register() {
         largeOpMap.put("bigcap", "\\bigcap");

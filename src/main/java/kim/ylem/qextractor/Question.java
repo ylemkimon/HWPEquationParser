@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 public class Question implements Serializable {
-    public static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private final String text;
     private final String expText;
     private final Map<Integer, String> choices;

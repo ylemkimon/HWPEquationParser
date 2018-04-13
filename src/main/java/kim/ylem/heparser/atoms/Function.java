@@ -3,9 +3,10 @@ package kim.ylem.heparser.atoms;
 import kim.ylem.heparser.AtomMap;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Function extends Atom {
-    private static final HashMap<String, String> functionMap = new HashMap<>();
+    private static final Map<String, String> functionMap = new HashMap<>();
 
     public static void register() {
         functionMap.put("and", "\\operatorname{and}");

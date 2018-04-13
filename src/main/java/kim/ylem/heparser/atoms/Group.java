@@ -1,10 +1,11 @@
 package kim.ylem.heparser.atoms;
 
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
 public class Group extends Atom {
-    private LinkedList<Atom> children = new LinkedList<>();
+    private final Deque<Atom> children = new LinkedList<>();
 
     @Override
     protected String toLaTeX(int flag) {

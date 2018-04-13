@@ -28,7 +28,7 @@ public class BinItem {
         return imageDataList;
     }
 
-    void addImageData(ImageData imageData) {
-        imageDataList.add(imageData);
+    boolean addImageData(ImageData imageData) {
+        return imageDataList.add(imageData);
     }
 }
