@@ -1,14 +1,18 @@
 package kim.ylem.heparser.atoms;
 
+import kim.ylem.ParserException;
+import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
+import kim.ylem.heparser.HEParser;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Accent extends Atom {
-    private static final Map<String, String> accentMap = new HashMap<>();
+public final class AccentAtom implements Atom {
+    private static final Map<String, String> accentMap = new HashMap<>(18);
 
-    public static void register() {
+    static {
+        // accent
         accentMap.put("acute", "\\acute");
         accentMap.put("arch", "\\wideparen"); // yhmath, mathabx, MdSymbol, MnSymbol, fdsymbol, fourier
         accentMap.put("bar", "\\overline");
@@ -25,23 +29,37 @@ public class Accent extends Atom {
         accentMap.put("underline", "\\underline");
         accentMap.put("vec", "\\overrightarrow");
 
+        // bold
+        accentMap.put("bold", "\\boldsymbol");
+
         // letter
         accentMap.put("not", "\\not");
         accentMap.put("bigg", "\\bigg");
+    }
 
-        AtomMap.putAll(accentMap, Accent.class);
+    public static void init() {
+        AtomMap.putAll(accentMap.keySet(), AccentAtom::parse);
+    }
+
+    private static AccentAtom parse(HEParser parser, String function) throws ParserException {
+        Atom content = "not".equals(function) || "bigg".equals(function)
+                ? parser.nextSymbol(1) : parser.nextGroup();
+        return new AccentAtom(function, content);
     }
 
     private final String function;
-    private final Group content;
+    private final Atom content;
 
-    public Accent(String function, Group content) {
+    private AccentAtom(String function, Atom content) {
         this.function = accentMap.get(function.toLowerCase());
         this.content = content;
     }
 
     @Override
-    protected String toLaTeX(int flag) {
-        return function + "{" + content.toLaTeX(flag) + "}";
+    public String toLaTeX(int flag) {
+        if ("\\boldsymbol".equals(function)) {
+            flag |= STYLE_BOLD;
+        }
+        return function + '{' + content.toLaTeX(flag) + '}';
     }
 }

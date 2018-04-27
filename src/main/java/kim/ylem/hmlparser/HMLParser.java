@@ -37,11 +37,13 @@ public abstract class HMLParser {
     protected abstract Updatable getCurrent();
 
     protected void awaitImageTask() {
-        imageTaskExecutor.shutdown();
-        try {
-            imageTaskExecutor.awaitTermination(1L, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (imageTaskExecutor != null) {
+            imageTaskExecutor.shutdown();
+            try {
+                imageTaskExecutor.awaitTermination(1L, TimeUnit.DAYS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -165,8 +167,14 @@ public abstract class HMLParser {
     }
 
     protected void processBinData() throws ParserException {
-        BinItem binItem = binList.get(xmlParser.getIntAttribute("Id") - 1);
-        binItem.setCompressed("true".equals(xmlParser.getAttribute("Compress")));
-        imageTaskExecutor.execute(imageTaskFactory.create(binItem, xmlParser.getElementText()));
+        if (imageTaskFactory != null) {
+            BinItem binItem = binList.get(xmlParser.getIntAttribute("Id") - 1);
+            binItem.setCompressed("true".equals(xmlParser.getAttribute("Compress")));
+            if (imageTaskExecutor != null) {
+                imageTaskExecutor.execute(imageTaskFactory.create(binItem, xmlParser.getElementText()));
+            } else {
+                imageTaskFactory.create(binItem, xmlParser.getElementText()).run();
+            }
+        }
     }
 }

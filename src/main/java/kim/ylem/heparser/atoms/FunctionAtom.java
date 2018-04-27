@@ -1,14 +1,17 @@
 package kim.ylem.heparser.atoms;
 
+import kim.ylem.ParserException;
+import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
+import kim.ylem.heparser.HEParser;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Function extends Atom {
-    private static final Map<String, String> functionMap = new HashMap<>();
+public final class FunctionAtom implements Atom {
+    private static final Map<String, String> functionMap = new HashMap<>(33);
 
-    public static void register() {
+    static {
         functionMap.put("and", "\\operatorname{and}");
         functionMap.put("arccos", "\\arccos");
         functionMap.put("arcsin", "\\arcsin");
@@ -42,18 +45,29 @@ public class Function extends Atom {
         functionMap.put("sinh", "\\sinh");
         functionMap.put("tan", "\\tan");
         functionMap.put("tanh", "\\tanh");
+    }
 
-        AtomMap.putAllExact(functionMap, Function.class);
+    public static void init() {
+        AtomMap.putAllExact(functionMap.keySet(), FunctionAtom::parse);
+    }
+
+    private static FunctionAtom parse(HEParser parser, String function) throws ParserException {
+        // TODO: argument behavior
+        Atom content = parser.nextSymbol(7 - function.length());
+        return new FunctionAtom(function, content);
     }
 
     private final String function;
+    private final Atom content;
 
-    public Function(String function) {
+    private FunctionAtom(String function, Atom content) {
         this.function = functionMap.get(function);
+        this.content = content;
     }
 
     @Override
-    protected String toLaTeX(int flag) {
-        return function + " ";
+    public String toLaTeX(int flag) {
+        return function + ' ' + content.toLaTeX(flag);
     }
+
 }

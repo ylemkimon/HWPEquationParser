@@ -1,20 +1,41 @@
 package kim.ylem.heparser.atoms;
 
+import kim.ylem.heparser.Atom;
+import kim.ylem.heparser.AtomMap;
+import kim.ylem.heparser.HEParser;
+
+import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.stream.Collectors;
 
-public class Group extends Atom {
-    private final Deque<Atom> children = new LinkedList<>();
+public class Group implements Atom {
+    public Group() {
+    }
+
+    public static void init() {
+        AtomMap.put("{", HEParser::parseGroups);
+    }
+
+    private final Deque<Atom> children = new ArrayDeque<>();
 
     @Override
-    protected String toLaTeX(int flag) {
+    public String toLaTeX(int flag) {
         return children.stream()
                 .map(child -> child.toLaTeX(flag))
                 .collect(Collectors.joining());
     }
 
-    public void addChild(Atom atom) {
-        children.add(atom);
+    public boolean isEmpty() {
+        return children.isEmpty();
     }
+
+    public void push(Atom atom) {
+        children.addLast(atom);
+    }
+
+    public Atom pop() {
+        // FIXME: removeLast?
+        return children.pollLast();
+    }
+
 }
