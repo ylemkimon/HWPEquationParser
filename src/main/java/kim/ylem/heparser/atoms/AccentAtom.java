@@ -8,8 +8,8 @@ import kim.ylem.heparser.HEParser;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class AccentAtom implements Atom {
-    private static final Map<String, String> accentMap = new HashMap<>(18);
+public final class AccentAtom extends Atom {
+    private static final Map<String, String> accentMap = new HashMap<>(19);
 
     static {
         // accent
@@ -24,6 +24,7 @@ public final class AccentAtom implements Atom {
         accentMap.put("grave", "\\grave");
         accentMap.put("hat", "\\widehat");
         accentMap.put("overline", "\\overline");
+        accentMap.put("phantom", "\\phantom");
         accentMap.put("tilde", "\\widetilde");
         accentMap.put("under", "\\underline");
         accentMap.put("underline", "\\underline");
@@ -34,29 +35,33 @@ public final class AccentAtom implements Atom {
 
         // letter
         accentMap.put("not", "\\not");
-        accentMap.put("bigg", "\\bigg");
+        accentMap.put("bigg", "\\huge");
     }
 
     public static void init() {
         AtomMap.putAll(accentMap.keySet(), AccentAtom::parse);
     }
 
-    private static AccentAtom parse(HEParser parser, String function) throws ParserException {
-        Atom content = "not".equals(function) || "bigg".equals(function)
-                ? parser.nextSymbol(1) : parser.nextGroup();
-        return new AccentAtom(function, content);
+    private static Atom parse(HEParser parser, String command) throws ParserException {
+        Atom content = "not".equals(command) || "bigg".equals(command)
+                ? parser.nextSymbol() : parser.nextGroup();
+        // double quote(") not allowed in symbol
+        return new AccentAtom(command, content);
     }
 
     private final String function;
     private final Atom content;
 
-    private AccentAtom(String function, Atom content) {
-        this.function = accentMap.get(function.toLowerCase());
+    private AccentAtom(String command, Atom content) {
+        function = accentMap.get(command);
         this.content = content;
     }
 
     @Override
     public String toLaTeX(int flag) {
+        if ("\\huge".equals(function)) {
+            return '{' + function + ' ' + content.toLaTeX(flag) + '}';
+        }
         if ("\\boldsymbol".equals(function)) {
             flag |= STYLE_BOLD;
         }

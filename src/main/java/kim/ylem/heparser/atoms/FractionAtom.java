@@ -8,7 +8,7 @@ import kim.ylem.heparser.HEParser;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class FractionAtom implements Atom {
+public final class FractionAtom extends Atom {
     private static final Map<String, String> fractionMap = new HashMap<>(6);
 
     static {
@@ -26,19 +26,26 @@ public final class FractionAtom implements Atom {
         AtomMap.putAll(fractionMap.keySet(), FractionAtom::parse);
     }
 
-    private static FractionAtom parse(HEParser parser, String function) throws ParserException {
-        Atom first = "over".equals(function) ||"atop".equals(function) || "choose".equals(function)
-                ? parser.popGroup() : parser.nextGroup();
+    private static Atom parse(HEParser parser, String command) throws ParserException {
+        Atom first;
+        if ("over".equals(command) ||"atop".equals(command) || "choose".equals(command)) {
+            first = parser.popGroup();
+            if (first == null) {
+                throw parser.newUnexpectedException("a term", command);
+            }
+        } else {
+            first = parser.nextGroup();
+        }
         Atom second = parser.nextGroup();
-        return new FractionAtom(function, first, second);
+        return new FractionAtom(command, first, second);
     }
 
     private final String function;
     private final Atom first;
     private final Atom second;
 
-    private FractionAtom(String function, Atom first, Atom second) {
-        this.function = fractionMap.get(function.toLowerCase());
+    private FractionAtom(String command, Atom first, Atom second) {
+        function = fractionMap.get(command);
         this.first = first;
         this.second = second;
     }

@@ -8,7 +8,7 @@ import kim.ylem.heparser.HEParser;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class FunctionAtom implements Atom {
+public final class FunctionAtom extends Atom {
     private static final Map<String, String> functionMap = new HashMap<>(33);
 
     static {
@@ -48,20 +48,19 @@ public final class FunctionAtom implements Atom {
     }
 
     public static void init() {
-        AtomMap.putAllExact(functionMap.keySet(), FunctionAtom::parse);
+        AtomMap.putAll(functionMap.keySet(), FunctionAtom::parse, true);
     }
 
-    private static FunctionAtom parse(HEParser parser, String function) throws ParserException {
-        // TODO: argument behavior
-        Atom content = parser.nextSymbol(7 - function.length());
-        return new FunctionAtom(function, content);
+    private static Atom parse(HEParser parser, String command) throws ParserException {
+        Atom content = parser.nextArgument(7 - command.length());
+        return new FunctionAtom(command, content);
     }
 
     private final String function;
     private final Atom content;
 
-    private FunctionAtom(String function, Atom content) {
-        this.function = functionMap.get(function);
+    private FunctionAtom(String command, Atom content) {
+        function = functionMap.get(command);
         this.content = content;
     }
 

@@ -2,19 +2,16 @@ package kim.ylem.heparser;
 
 import kim.ylem.heparser.atoms.*;
 
-import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
-import static java.util.function.Function.identity;
-
-public class AtomMap  {
-    // TODO: improve AtomMap, singleton?
+public final class AtomMap  {
     private AtomMap() {
     }
 
-    private static final Map<String, AtomParser> map = new TreeMap<>(
-            Comparator.comparingInt(String::length).reversed().thenComparing(identity()));
+    private static final Map<String, AtomParser> map = new HashMap<>(605);
+    private static final Set<String> special = new HashSet<>(70);
+    private static final int MAX_LENGTH = 10;
+    private static final int ASCII_UPPER_LOWER_OFFSET = 32;
 
     static {
         AccentAtom.init();
@@ -26,46 +23,97 @@ public class AtomMap  {
         MatrixAtom.init();
         OpAtom.init();
         RootAtom.init();
-        SubSupAtom.init();
         TextAtom.init();
         UnderOverAtom.init();
+        SymbolMap.init();
     }
 
     public static AtomParser get(String key) {
         return map.get(key);
     }
 
-    public static void put(String key, AtomParser value) {
-        map.put(key, value);
-        map.put(key.toUpperCase(), value);
-        if (key.length() > 1) {
-            map.put(Character.toUpperCase(key.charAt(0)) + key.substring(1), value);
+    public static void putTo(AtomParser value, String... keys) {
+        for (String key : keys) {
+            map.put(key, value);
         }
     }
 
-    public static String search(String searchString) {
-        if (map.containsKey(searchString)) {
-            return searchString;
+    public static void putAll(Collection<String> keySet, AtomParser value) {
+        putAll(keySet, value, false);
+    }
+
+    public static void putAll(Collection<String> keySet, AtomParser value, boolean isSpecial) {
+        keySet.forEach(key -> map.put(key, value));
+        if (isSpecial) {
+            special.addAll(keySet);
         }
-        if (searchString.length() > 1) {
-            for (String key : map.keySet()) {
-                if (searchString.startsWith(key)) {
-                    return key;
+    }
+
+    private static boolean isASCIIUpperCase(char c) {
+        return c <= 'Z' && c >= 'A';
+    }
+
+    private static char toASCIILowerCase(char c) {
+        return isASCIIUpperCase(c) ? (char) (c + ASCII_UPPER_LOWER_OFFSET) : c;
+    }
+
+    public static String search(String s) {
+        if (map.containsKey(s)) {
+            return s;
+        }
+
+        if (s.length() > 1) {
+            for (int i = 2; i <= 4 && i < s.length(); i++) {
+                String sub = s.substring(0, i);
+                if (special.contains(sub)) {
+                    return sub;
+                }
+            }
+
+            int style = isASCIIUpperCase(s.charAt(0)) ? (isASCIIUpperCase(s.charAt(1)) ? 2 : 1) : 0;
+            char[] search = new char[MAX_LENGTH];
+            search[0] = toASCIILowerCase(s.charAt(0));
+            int length;
+            for (length = 1; length < s.length() && length < MAX_LENGTH; length++) {
+                if ((style == 2) != isASCIIUpperCase(s.charAt(length))) {
+                    break;
+                }
+                search[length] = toASCIILowerCase(s.charAt(length));
+            }
+
+            for (int i = length; i > 1; i--) {
+                String sub = new String(search, 0, i);
+                if (map.containsKey(sub)) {
+                    if (style != 0) {
+                        if (special.contains(sub)) {
+                            continue;
+                        }
+
+                        search[0] -= ASCII_UPPER_LOWER_OFFSET;
+                        String camel = new String(search, 0, i);
+                        if (map.containsKey(camel)) {
+                            return camel;
+                        }
+                    }
+                    return sub;
                 }
             }
         }
         return null;
     }
 
-    public static void remove(String key) {
-        map.remove(key);
-    }
-
-    public static void putAll(Iterable<String> keySet, AtomParser value) {
-        keySet.forEach(key -> put(key, value));
-    }
-
-    public static void putAllExact(Iterable<String> keySet, AtomParser value) {
-        keySet.forEach(key -> map.put(key, value));
+    /**
+     * Following commands should be added to special:
+     *
+     * <p>1. a command that has 2 to 4 letters and (i) takes precedence over other long
+     * commands that start with its name or (ii) contains upper case(s) but doesn't have
+     * lower case counterpart
+     *
+     * <p>2. a command that has more than 4 letters and only lower case form should be
+     * allowed
+     * @param key name of the special command
+     */
+    public static void addSpecial(String key) {
+        special.add(key);
     }
 }

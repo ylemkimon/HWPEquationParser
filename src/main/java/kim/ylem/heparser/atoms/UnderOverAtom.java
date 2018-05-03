@@ -5,42 +5,35 @@ import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
 import kim.ylem.heparser.HEParser;
 
-public final class UnderOverAtom implements Atom {
+public final class UnderOverAtom extends Atom {
     public static void init() {
-        AtomMap.put("underover", UnderOverAtom::parse);
-
-        // letter
-        AtomMap.put("buildrel", UnderOverAtom::parse);
-        AtomMap.put("rel", UnderOverAtom::parse);
+        AtomMap.putTo(UnderOverAtom::parse, "underover", "buildrel", "rel");
     }
 
-    private static Atom parse(HEParser parser, String function) throws ParserException {
-        Atom content;
+    private static Atom parse(HEParser parser, String command) throws ParserException {
+        Group content;
         Atom over;
         Atom under;
-
-        if ("underover".equals(function)) {
+        if ("underover".equals(command)) {
             content = parser.nextGroup();
-
-            SubSupAtom subsup = SubSupAtom.parse(parser, false, false, true);
-            under = subsup.getSub();
-            over = subsup.getSup();
+            under = content.popSub();
+            over = content.popSup();
         } else {
-            content = parser.nextSymbol(1);
+            content = parser.nextSymbol();
             over = parser.nextGroup();
-            under = "rel".equals(function) ? parser.nextGroup() : null;
+            under = "rel".equals(command) ? parser.nextGroup() : null;
         }
 
-        return new UnderOverAtom(function, content, over, under);
+        return new UnderOverAtom(command, content, over, under);
     }
 
-    private final String function;
+    private final String command;
     private final Atom content;
     private final Atom over;
     private final Atom under;
 
-    private UnderOverAtom(String function, Atom content, Atom over, Atom under) {
-        this.function = function;
+    private UnderOverAtom(String command, Atom content, Atom over, Atom under) {
+        this.command = command;
         this.content = content;
         this.over = over;
         this.under = under;
@@ -48,7 +41,7 @@ public final class UnderOverAtom implements Atom {
 
     @Override
     public String toLaTeX(int flag) {
-        String result = content.toLaTeX(function.endsWith("rel") ? (flag & STYLE_ROMAN) : flag);
+        String result = content.toLaTeX(command.endsWith("rel") ? (flag | STYLE_ROMAN) : flag);
         if (over != null) {
             result = "\\overset{" + over.toLaTeX(flag) + "}{" + result + '}';
         }

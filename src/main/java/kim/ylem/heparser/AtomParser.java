@@ -4,5 +4,5 @@ import kim.ylem.ParserException;
 
 @FunctionalInterface
 public interface AtomParser {
-    Atom parse(HEParser parser, String function) throws ParserException;
+    Atom parse(HEParser parser, String command) throws ParserException;
 }

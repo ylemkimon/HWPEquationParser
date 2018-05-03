@@ -5,7 +5,7 @@ import kim.ylem.heparser.atoms.*;
 
 class GroupParser {
     private final HEParser parser;
-    private final Mode mode;
+    private Mode mode;
     private final int maxLength;
 
     private final Group group = new Group();
@@ -13,8 +13,11 @@ class GroupParser {
 
     enum Mode {
         NORMAL,
-        LEFTRIGHT,
+        LEFT_RIGHT,
+        BACKSLASH,
         SYMBOL,
+        DELIMITER,
+        ARGUMENT,
         TERM,
         TERM_SUB
     }
@@ -28,10 +31,6 @@ class GroupParser {
 
     Atom pop() {
         return group.pop();
-    }
-
-    public boolean isEmpty() {
-        return group.isEmpty();
     }
 
     private void buildTextAtom() {
@@ -54,11 +53,21 @@ class GroupParser {
 
         if (length < remaining) {
             textBuilder.append(text);
+
+            if (mode == Mode.BACKSLASH) {
+                buildTextAtom();
+                mode = Mode.NORMAL;
+            }
         } else {
             textBuilder.append(text, 0, remaining);
+
+            if (mode == Mode.BACKSLASH) {
+                textBuilder.setLength(maxLength - 1);
+                mode = Mode.NORMAL;
+            }
             buildTextAtom();
 
-            if (mode != Mode.NORMAL && mode != Mode.LEFTRIGHT) {
+            if (mode != Mode.NORMAL && mode != Mode.LEFT_RIGHT) {
                 parser.retreat(length - remaining);
                 return true;
             }
@@ -76,21 +85,35 @@ class GroupParser {
 
     // TODO: simplify
     Group parse() throws ParserException {
-        parser.skipWhitespaces();
+        if (mode != Mode.ARGUMENT) {
+            if (mode != Mode.BACKSLASH) {
+                parser.skipWhitespaces();
+            }
+        } else if (parser.peek() == '`' || parser.peek() == '~') {
+            return group;
+        }
 
         while (true) {
             char c = parser.peek();
-            if ((mode == Mode.NORMAL || mode == Mode.LEFTRIGHT) && (Character.isWhitespace(c) || (c == '`' && textBuilder.length() > 0 && textBuilder.charAt(0) != '`'))) {
-                buildTextAtom();
-                parser.skipWhitespaces();
-                c = parser.peek();
+            if (Character.isWhitespace(c) || (c == '`' && (textBuilder.length() > 0 && textBuilder.charAt(0) != '`'))) {
+                if (mode == Mode.NORMAL || mode == Mode.LEFT_RIGHT || mode == Mode.BACKSLASH) {
+                    if (mode == Mode.BACKSLASH) {
+                        mode = Mode.NORMAL;
+                    } else {
+                        buildTextAtom();
+                    }
+                    parser.skipWhitespaces();
+                    c = parser.peek();
+                } else {
+                    break;
+                }
             }
             if (!parser.hasNext()) {
                 parser.retreat(1);
-                parser.appendError("Unexpected EOF, attempting to recover");
+                parser.appendWarning("Unexpected EOF, attempting to recover");
                 continue;
             }
-            if (Character.isWhitespace(c) || c == '}' || (mode != Mode.SYMBOL && (c == '&' || c == '#'))) {
+            if (mode != Mode.BACKSLASH && ((mode != Mode.DELIMITER && c == '}') || (mode != Mode.SYMBOL && (c == '&' || c == '#')))) {
                 break;
             }
             parser.next();
@@ -105,9 +128,10 @@ class GroupParser {
                     tokenBuilder.append(parser.next());
                     next = parser.peek();
                 }
-            } else if (((c == '+' || c == '<') && next == '-') || (c == '-' && (next == '+' || next == '>')) ||
+            } else if (mode != Mode.BACKSLASH && mode != Mode.DELIMITER && (((c == '+' || c == '<') && next == '-') ||
+                    (c == '-' && (next == '+' || next == '>')) ||
                     ((c == '!' || c == '=' || c == '<' || c == '>') && next == '=') ||
-                    (c == '<' && next == '<') || (c == '>' && next == '>')) {
+                    (c == '<' && next == '<') || (c == '>' && next == '>'))) {
                 char nn = parser.peek(2);
                 if (!(c == '<' && next == '-') ||
                         nn == '\0' || Character.isWhitespace(nn) || ('!' <= nn && nn <= '=') || nn == '{') {
@@ -118,10 +142,12 @@ class GroupParser {
                 }
             }
             String token = tokenBuilder.toString();
+            String command = (mode != Mode.BACKSLASH && ((mode != Mode.SYMBOL && mode != Mode.DELIMITER) || !("{".equals(token) ||
+                    "\"".equals(token) || "\\".equals(token) || "_".equals(token) || "^".equals(token))))
+                    ? AtomMap.search(token) : null;
 
-            String command = AtomMap.search(token);
             if (command != null) {
-                if (mode == Mode.LEFTRIGHT && "right".equals(command.toLowerCase())) {
+                if (mode == Mode.LEFT_RIGHT && "right".equals(command)) {
                     parser.retreat(token.length());
                     break;
                 }
@@ -130,37 +156,48 @@ class GroupParser {
                 AtomParser atomParser = AtomMap.get(command);
 
                 if (atomParser == null) {
-                    if (appendText(TextAtom.getIntermediateChar(command).toString())) {
+                    String symbol = SymbolMap.getSymbol(command).toString();
+                    if (mode == Mode.DELIMITER && !SymbolMap.isDelimiter(symbol)) {
+                        parser.retreat(command.length());
+                        break;
+                    }
+                    if (appendText(symbol)) {
                         break;
                     }
                 } else {
-                    if (mode == Mode.SYMBOL || (mode != Mode.NORMAL && mode != Mode.LEFTRIGHT && textBuilder.length() > 0)) {
+                    if (mode == Mode.SYMBOL || mode == Mode.ARGUMENT || mode == Mode.DELIMITER ||
+                            (mode != Mode.NORMAL && mode != Mode.LEFT_RIGHT && textBuilder.length() > 0)) {
                         parser.retreat(command.length());
                         break;
                     }
                     buildTextAtom();
 
                     group.push(atomParser.parse(parser, command));
-                    if (mode != Mode.NORMAL && mode != Mode.LEFTRIGHT) {
+                    if (mode != Mode.NORMAL && mode != Mode.LEFT_RIGHT) {
                         break;
                     }
                 }
+            } else if (mode == Mode.DELIMITER && ".".equals(token)) {
+                return null;
+            } else if (mode == Mode.DELIMITER && !SymbolMap.isDelimiter(token)) {
+                parser.retreat(token.length());
+                break;
             } else if (appendText(token)) {
                 break;
             }
         }
         buildTextAtom();
 
-        if (mode != Mode.NORMAL && mode != Mode.LEFTRIGHT) {
+        if (mode != Mode.NORMAL && mode != Mode.LEFT_RIGHT && mode != Mode.DELIMITER) {
             if (group.isEmpty()) {
-                throw parser.newUnexpectedException(mode == Mode.SYMBOL ? "a symbol" : "a term",
-                        parser.peek().toString());
+                if (mode != Mode.ARGUMENT) {
+                    throw parser.newUnexpectedException(mode == Mode.SYMBOL ? "a symbol" : "a term",
+                            parser.peek().toString());
+                }
             }
 
             if (mode != Mode.SYMBOL) {
-                SubSupAtom supsub = SubSupAtom.parse(parser, false,
-                        mode == Mode.TERM_SUB, true);
-                group.push(supsub);
+                group.parseSubSup(parser, mode == Mode.TERM_SUB);
             }
         }
 

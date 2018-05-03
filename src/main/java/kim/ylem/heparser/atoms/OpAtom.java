@@ -1,6 +1,5 @@
 package kim.ylem.heparser.atoms;
 
-import kim.ylem.ParserException;
 import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
 import kim.ylem.heparser.HEParser;
@@ -8,7 +7,7 @@ import kim.ylem.heparser.HEParser;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class OpAtom implements Atom {
+public final class OpAtom extends Atom {
     private static final Map<String, String> opMap = new HashMap<>(25);
 
     static {
@@ -43,25 +42,28 @@ public final class OpAtom implements Atom {
 
     public static void init() {
         AtomMap.putAll(opMap.keySet(), OpAtom::parse);
-        AtomMap.remove("LIM");
+        AtomMap.addSpecial("lim");
+        AtomMap.addSpecial("Lim");
     }
 
-    private static OpAtom parse(HEParser parser, String function) throws ParserException {
-        SubSupAtom subsup = SubSupAtom.parse(parser, true, false, !"lim".equals(function.toLowerCase()));
-        return new OpAtom(function, subsup);
+    private static Atom parse(HEParser parser, String command) {
+        return new OpAtom(command);
     }
 
     private final String function;
-    private final SubSupAtom subsup;
 
-    private OpAtom(String function, SubSupAtom subsup) {
-        this.function = opMap.getOrDefault(function, opMap.get(function.toLowerCase()));
-        this.subsup = subsup;
+    private OpAtom(String command) {
+        function = opMap.get(command);
+    }
+
+    @Override
+    public boolean isFromToAllowed() {
+        return true;
     }
 
     @Override
     public String toLaTeX(int flag) {
-        return function + subsup.toLaTeX(flag) + ' ';
+        return function + ' ';
     }
 
 }

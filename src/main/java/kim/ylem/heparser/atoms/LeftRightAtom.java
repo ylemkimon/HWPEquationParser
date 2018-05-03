@@ -5,106 +5,45 @@ import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
 import kim.ylem.heparser.HEParser;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public final class LeftRightAtom implements Atom {
-    private static final Map<String, String> delimMap = new HashMap<>(33);
-
-    static {
-        delimMap.put("(", "(");
-        delimMap.put("\uE044", "(");
-        delimMap.put(")", ")");
-        delimMap.put("\uE045", ")");
-        delimMap.put("[", "[");
-        delimMap.put("\uE049", "[");
-        delimMap.put("lbrack", "[");
-        delimMap.put("]", "]");
-        delimMap.put("\uE04A", "]");
-        delimMap.put("rbrack", "]");
-        delimMap.put("{", "\\lbrace ");
-        delimMap.put("\uE04B", "\\lbrace ");
-        delimMap.put("lbrace", "\\lbrace ");
-        delimMap.put("}", "\\rbrace ");
-        delimMap.put("\uE04C", "\\rbrace ");
-        delimMap.put("rbrace", "\\rbrace ");
-        delimMap.put("<", "<");
-        delimMap.put("\uE055", "<");
-        delimMap.put("langle", "<");
-        delimMap.put("⌈", "\\lceil ");
-        delimMap.put("lceil", "\\lceil ");
-        delimMap.put("⌉", "\\rceil ");
-        delimMap.put("rceil", "\\rceil ");
-        delimMap.put("⌊", "\\lfloor ");
-        delimMap.put("lfloor",  "\\lfloor ");
-        delimMap.put("⌋", "\\rfloor ");
-        delimMap.put("rfloor",  "\\rfloor ");
-        delimMap.put("|", ">");
-        delimMap.put("\uE04D", "|");
-        delimMap.put("vert", "\\vert ");
-        delimMap.put("∣", "\\vert ");
-        delimMap.put("line", "\\vert ");
-        delimMap.put("Vert", "\\Vert ");
-        delimMap.put("∥", "\\Vert ");
-        delimMap.put("dline", "\\Vert ");
-        delimMap.put(".", null);
-    }
-
+public final class LeftRightAtom extends Atom {
     public static void init() {
-        AtomMap.put("left", LeftRightAtom::parse);
-        AtomMap.put("right", LeftRightAtom::parse);
+        AtomMap.putTo(LeftRightAtom::parse, "left", "right");
     }
 
-    private String leftDelim;
-    private String rightDelim;
-    private Atom content;
-
-    public LeftRightAtom(String leftDelim, String rightDelim, Atom content) {
-        this.leftDelim = delimMap.get(leftDelim);
-        this.rightDelim = delimMap.get(rightDelim);
-        this.content = content;
-    }
-
-    private static Atom parse(HEParser parser, String function) throws ParserException {
-        parser.skipWhitespaces();
-        String delim = parser.search(delimMap.keySet().toArray(new String[0]));
-        String rightDelim;
-
-        if (delim == null) {
-            parser.appendError(function + " delimiter not found, using empty delimiter");
-            delim = ".";
+    private static Atom parse(HEParser parser, String command) throws ParserException {
+        Atom delim = parser.nextDelimiter(command);
+        if ("right".equals(command)) {
+            parser.appendWarning("Unexpected \\right");
+            return delim;
         }
 
-        if ("right".equals(function.toLowerCase())) {
-            parser.appendError("Unexpected \\right");
-            return new LeftRightAtom(null, delim, null);
-        }
-
-        Atom content = parser.parseGroups(function);
-
-        if (parser.search("right", "Right", "RIGHT") != null) {
-            rightDelim = parser.search(delimMap.keySet().toArray(new String[0]));
-            if (rightDelim == null) {
-                parser.appendError("Right delimiter not found, using empty delimiter");
-                rightDelim = ".";
-            }
+        Atom content = parser.parseGroups(command);
+        Atom rightDelim;
+        if (parser.search("right", "Right", "RIGHT")) {
+            rightDelim = parser.nextDelimiter("right");
         } else {
-            parser.appendError("\\right not found, using empty delimiter");
-            rightDelim = ".";
+            parser.appendWarning("\\right not found, using empty delimiter");
+            rightDelim = null;
         }
 
-        return new LeftRightAtom(delim, rightDelim, content);
+        return delim != null || rightDelim != null ? new LeftRightAtom(delim, rightDelim, content) : content;
+    }
+
+    private final Atom leftDelim;
+    private final Atom rightDelim;
+    private final Atom content;
+
+    private LeftRightAtom(Atom leftDelim, Atom rightDelim, Atom content) {
+        this.leftDelim = leftDelim;
+        this.rightDelim = rightDelim;
+        this.content = content;
     }
 
     @Override
     public String toLaTeX(int flag) {
-        if (content == null) {
-            return rightDelim;
-        } else if (leftDelim == null && rightDelim == null) {
-            return content.toLaTeX(flag);
-        } else {
-            return "\\left" + (leftDelim != null ? leftDelim : ".") + " " + content.toLaTeX(flag) + "\\right" + (rightDelim != null ? rightDelim : ".") + " ";
-        }
+        String left = leftDelim != null ? leftDelim.toLaTeX(flag) : ".";
+        String right = rightDelim != null ? rightDelim.toLaTeX(flag) : ".";
+        return "\\left" + left + content.toLaTeX(flag) + "\\right" + right;
     }
 
 }

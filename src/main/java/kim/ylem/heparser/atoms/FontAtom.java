@@ -5,28 +5,26 @@ import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
 import kim.ylem.heparser.HEParser;
 
-public final class FontAtom implements Atom {
+public final class FontAtom extends Atom {
     public static void init() {
-        AtomMap.put("\\", FontAtom::parse);
-        AtomMap.put("rm", FontAtom::parse);
-        AtomMap.put("it", FontAtom::parse);
+        AtomMap.putTo(FontAtom::parse, "\\", "rm", "it");
     }
 
-    private static FontAtom parse(HEParser parser, String function) throws ParserException {
-        Atom content = parser.parseGroups(null);
-        return new FontAtom(function, content);
+    private static Atom parse(HEParser parser, String command) throws ParserException {
+        Atom content = parser.parseGroups(command);
+        return new FontAtom(command, content);
     }
 
-    private final String function;
+    private final String command;
     private final Atom content;
 
-    private FontAtom(String function, Atom content) {
-        this.function = function.toLowerCase();
+    private FontAtom(String command, Atom content) {
+        this.command = command;
         this.content = content;
     }
 
     @Override
     public String toLaTeX(int flag) {
-        return content.toLaTeX("it".equals(function) ? (flag & ~STYLE_ROMAN) : (flag | STYLE_ROMAN));
+        return content.toLaTeX("it".equals(command) ? (flag & ~STYLE_ROMAN) : (flag | STYLE_ROMAN));
     }
 }

@@ -8,8 +8,8 @@ import kim.ylem.heparser.HEParser;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public final class MatrixAtom implements Atom {
-    private static final Map<String, String> matrixMap = new HashMap<>(9);
+public final class MatrixAtom extends Atom {
+    private static final Map<String, String> matrixMap = new HashMap<>(10);
 
     static {
         matrixMap.put("matrix", "matrix");
@@ -18,47 +18,53 @@ public final class MatrixAtom implements Atom {
         matrixMap.put("dmatrix", "vmatrix");
         matrixMap.put("cases", "cases");
         matrixMap.put("eqalign", "aligned");
-        matrixMap.put("pile", "cases");
-        matrixMap.put("lpile", "vmatrix");
-        matrixMap.put("rpile", "aligned");
+
+        matrixMap.put("col", "arrayc");
+        matrixMap.put("pile", "arrayc");
+        matrixMap.put("lpile", "arrayl");
+        matrixMap.put("rpile", "arrayr");
     }
 
     public static void init() {
         AtomMap.putAll(matrixMap.keySet(), MatrixAtom::parse);
     }
 
-    public static MatrixAtom parse(HEParser parser, String function) throws ParserException {
+    public static Atom parse(HEParser parser, String command) throws ParserException {
         parser.skipWhitespaces();
         char next = parser.next();
         if (next != '{') {
             throw parser.newUnexpectedException("start of matrix, {", Character.toString(next));
         }
 
-        MatrixAtom matrix = new MatrixAtom(function);
+        MatrixAtom matrix = new MatrixAtom(command);
+        int size = 0;
         do {
-            Queue<Group> row = new ArrayDeque<>();
+            Queue<Atom> row = new ArrayDeque<>();
             do {
                 row.add(parser.parseGroups(null));
+                size++;
                 next = parser.next();
             } while (next == '&');
             matrix.addRow(row);
         } while (next == '#');
-        return matrix;
+
+        return size != 1 || !("matrix".equals(command) || "eqalign".equals(command)
+                || "col".equals(command) || command.endsWith("pile")) ? matrix : matrix.rows.remove().remove();
     }
 
-    private final Queue<Queue<Group>> rows = new ArrayDeque<>();
+    private final Queue<Queue<Atom>> rows = new ArrayDeque<>();
     private final String function;
+    private int cols = 0;
 
-    private MatrixAtom(String function) {
-        this.function = matrixMap.get(function.toLowerCase());
+    private MatrixAtom(String command) {
+        function = matrixMap.get(command);
     }
 
-    private void addRow(Queue<Group> row) {
+    private void addRow(Queue<Atom> row) {
         rows.add(row);
-    }
-
-    public Atom simplify() {
-        return rows.size() == 1 && rows.peek().size() == 1 ? rows.remove().remove() : this;
+        if (row.size() > cols) {
+            cols = row.size();
+        }
     }
 
     @Override
@@ -68,6 +74,15 @@ public final class MatrixAtom implements Atom {
                         .map(group -> group.toLaTeX(flag))
                         .collect(Collectors.joining("&")))
                 .collect(Collectors.joining("\\\\"));
+
+        if (function.startsWith("array")) {
+            char[] alignment = new char[cols];
+            for (int i = 0; i < cols; i++) {
+                alignment[i] = function.charAt(5);
+            }
+            return "\\begin{array}{" + new String(alignment) + '}' + result + "\\end{array}";
+        }
+
         return "\\begin{" + function + '}' + result + "\\end{" + function + '}';
     }
 

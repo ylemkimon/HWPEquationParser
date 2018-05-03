@@ -5,18 +5,17 @@ import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
 import kim.ylem.heparser.HEParser;
 
-public final class RootAtom implements Atom {
+public final class RootAtom extends Atom {
     public static void init() {
-        AtomMap.put("sqrt", RootAtom::parse);
-        AtomMap.put("root", RootAtom::parse);
+        AtomMap.putTo(RootAtom::parse, "sqrt", "root");
     }
 
-    private static RootAtom parse(HEParser parser, String function) throws ParserException {
+    private static RootAtom parse(HEParser parser, String command) throws ParserException {
         Atom degree = null;
         Atom content = parser.nextGroup();
 
         // TODO: sqrt behavior
-        if (parser.search("of", "Of", "OF") != null) {
+        if (parser.search("of", "Of", "OF")) {
             degree = content;
             content = parser.nextGroup();
         }
