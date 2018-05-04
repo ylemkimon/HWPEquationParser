@@ -17,7 +17,10 @@ public class TextAtom extends Atom {
             sb.append(parser.next());
         }
         if (!parser.hasNext()) {
-            throw parser.newUnexpectedException("end of group, \"", "EOF");
+            parser.appendWarning("expected \", got EOF instead, ignoring subsequent atoms");
+            parser.retreat(sb.length());
+            parser.parseImplicitGroup(null);
+            return null;
         }
         parser.next();
         return new TextAtom(sb.toString());

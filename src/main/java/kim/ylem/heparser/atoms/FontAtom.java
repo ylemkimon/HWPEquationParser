@@ -11,7 +11,7 @@ public final class FontAtom extends Atom {
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {
-        Atom content = parser.parseGroups(command);
+        Atom content = parser.parseImplicitGroup(command);
         return new FontAtom(command, content);
     }
 

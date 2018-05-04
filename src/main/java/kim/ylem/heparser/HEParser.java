@@ -11,14 +11,17 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class HEParser implements Iterator<Character> {
-    private final String equation;
+    private final String originalEquation;
     private final Deque<GroupParser> groupParserStack = new ArrayDeque<>();
+
+    private String equation;
     private String warning = "";
 
     private int pos = -1;
 
-    public HEParser(String equation) {
-        this.equation = '{' + equation + '}';
+    public HEParser(String s) {
+        originalEquation = s;
+        equation = '{' + s + '}';
     }
 
     public ParserException newUnexpectedException(String expected, String actual) {
@@ -28,13 +31,16 @@ public class HEParser implements Iterator<Character> {
 
     public String parse() throws ParserException {
         Atom root = MatrixAtom.parse(this, "eqalign");
-        if (hasNext()) {
-            // TODO: recovery
-            throw newUnexpectedException("EOF", equation.substring(pos + 1));
+        while (hasNext()) {
+            appendWarning("expected EOF, appending { to the left");
+
+            equation = '{' + equation;
+            pos = -1;
+            root = MatrixAtom.parse(this, "eqalign");
         }
         String result = root.toString();
         if (!warning.isEmpty()) {
-            System.err.println("While parsing equation: " + equation);
+            System.err.println("While parsing equation: " + originalEquation);
             System.err.println(warning.trim());
             System.err.println("Result: " + result);
         }
@@ -101,27 +107,31 @@ public class HEParser implements Iterator<Character> {
         return groupParserStack.peek().pop();
     }
 
-    private Group parseGroup(Mode mode, int maxLength) throws ParserException {
-        GroupParser groupParser = new GroupParser(this, mode, maxLength);
+    private Group parseGroup(Mode mode, int maxLength, boolean onlySub) throws ParserException {
+        GroupParser groupParser = new GroupParser(this, mode, maxLength, onlySub);
         groupParserStack.push(groupParser);
-        Group group =  groupParser.parse();
+        Group group = groupParser.parse();
         groupParserStack.pop();
         return group;
     }
 
     // TODO: better name
-    public Group parseGroups(String function) throws ParserException {
-        Mode mode = "\\".equals(function) ? Mode.BACKSLASH : ("left".equalsIgnoreCase(function) ? Mode.LEFT_RIGHT : Mode.NORMAL);
-        Group result = parseGroup(mode, 9);
+    public Group parseImplicitGroup(String function) throws ParserException {
+        return parseImplicitGroup(function, false);
+    }
 
-        if (function != null && function.startsWith("{")) {
-            char next = next();
-            if (next != '}') {
-                throw newUnexpectedException("an end of group, }", Character.toString(next));
+    public Group parseImplicitGroup(String function, boolean sub) throws ParserException {
+        Mode mode = Mode.IMPLICIT;
+        if (function != null) {
+            if (function.startsWith("{")) {
+                mode = Mode.EXPLICIT;
+            } else if ("left".equalsIgnoreCase(function)) {
+                mode = Mode.LEFT_RIGHT;
+            } else if ("\\".equals(function)) {
+                mode = Mode.ESCAPE;
             }
-            result.parseSubSup(this, function.endsWith("sub"));
         }
-        return result;
+        return parseGroup(mode, 9, sub);
     }
 
     public Group nextGroup() throws ParserException {
@@ -130,20 +140,19 @@ public class HEParser implements Iterator<Character> {
 
     public Group nextGroup(boolean sub) throws ParserException {
         skipWhitespaces();
-        return peek() == '{' ? parseGroups(next() + (sub ? "sub" : "")) :
-                parseGroup(sub ? Mode.TERM_SUB : Mode.TERM, 9);
+        return peek() == '{' ? parseImplicitGroup(next().toString(), sub) : parseGroup(Mode.TERM, 9, sub);
     }
 
     public Group nextArgument(int maxLength) throws ParserException {
-        return parseGroup(Mode.ARGUMENT, maxLength);
+        return parseGroup(Mode.ARGUMENT, maxLength, false);
     }
 
     public Group nextSymbol() throws ParserException {
-        return parseGroup(Mode.SYMBOL, 1);
+        return parseGroup(Mode.SYMBOL, 1, false);
     }
 
     public Group nextDelimiter(String side) throws ParserException {
-        Group delim = parseGroup(Mode.DELIMITER, 1);
+        Group delim = parseGroup(Mode.DELIMITER, 1, false);
         if (delim != null && delim.isEmpty()) {
             appendWarning(side + " delimiter not found, using empty delimiter");
             delim = null;

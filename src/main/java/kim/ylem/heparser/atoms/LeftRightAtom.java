@@ -11,22 +11,30 @@ public final class LeftRightAtom extends Atom {
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {
-        Atom delim = parser.nextDelimiter(command);
-        if ("right".equals(command)) {
-            parser.appendWarning("Unexpected \\right");
-            return delim;
-        }
+        Atom leftDelim = null;
+        Atom rightDelim = null;
+        Group content;
+        if ("left".equals(command)) {
+            leftDelim = parser.nextDelimiter("left");
+            content = parser.parseImplicitGroup(command);
 
-        Atom content = parser.parseGroups(command);
-        Atom rightDelim;
-        if (parser.search("right", "Right", "RIGHT")) {
-            rightDelim = parser.nextDelimiter("right");
+            if (parser.search("right", "Right", "RIGHT")) {
+                rightDelim = parser.nextDelimiter("right");
+            } else {
+                parser.appendWarning("right not found, using empty delimiter");
+            }
         } else {
-            parser.appendWarning("\\right not found, using empty delimiter");
-            rightDelim = null;
+            rightDelim = parser.nextDelimiter("right");
+            parser.appendWarning("unexpected right, wrapping current group");
+
+            content = new Group();
+            Atom atom;
+            while ((atom = parser.popGroup()) != null) {
+                content.addFirst(atom);
+            }
         }
 
-        return delim != null || rightDelim != null ? new LeftRightAtom(delim, rightDelim, content) : content;
+        return leftDelim != null || rightDelim != null ? new LeftRightAtom(leftDelim, rightDelim, content) : content;
     }
 
     private final Atom leftDelim;
@@ -41,8 +49,8 @@ public final class LeftRightAtom extends Atom {
 
     @Override
     public String toLaTeX(int flag) {
-        String left = leftDelim != null ? leftDelim.toLaTeX(flag) : ".";
-        String right = rightDelim != null ? rightDelim.toLaTeX(flag) : ".";
+        String left = leftDelim != null ? leftDelim.toLaTeX(0) : ".";
+        String right = rightDelim != null ? rightDelim.toLaTeX(0) : ".";
         return "\\left" + left + content.toLaTeX(flag) + "\\right" + right;
     }
 

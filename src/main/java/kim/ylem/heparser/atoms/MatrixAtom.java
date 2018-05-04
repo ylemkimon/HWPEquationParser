@@ -41,7 +41,7 @@ public final class MatrixAtom extends Atom {
         do {
             Queue<Atom> row = new ArrayDeque<>();
             do {
-                row.add(parser.parseGroups(null));
+                row.add(parser.parseImplicitGroup(null));
                 size++;
                 next = parser.next();
             } while (next == '&');

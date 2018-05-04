@@ -66,7 +66,7 @@ public final class FunctionAtom extends Atom {
 
     @Override
     public String toLaTeX(int flag) {
-        return function + ' ' + content.toLaTeX(flag);
+        return function + ' ' + (content != null ? content.toLaTeX(flag) : "");
     }
 
 }

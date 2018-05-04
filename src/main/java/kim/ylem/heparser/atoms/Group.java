@@ -8,28 +8,30 @@ import java.util.Deque;
 
 public class Group extends Atom {
     public static void init() {
-        AtomMap.putTo(HEParser::parseGroups, "{");
+        AtomMap.putTo(HEParser::parseImplicitGroup, "{");
         AtomMap.putTo(Group::parseSubSupp, "_", "^", "sub", "sup", "from", "to");
     }
 
     // XXX: separate SubSup?
     private static Atom parseSubSupp(HEParser parser, String command) throws ParserException {
-        Atom content = parser.popGroup();
+        boolean allowFromTo = false;
 
+        Atom content = parser.popGroup();
         if (content == null) {
-            throw parser.newUnexpectedException("a term", command);
-        }
-        if (!content.isFromToAllowed() && ("from".equals(command) || "to".equals(command))) {
-            parser.appendWarning("Unexpected " + command);
-            parser.parseGroups(null);
+            parser.appendWarning("expected a term, using empty term");
+        } else if (!content.isFromToAllowed() && ("from".equals(command) || "to".equals(command))) {
+            parser.appendWarning("unexpected " + command + ", ignoring subsequent atoms");
+            parser.parseImplicitGroup(null);
             return content;
+        } else {
+            allowFromTo = true;
         }
 
         Group result = new Group();
         result.push(content);
 
         parser.retreat(command.length());
-        result.parseSubSup(parser, false, content.isFromToAllowed());
+        result.parseSubSup(parser, false, allowFromTo);
         return result;
     }
 
@@ -41,11 +43,7 @@ public class Group extends Atom {
     public Group() {
     }
 
-    public void parseSubSup(HEParser parser, boolean onlySub) throws ParserException {
-        parseSubSup(parser, onlySub, false);
-    }
-
-    private void parseSubSup(HEParser parser, boolean onlySub, boolean allowFromTo) throws ParserException {
+    public void parseSubSup(HEParser parser, boolean onlySub, boolean allowFromTo) throws ParserException {
         if (parser.search("_", "sub", "Sub", "SUB")) {
             sub = parser.nextGroup(true);
             allowFromTo = false;
@@ -75,7 +73,15 @@ public class Group extends Atom {
     }
 
     public void push(Atom atom) {
-        children.addLast(atom);
+        if (atom != null) {
+            children.addLast(atom);
+        }
+    }
+
+    public void addFirst(Atom atom) {
+        if (atom != null) {
+            children.addFirst(atom);
+        }
     }
 
     public Atom pop() {

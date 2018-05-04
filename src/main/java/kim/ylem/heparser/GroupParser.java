@@ -10,27 +10,34 @@ class GroupParser {
 
     private final Group group = new Group();
     private final StringBuilder textBuilder;
+    private final boolean onlySub;
 
     enum Mode {
-        NORMAL,
+        IMPLICIT,
+        EXPLICIT,
         LEFT_RIGHT,
-        BACKSLASH,
+        ESCAPE,
         SYMBOL,
         DELIMITER,
         ARGUMENT,
-        TERM,
-        TERM_SUB
+        TERM
     }
 
-    GroupParser(HEParser parser, Mode mode, int maxLength) {
+    GroupParser(HEParser parser, Mode mode, int maxLength, boolean onlySub) {
         this.parser = parser;
         this.mode = mode;
         this.maxLength = maxLength;
+        this.onlySub = onlySub;
+
         textBuilder = new StringBuilder(maxLength);
     }
 
     Atom pop() {
         return group.pop();
+    }
+
+    private boolean isSingle() {
+        return mode != Mode.IMPLICIT && mode != Mode.EXPLICIT && mode != Mode.LEFT_RIGHT;
     }
 
     private void buildTextAtom() {
@@ -53,21 +60,11 @@ class GroupParser {
 
         if (length < remaining) {
             textBuilder.append(text);
-
-            if (mode == Mode.BACKSLASH) {
-                buildTextAtom();
-                mode = Mode.NORMAL;
-            }
         } else {
             textBuilder.append(text, 0, remaining);
-
-            if (mode == Mode.BACKSLASH) {
-                textBuilder.setLength(maxLength - 1);
-                mode = Mode.NORMAL;
-            }
             buildTextAtom();
 
-            if (mode != Mode.NORMAL && mode != Mode.LEFT_RIGHT) {
+            if (isSingle()) {
                 parser.retreat(length - remaining);
                 return true;
             }
@@ -85,35 +82,47 @@ class GroupParser {
 
     // TODO: simplify
     Group parse() throws ParserException {
-        if (mode != Mode.ARGUMENT) {
-            if (mode != Mode.BACKSLASH) {
-                parser.skipWhitespaces();
+        if (mode == Mode.ESCAPE && parser.hasNext()) {
+            char c = parser.next();
+            if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
+                StringBuilder tokenBuilder = new StringBuilder(8).append(c);
+                c = parser.peek();
+                while (tokenBuilder.length() < 8 && (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z'))) {
+                    tokenBuilder.append(parser.next());
+                    c = parser.peek();
+                }
+                if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
+                    parser.next();
+                }
+                group.push(new TextAtom(tokenBuilder.toString()));
+            } else {
+                group.push(new TextAtom(Character.isWhitespace(c) ? "~" : Character.toString(c)));
             }
-        } else if (parser.peek() == '`' || parser.peek() == '~') {
-            return group;
+        }
+
+        if (mode != Mode.ARGUMENT) {
+            parser.skipWhitespaces();
+        }
+        if (mode == Mode.ARGUMENT && (parser.peek() == '`' || parser.peek() == '~')) {
+            return null;
         }
 
         while (true) {
             char c = parser.peek();
             if (Character.isWhitespace(c) || (c == '`' && (textBuilder.length() > 0 && textBuilder.charAt(0) != '`'))) {
-                if (mode == Mode.NORMAL || mode == Mode.LEFT_RIGHT || mode == Mode.BACKSLASH) {
-                    if (mode == Mode.BACKSLASH) {
-                        mode = Mode.NORMAL;
-                    } else {
-                        buildTextAtom();
-                    }
-                    parser.skipWhitespaces();
-                    c = parser.peek();
-                } else {
+                if (isSingle()) {
                     break;
                 }
+                buildTextAtom();
+                parser.skipWhitespaces();
+                c = parser.peek();
             }
             if (!parser.hasNext()) {
                 parser.retreat(1);
-                parser.appendWarning("Unexpected EOF, attempting to recover");
+                parser.appendWarning("unexpected EOF, assuming }");
                 continue;
             }
-            if (mode != Mode.BACKSLASH && ((mode != Mode.DELIMITER && c == '}') || (mode != Mode.SYMBOL && (c == '&' || c == '#')))) {
+            if ((mode != Mode.DELIMITER && c == '}') || (mode != Mode.SYMBOL && (c == '&' || c == '#'))) {
                 break;
             }
             parser.next();
@@ -128,7 +137,7 @@ class GroupParser {
                     tokenBuilder.append(parser.next());
                     next = parser.peek();
                 }
-            } else if (mode != Mode.BACKSLASH && mode != Mode.DELIMITER && (((c == '+' || c == '<') && next == '-') ||
+            } else if (mode != Mode.DELIMITER && (((c == '+' || c == '<') && next == '-') ||
                     (c == '-' && (next == '+' || next == '>')) ||
                     ((c == '!' || c == '=' || c == '<' || c == '>') && next == '=') ||
                     (c == '<' && next == '<') || (c == '>' && next == '>'))) {
@@ -142,8 +151,8 @@ class GroupParser {
                 }
             }
             String token = tokenBuilder.toString();
-            String command = (mode != Mode.BACKSLASH && ((mode != Mode.SYMBOL && mode != Mode.DELIMITER) || !("{".equals(token) ||
-                    "\"".equals(token) || "\\".equals(token) || "_".equals(token) || "^".equals(token))))
+            String command = ((mode != Mode.SYMBOL && mode != Mode.DELIMITER) || !("{".equals(token) ||
+                    "\"".equals(token) || "\\".equals(token) || "_".equals(token) || "^".equals(token)))
                     ? AtomMap.search(token) : null;
 
             if (command != null) {
@@ -166,14 +175,14 @@ class GroupParser {
                     }
                 } else {
                     if (mode == Mode.SYMBOL || mode == Mode.ARGUMENT || mode == Mode.DELIMITER ||
-                            (mode != Mode.NORMAL && mode != Mode.LEFT_RIGHT && textBuilder.length() > 0)) {
+                            (mode == Mode.TERM && textBuilder.length() > 0)) {
                         parser.retreat(command.length());
                         break;
                     }
                     buildTextAtom();
 
                     group.push(atomParser.parse(parser, command));
-                    if (mode != Mode.NORMAL && mode != Mode.LEFT_RIGHT) {
+                    if (isSingle()) {
                         break;
                     }
                 }
@@ -188,17 +197,17 @@ class GroupParser {
         }
         buildTextAtom();
 
-        if (mode != Mode.NORMAL && mode != Mode.LEFT_RIGHT && mode != Mode.DELIMITER) {
-            if (group.isEmpty()) {
-                if (mode != Mode.ARGUMENT) {
-                    throw parser.newUnexpectedException(mode == Mode.SYMBOL ? "a symbol" : "a term",
-                            parser.peek().toString());
-                }
+        if (mode == Mode.EXPLICIT) {
+            char next = parser.next();
+            if (next != '}') {
+                throw parser.newUnexpectedException("an end of group, }", Character.toString(next));
             }
-
-            if (mode != Mode.SYMBOL) {
-                group.parseSubSup(parser, mode == Mode.TERM_SUB);
-            }
+        } else if (group.isEmpty() && (mode == Mode.SYMBOL || mode == Mode.TERM)) {
+            throw parser.newUnexpectedException(mode == Mode.SYMBOL ? "a symbol" : "a term",
+                    parser.peek().toString());
+        }
+        if (mode == Mode.ARGUMENT || mode == Mode.EXPLICIT || mode == Mode.TERM) {
+            group.parseSubSup(parser, onlySub, false);
         }
 
         return group;
