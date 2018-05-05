@@ -20,8 +20,12 @@ public final class MatrixAtom extends Atom {
         matrixMap.put("eqalign", "aligned");
 
         matrixMap.put("col", "arrayc");
+        matrixMap.put("ccol", "arrayc");
         matrixMap.put("pile", "arrayc");
+        matrixMap.put("cpile", "arrayc");
+        matrixMap.put("lcol", "arrayl");
         matrixMap.put("lpile", "arrayl");
+        matrixMap.put("rcol", "arrayr");
         matrixMap.put("rpile", "arrayr");
     }
 

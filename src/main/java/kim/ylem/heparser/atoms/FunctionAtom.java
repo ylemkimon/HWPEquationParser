@@ -19,10 +19,13 @@ public final class FunctionAtom extends Atom {
         functionMap.put("arg", "\\arg");
         functionMap.put("cos", "\\cos");
         functionMap.put("cosec", "\\operatorname{cosec}");
+        functionMap.put("cosech", "\\operatorname{cosech}");
         functionMap.put("cosh", "\\cosh");
         functionMap.put("cot", "\\cot");
         functionMap.put("coth", "\\coth");
         functionMap.put("csc", "\\csc");
+        functionMap.put("csch", "\\operatorname{csch}");
+        functionMap.put("def", "\\operatorname{def}");
         functionMap.put("deg", "\\deg");
         functionMap.put("dim", "\\dim");
         functionMap.put("exp", "\\exp");
@@ -41,6 +44,7 @@ public final class FunctionAtom extends Atom {
         functionMap.put("mod", "\\operatorname{mod}");
         functionMap.put("Pr", "\\Pr");
         functionMap.put("sec", "\\sec");
+        functionMap.put("sech", "\\operatorname{sech}");
         functionMap.put("sin", "\\sin");
         functionMap.put("sinh", "\\sinh");
         functionMap.put("tan", "\\tan");

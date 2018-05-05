@@ -53,9 +53,9 @@ public final class FractionAtom extends Atom {
     @Override
     public String toLaTeX(int flag) {
         if ("\\overbrace".equals(function)) {
-            return "\\overbrace{" + first.toLaTeX(flag) + "}^{" + second.toLaTeX(flag) + '}';
+            return function + '{' + first.toLaTeX(flag) + "}^{" + second.toLaTeX(flag) + '}';
         } else if ("\\underbrace".equals(function)) {
-            return "\\underbrace{" + second.toLaTeX(flag) + "}_{" + first.toLaTeX(flag) + '}';
+            return function + '{' + second.toLaTeX(flag) + "}_{" + first.toLaTeX(flag) + '}';
         }
         return function + '{' + first.toLaTeX(flag) + "}{" + second.toLaTeX(flag) + '}';
     }

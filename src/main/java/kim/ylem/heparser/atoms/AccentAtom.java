@@ -17,6 +17,7 @@ public final class AccentAtom extends Atom {
         accentMap.put("arch", "\\wideparen"); // yhmath, mathabx, MdSymbol, MnSymbol, fdsymbol, fourier
         accentMap.put("bar", "\\overline");
         accentMap.put("box", "\\boxed");
+        accentMap.put("breve", "");
         accentMap.put("check", "\\widecheck"); // mathabx, stix
         accentMap.put("ddot", "\\ddot");
         accentMap.put("dot", "\\dot");
@@ -34,6 +35,7 @@ public final class AccentAtom extends Atom {
         accentMap.put("bold", "\\boldsymbol");
 
         // letter
+        // double quote(") not allowed
         accentMap.put("not", "\\not");
         accentMap.put("bigg", "\\huge");
     }
@@ -45,7 +47,6 @@ public final class AccentAtom extends Atom {
     private static Atom parse(HEParser parser, String command) throws ParserException {
         Atom content = "not".equals(command) || "bigg".equals(command)
                 ? parser.nextSymbol() : parser.nextGroup();
-        // double quote(") not allowed in symbol
         return new AccentAtom(command, content);
     }
 

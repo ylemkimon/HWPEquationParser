@@ -13,8 +13,6 @@ public final class RootAtom extends Atom {
     private static RootAtom parse(HEParser parser, String command) throws ParserException {
         Atom degree = null;
         Atom content = parser.nextGroup();
-
-        // TODO: sqrt behavior
         if (parser.search("of", "Of", "OF")) {
             degree = content;
             content = parser.nextGroup();

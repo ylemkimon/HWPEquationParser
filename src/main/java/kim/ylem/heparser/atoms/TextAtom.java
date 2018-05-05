@@ -53,6 +53,7 @@ public class TextAtom extends Atom {
                 state = -1;
             } else {
                 String newCommand = c <= 0x7F ? mathCommand : textCommand;
+                // or
                 if (state == -1 && (text.startsWith("det", i) || text.startsWith("arc", i))) {
                     newCommand = "\\mathrm{";
                     state = 1;

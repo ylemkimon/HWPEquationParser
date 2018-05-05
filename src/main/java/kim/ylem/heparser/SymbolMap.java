@@ -71,7 +71,6 @@ public final class SymbolMap {
         }
 
         // misc
-        symbolMap.put("，", ',');
         symbolMap.put("att", '※');
         symbolMap.put("hcross", '┼');
         symbolMap.put("hdown", '┬');
@@ -175,7 +174,6 @@ public final class SymbolMap {
         put('"', "\"", "＂", "\uE051");
         put(',', ",", "，", "\uE052");
         put('.', ".", "．", "\uE053");
-        put('/', "/", "／", "\uE054");
         put('?', "?", "？", "\uE057");
         put('#', "\\#", "＃", "\uE040");
         put('&', "\\&", "＆");
@@ -196,6 +194,7 @@ public final class SymbolMap {
         put('ℵ', "\\aleph", "aleph", "\uE0B5");
         put('⨿', "\\amalg", "amalg");
         put('∠', "\\angle", "angle");
+        put('Å', "\\angstrom", "angstrom");
         put('≈', "\\approx", "approx");
         put('∗', "\\ast", "ast");
         put('≍', "\\asymp", "asymp");
@@ -224,6 +223,7 @@ public final class SymbolMap {
         put('∔', "\\dotplus", "dsum");
         put('ℓ', "\\ell", "ell", "liter", "\uE0BA", "\uE0BB");
         put('∅', "\\emptyset", "emptyset");
+        put('⇄', "\\rightleftarrows", "exarrow");
         put('∃', "\\exists", "exist", "exists");
         put('℉', "^{\\circ}F", "fahrenheit");
         put('∀', "\\forall", "forall");
@@ -240,6 +240,7 @@ public final class SymbolMap {
         put('ȷ', "\\jmath", "jmath", "\uE0B8");
         put('ℒ', "\\mathcal{L}", "laplace");
         put('…', "\\ldots", "ldots", "dotslow");
+        put('⇋', "\\leftrightharpoons", "lrharpoons");
         put('╱', "\\diagup", "lslant");
         put('↦', "\\mapsto", "mapsto");
         put('℧', "\\mho", "mho", "\uE0B9");
@@ -265,7 +266,9 @@ public final class SymbolMap {
         put('≺', "\\prec", "prec");
         put('\'', "\'", "prime", "\uE050");
         put('∝', "\\propto", "propto");
+        put('ℜ', "\\Re", "REAL");
         put('≓', "\\risingdotseq", "reimage");
+        put('⇌', "\\rightleftharpoons", "rlharpoons");
         put('∂', "\\partial", "round", "partial", "\uE0C4");
         put('╲', "\\diagdown", "rslant");
         put('⊾', "\\measuredrightangle", "rtangle");
@@ -274,6 +277,7 @@ public final class SymbolMap {
         put('↘', "\\searrow", "searrow");
         put('∼', "\\sim", "sim");
         put('≃', "\\simeq", "simeq");
+        put('/', "/", "slash", "／", "\uE054");
         put('∫', "\\smallint", "smallint", "\uE05B", "\uE072");
         put('∮', "\\smalloint", "smalloint", "\uE075");
         put('∏', "\\prod", "smallprod");
@@ -312,6 +316,7 @@ public final class SymbolMap {
     public static void init() {
         AtomMap.putAll(symbolMap.keySet(), null);
         AtomMap.addSpecial("IMAG");
+        AtomMap.addSpecial("REAL");
         AtomMap.addSpecial("prime");
         AtomMap.addSpecial("varepsilon");
         AtomMap.addSpecial("varphi");

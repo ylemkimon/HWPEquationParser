@@ -17,7 +17,8 @@ public class HEParser implements Iterator<Character> {
     private String equation;
     private String warning = "";
 
-    private int pos = -1;
+    private int pos = -2;
+    private int attempt = 0;
 
     public HEParser(String s) {
         originalEquation = s;
@@ -25,30 +26,38 @@ public class HEParser implements Iterator<Character> {
     }
 
     public ParserException newUnexpectedException(String expected, String actual) {
-        return new ParserException("While parsing equation: " + equation +
-                "\nExpected " + expected + " at " + pos + ", but got " + actual + " instead");
+        return new ParserException("Expected " + expected + " at " + pos + ", but got " + actual + " instead");
     }
 
-    public String parse() throws ParserException {
-        Atom root = MatrixAtom.parse(this, "eqalign");
-        while (hasNext()) {
-            appendWarning("expected EOF, appending { to the left");
+    public String parse() {
+        String result = "";
+        try {
+            do {
+                if (pos >= -1) {
+                    appendWarning("expected EOF, appending { to the left");
+                    equation = '{' + equation;
+                }
+                pos = -1;
+                result = MatrixAtom.parse(this, "eqalign").toString();
+            } while (hasNext());
 
-            equation = '{' + equation;
-            pos = -1;
-            root = MatrixAtom.parse(this, "eqalign");
-        }
-        String result = root.toString();
-        if (!warning.isEmpty()) {
+            if (!warning.isEmpty()) {
+                throw new ParserException();
+            }
+        } catch (ParserException e) {
             System.err.println("While parsing equation: " + originalEquation);
+            e.printStackTrace();
             System.err.println(warning.trim());
             System.err.println("Result: " + result);
         }
         return result;
     }
 
-    public void appendWarning(String warning) {
+    public void appendWarning(String warning) throws ParserException {
         this.warning += pos + ": " + warning + '\n';
+        if (++attempt > 50) {
+            throw new ParserException("Too many warnings, stopping to prevent infinitive loops");
+        }
     }
 
     @Override
