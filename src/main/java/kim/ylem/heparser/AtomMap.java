@@ -2,7 +2,10 @@ package kim.ylem.heparser;
 
 import kim.ylem.heparser.atoms.*;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 public final class AtomMap  {
     private AtomMap() {

@@ -152,7 +152,6 @@ public class GroupParser {
         }
 
         Queue<Queue<Atom>> rows = new ArrayDeque<>();
-
         int cols = 0;
         do {
             Queue<Atom> row = new ArrayDeque<>();
@@ -162,6 +161,9 @@ public class GroupParser {
             } while (c == '&');
             rows.add(row);
 
+            if ("eqalign".equals(command)) {
+                setOptions(getOptions().withFontStyle(false));
+            }
             if (row.size() > cols) {
                 cols = row.size();
             }

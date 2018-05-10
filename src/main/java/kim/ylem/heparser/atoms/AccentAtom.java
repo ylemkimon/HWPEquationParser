@@ -1,7 +1,10 @@
 package kim.ylem.heparser.atoms;
 
 import kim.ylem.ParserException;
-import kim.ylem.heparser.*;
+import kim.ylem.heparser.Atom;
+import kim.ylem.heparser.AtomMap;
+import kim.ylem.heparser.HEParser;
+import kim.ylem.heparser.ParserMode;
 
 import java.util.HashMap;
 import java.util.Map;

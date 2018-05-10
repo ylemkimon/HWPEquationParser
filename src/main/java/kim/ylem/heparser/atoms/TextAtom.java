@@ -3,7 +3,18 @@ package kim.ylem.heparser.atoms;
 import kim.ylem.ParserException;
 import kim.ylem.heparser.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public class TextAtom implements Atom {
+    public static Collection<String> keywords = new ArrayList<>(3);
+
+    static {
+        keywords.add("or");
+        keywords.add("arc");
+        keywords.add("det");
+    }
+
     public static void init() {
         AtomMap.putTo(TextAtom::parse, "\"");
     }
@@ -53,10 +64,14 @@ public class TextAtom implements Atom {
                 state = -1;
             } else {
                 String newCommand = c <= 0x7F ? mathCommand : textCommand;
-                // TODO: or
-                if (state == -1 && (text.startsWith("det", i) || text.startsWith("arc", i))) {
-                    newCommand = "\\mathrm{";
-                    state = 1;
+                if (state == -1) {
+                    for (String s : keywords) {
+                        if (text.startsWith(s, i)) {
+                            newCommand = "\\mathrm{";
+                            state = s.length();
+                            break;
+                        }
+                    }
                 }
 
                 if (!newCommand.equals(currentCommand)) {
@@ -67,9 +82,9 @@ public class TextAtom implements Atom {
                     currentCommand = newCommand;
                 }
 
-                if (state == 1) {
-                    result.append(text, i, i + 3);
-                    i += 2;
+                if (state > 0) {
+                    result.append(text, i, i + state);
+                    i += state - 1;
                 } else {
                     result.append(c);
                 }
