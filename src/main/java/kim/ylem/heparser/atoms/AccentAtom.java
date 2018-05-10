@@ -1,15 +1,13 @@
 package kim.ylem.heparser.atoms;
 
 import kim.ylem.ParserException;
-import kim.ylem.heparser.Atom;
-import kim.ylem.heparser.AtomMap;
-import kim.ylem.heparser.HEParser;
+import kim.ylem.heparser.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public final class AccentAtom extends Atom {
-    private static final Map<String, String> accentMap = new HashMap<>(19);
+public final class AccentAtom implements Atom {
+    private static final Map<String, String> accentMap = new HashMap<>(20);
 
     static {
         // accent
@@ -45,8 +43,14 @@ public final class AccentAtom extends Atom {
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {
-        Atom content = "not".equals(command) || "bigg".equals(command)
-                ? parser.nextSymbol() : parser.nextGroup();
+        Atom content;
+        if ("not".equals(command) || "bigg".equals(command)) {
+            content = parser.parseGroup(ParserMode.SYMBOL);
+        } else if ("bold".equals(command)) {
+            content = parser.parseGroup(ParserMode.TERM, parser.getCurrentOptions().withFontWeight(true));
+        } else {
+            content = parser.parseGroup(ParserMode.TERM);
+        }
         return new AccentAtom(command, content);
     }
 
@@ -59,13 +63,10 @@ public final class AccentAtom extends Atom {
     }
 
     @Override
-    public String toLaTeX(int flag) {
+    public String toString() {
         if ("\\huge".equals(function)) {
-            return '{' + function + ' ' + content.toLaTeX(flag) + '}';
+            return '{' + function + ' ' + content + '}';
         }
-        if ("\\boldsymbol".equals(function)) {
-            flag |= STYLE_BOLD;
-        }
-        return function + '{' + content.toLaTeX(flag) + '}';
+        return function + '{' + content + '}';
     }
 }

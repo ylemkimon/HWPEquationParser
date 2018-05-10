@@ -1,15 +1,16 @@
 package kim.ylem.heparser.atoms;
 
-import kim.ylem.ParserException;
 import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
 import kim.ylem.heparser.HEParser;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
-public final class MatrixAtom extends Atom {
-    private static final Map<String, String> matrixMap = new HashMap<>(10);
+public final class MatrixAtom implements Atom {
+    private static final Map<String, String> matrixMap = new HashMap<>(14);
 
     static {
         matrixMap.put("matrix", "matrix");
@@ -30,52 +31,24 @@ public final class MatrixAtom extends Atom {
     }
 
     public static void init() {
-        AtomMap.putAll(matrixMap.keySet(), MatrixAtom::parse);
+        AtomMap.putAll(matrixMap.keySet(), HEParser::parseMatrix);
     }
 
-    public static Atom parse(HEParser parser, String command) throws ParserException {
-        parser.skipWhitespaces();
-        char next = parser.next();
-        if (next != '{') {
-            throw parser.newUnexpectedException("start of matrix, {", Character.toString(next));
-        }
-
-        MatrixAtom matrix = new MatrixAtom(command);
-        int size = 0;
-        do {
-            Queue<Atom> row = new ArrayDeque<>();
-            do {
-                row.add(parser.parseImplicitGroup(null));
-                size++;
-                next = parser.next();
-            } while (next == '&');
-            matrix.addRow(row);
-        } while (next == '#');
-
-        return size != 1 || !("matrix".equals(command) || "eqalign".equals(command)
-                || "col".equals(command) || command.endsWith("pile")) ? matrix : matrix.rows.remove().remove();
-    }
-
-    private final Queue<Queue<Atom>> rows = new ArrayDeque<>();
     private final String function;
-    private int cols = 0;
+    private final Queue<Queue<Atom>> rows;
+    private final int cols;
 
-    private MatrixAtom(String command) {
+    public MatrixAtom(String command, Queue<Queue<Atom>> rows, int cols) {
         function = matrixMap.get(command);
-    }
-
-    private void addRow(Queue<Atom> row) {
-        rows.add(row);
-        if (row.size() > cols) {
-            cols = row.size();
-        }
+        this.rows = rows;
+        this.cols = cols;
     }
 
     @Override
-    public String toLaTeX(int flag) {
+    public String toString() {
         String result = rows.stream()
                 .map(row -> row.stream()
-                        .map(group -> group.toLaTeX(flag))
+                        .map(Object::toString)
                         .collect(Collectors.joining("&")))
                 .collect(Collectors.joining("\\\\"));
 

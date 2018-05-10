@@ -1,30 +1,37 @@
 package kim.ylem.heparser.atoms;
 
-import kim.ylem.ParserException;
 import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
 import kim.ylem.heparser.HEParser;
 
-public final class FontAtom extends Atom {
+public final class FontAtom {
+    // TODO: move to GroupParser?
     public static void init() {
         AtomMap.putTo(FontAtom::parse, "\\", "rm", "it");
     }
 
-    private static Atom parse(HEParser parser, String command) throws ParserException {
-        Atom content = parser.parseImplicitGroup(command);
-        return new FontAtom(command, content);
-    }
+    private static Atom parse(HEParser parser, String command) {
+        parser.getGroupParser().setOptions(parser.getCurrentOptions().withFontStyle(!"it".equals(command)));
 
-    private final String command;
-    private final Atom content;
-
-    private FontAtom(String command, Atom content) {
-        this.command = command;
-        this.content = content;
-    }
-
-    @Override
-    public String toLaTeX(int flag) {
-        return content.toLaTeX("it".equals(command) ? (flag & ~STYLE_ROMAN) : (flag | STYLE_ROMAN));
+        if ("\\".equals(command) && parser.hasNext()) {
+            char c = parser.next();
+            if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
+                StringBuilder tokenBuilder = new StringBuilder(8).append(c);
+                c = parser.peek();
+                while (tokenBuilder.length() < 8 && (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z'))) {
+                    tokenBuilder.append(parser.next());
+                    c = parser.peek();
+                }
+                if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
+                    parser.next();
+                }
+                return new TextAtom(tokenBuilder.toString(), parser.getCurrentOptions());
+            } else if (Character.isWhitespace(c)) {
+                return new TextAtom("~", parser.getCurrentOptions());
+            } else {
+                return new TextAtom(Character.toString(c), parser.getCurrentOptions());
+            }
+        }
+        return null;
     }
 }

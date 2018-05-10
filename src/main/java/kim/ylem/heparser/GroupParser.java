@@ -1,48 +1,112 @@
 package kim.ylem.heparser;
 
 import kim.ylem.ParserException;
-import kim.ylem.heparser.atoms.*;
+import kim.ylem.heparser.atoms.Group;
+import kim.ylem.heparser.atoms.LeftRightAtom;
+import kim.ylem.heparser.atoms.MatrixAtom;
+import kim.ylem.heparser.atoms.TextAtom;
 
-class GroupParser {
+import java.util.ArrayDeque;
+import java.util.Queue;
+
+public class GroupParser {
     private final HEParser parser;
-    private Mode mode;
     private final int maxLength;
 
-    private final Group group = new Group();
-    private final StringBuilder textBuilder;
     private final boolean onlySub;
+    private final StringBuilder textBuilder;
+    private final Group group = new Group();
 
-    enum Mode {
-        IMPLICIT,
-        EXPLICIT,
-        LEFT_RIGHT,
-        ESCAPE,
-        SYMBOL,
-        DELIMITER,
-        ARGUMENT,
-        TERM
-    }
+    private ParserMode mode;
+    private Options options;
 
-    GroupParser(HEParser parser, Mode mode, int maxLength, boolean onlySub) {
+    private int leftRight;
+
+    GroupParser(HEParser parser, ParserMode mode, Options options) {
         this.parser = parser;
         this.mode = mode;
-        this.maxLength = maxLength;
-        this.onlySub = onlySub;
+        this.options = options;
+
+        switch (mode) {
+            case EXPLICIT:
+            case IMPLICIT:
+            case TERM:
+                onlySub = false;
+                maxLength = 9;
+                break;
+            case SUB_TERM:
+                this.mode = ParserMode.TERM;
+                onlySub = true;
+                maxLength = 9;
+                break;
+            case SYMBOL:
+            case DELIMITER:
+                onlySub = false;
+                maxLength = 1;
+                break;
+            case ARGUMENT_1:
+                this.mode = ParserMode.ARGUMENT;
+                onlySub = false;
+                maxLength = 1;
+                break;
+            case ARGUMENT_2:
+                this.mode = ParserMode.ARGUMENT;
+                onlySub = false;
+                maxLength = 2;
+                break;
+            case ARGUMENT_3:
+                this.mode = ParserMode.ARGUMENT;
+                onlySub = false;
+                maxLength = 3;
+                break;
+            case ARGUMENT_4:
+                this.mode = ParserMode.ARGUMENT;
+                onlySub = false;
+                maxLength = 4;
+                break;
+            case ARGUMENT_5:
+                this.mode = ParserMode.ARGUMENT;
+                onlySub = false;
+                maxLength = 5;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid mode!");
+        }
 
         textBuilder = new StringBuilder(maxLength);
     }
 
-    Atom pop() {
+    public Options getOptions() {
+        return options;
+    }
+
+    public void setOptions(Options options) {
+        this.options = options;
+    }
+
+    public void leftRight(boolean left) throws ParserException {
+        if (left) {
+            leftRight++;
+        } else if (leftRight <= 0) {
+            leftRight = 0;
+            parser.appendWarning("unexpected right, adding left with null delimiter");
+            group.addFirst(new LeftRightAtom(true, null));
+        } else {
+            leftRight--;
+        }
+    }
+
+    public Atom popGroup() {
         return group.pop();
     }
 
     private boolean isSingle() {
-        return mode != Mode.IMPLICIT && mode != Mode.EXPLICIT && mode != Mode.LEFT_RIGHT;
+        return mode != ParserMode.IMPLICIT && mode != ParserMode.EXPLICIT;
     }
 
     private void buildTextAtom() {
         if (textBuilder.length() > 0) {
-            group.push(new TextAtom(textBuilder.toString()));
+            group.push(new TextAtom(textBuilder.toString(), options));
             textBuilder.setLength(0);
         }
     }
@@ -70,7 +134,7 @@ class GroupParser {
             }
 
             while (remaining + maxLength <= length) {
-                group.push(new TextAtom(text.substring(remaining, remaining + maxLength)));
+                group.push(new TextAtom(text.substring(remaining, remaining + maxLength), options));
                 remaining += maxLength;
             }
             if (remaining < length) {
@@ -80,31 +144,47 @@ class GroupParser {
         return false;
     }
 
-    // TODO: simplify
-    Group parse() throws ParserException {
-        if (mode == Mode.ESCAPE && parser.hasNext()) {
-            char c = parser.next();
-            if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
-                StringBuilder tokenBuilder = new StringBuilder(8).append(c);
-                c = parser.peek();
-                while (tokenBuilder.length() < 8 && (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z'))) {
-                    tokenBuilder.append(parser.next());
-                    c = parser.peek();
-                }
-                if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
-                    parser.next();
-                }
-                group.push(new TextAtom(tokenBuilder.toString()));
-            } else {
-                group.push(new TextAtom(Character.isWhitespace(c) ? "~" : Character.toString(c)));
-            }
+    Atom parseMatrix(String command) throws ParserException {
+        parser.skipWhitespaces();
+        char c = parser.next();
+        if (c != '{') {
+            throw parser.newUnexpectedException("start of matrix, {", Character.toString(c));
         }
 
-        if (mode != Mode.ARGUMENT) {
+        Queue<Queue<Atom>> rows = new ArrayDeque<>();
+
+        int cols = 0;
+        do {
+            Queue<Atom> row = new ArrayDeque<>();
+            do {
+                row.add(parse());
+                c = parser.next();
+            } while (c == '&');
+            rows.add(row);
+
+            if (row.size() > cols) {
+                cols = row.size();
+            }
+        } while (c == '#');
+
+        if (rows.size() == 1 && cols == 1 && ("matrix".equals(command) || "eqalign".equals(command) ||
+                command.endsWith("col") || command.endsWith("pile"))) {
+            return rows.remove().remove();
+        }
+        return new MatrixAtom(command, rows, cols);
+    }
+
+    // TODO: simplify
+    Group parse() throws ParserException {
+        if (mode != ParserMode.ARGUMENT) {
             parser.skipWhitespaces();
         }
-        if (mode == Mode.ARGUMENT && (parser.peek() == '`' || parser.peek() == '~')) {
+        if (mode == ParserMode.ARGUMENT && (parser.peek() == '`' || parser.peek() == '~')) {
             return null;
+        }
+        if (mode == ParserMode.TERM && parser.peek() == '{') {
+            mode = ParserMode.EXPLICIT;
+            parser.next();
         }
 
         while (true) {
@@ -122,13 +202,11 @@ class GroupParser {
                 parser.appendWarning("unexpected EOF, assuming }");
                 continue;
             }
-            if ((mode != Mode.DELIMITER && c == '}') || (mode != Mode.SYMBOL && (c == '&' || c == '#'))) {
+            if ((mode != ParserMode.DELIMITER && c == '}') || (mode != ParserMode.SYMBOL && (c == '&' || c == '#'))) {
                 break;
             }
-            parser.next();
 
-            // \ {
-            // " ` _ ^ (sup sub)
+            parser.next();
 
             StringBuilder tokenBuilder = new StringBuilder(10).append(c);
             char next = parser.peek();
@@ -137,7 +215,7 @@ class GroupParser {
                     tokenBuilder.append(parser.next());
                     next = parser.peek();
                 }
-            } else if (mode != Mode.DELIMITER && (((c == '+' || c == '<') && next == '-') ||
+            } else if (mode != ParserMode.DELIMITER && (((c == '+' || c == '<') && next == '-') ||
                     (c == '-' && (next == '+' || next == '>')) ||
                     ((c == '!' || c == '=' || c == '<' || c == '>') && next == '=') ||
                     (c == '<' && next == '<') || (c == '>' && next == '>'))) {
@@ -151,22 +229,17 @@ class GroupParser {
                 }
             }
             String token = tokenBuilder.toString();
-            String command = ((mode != Mode.SYMBOL && mode != Mode.DELIMITER) || !("{".equals(token) ||
+            String command = ((mode != ParserMode.SYMBOL && mode != ParserMode.DELIMITER) || !("{".equals(token) ||
                     "\"".equals(token) || "\\".equals(token) || "_".equals(token) || "^".equals(token)))
                     ? AtomMap.search(token) : null;
 
             if (command != null) {
-                if (mode == Mode.LEFT_RIGHT && "right".equals(command)) {
-                    parser.retreat(token.length());
-                    break;
-                }
-
                 parser.retreat(token.length() - command.length());
                 AtomParser atomParser = AtomMap.get(command);
 
                 if (atomParser == null) {
                     String symbol = SymbolMap.getSymbol(command).toString();
-                    if (mode == Mode.DELIMITER && !SymbolMap.isDelimiter(symbol)) {
+                    if (mode == ParserMode.DELIMITER && !SymbolMap.isDelimiter(symbol)) {
                         parser.retreat(command.length());
                         break;
                     }
@@ -174,8 +247,8 @@ class GroupParser {
                         break;
                     }
                 } else {
-                    if (mode == Mode.SYMBOL || mode == Mode.ARGUMENT || mode == Mode.DELIMITER ||
-                            (mode == Mode.TERM && textBuilder.length() > 0)) {
+                    if (mode == ParserMode.SYMBOL || mode == ParserMode.ARGUMENT || mode == ParserMode.DELIMITER ||
+                            (mode == ParserMode.TERM && textBuilder.length() > 0)) {
                         parser.retreat(command.length());
                         break;
                     }
@@ -186,9 +259,9 @@ class GroupParser {
                         break;
                     }
                 }
-            } else if (mode == Mode.DELIMITER && ".".equals(token)) {
+            } else if (mode == ParserMode.DELIMITER && ".".equals(token)) {
                 return null;
-            } else if (mode == Mode.DELIMITER && !SymbolMap.isDelimiter(token)) {
+            } else if (mode == ParserMode.DELIMITER && !SymbolMap.isDelimiter(token)) {
                 parser.retreat(token.length());
                 break;
             } else if (appendText(token)) {
@@ -197,16 +270,21 @@ class GroupParser {
         }
         buildTextAtom();
 
-        if (mode == Mode.EXPLICIT) {
+        while (leftRight-- > 0) {
+            parser.appendWarning("right not found, adding right with null delimiter");
+            group.push(new LeftRightAtom(false, null));
+        }
+
+        if (mode == ParserMode.EXPLICIT) {
             char next = parser.next();
             if (next != '}') {
                 throw parser.newUnexpectedException("an end of group, }", Character.toString(next));
             }
-        } else if (group.isEmpty() && (mode == Mode.SYMBOL || mode == Mode.TERM)) {
-            throw parser.newUnexpectedException(mode == Mode.SYMBOL ? "a symbol" : "a term",
+        } else if (group.isEmpty() && (mode == ParserMode.SYMBOL || mode == ParserMode.TERM)) {
+            throw parser.newUnexpectedException(mode == ParserMode.SYMBOL ? "a symbol" : "a term",
                     parser.peek().toString());
         }
-        if (mode == Mode.ARGUMENT || mode == Mode.EXPLICIT || mode == Mode.TERM) {
+        if (mode == ParserMode.ARGUMENT || mode == ParserMode.EXPLICIT || mode == ParserMode.TERM) {
             group.parseSubSup(parser, onlySub, false);
         }
 

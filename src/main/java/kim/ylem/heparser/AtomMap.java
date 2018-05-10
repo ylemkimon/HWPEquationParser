@@ -8,8 +8,8 @@ public final class AtomMap  {
     private AtomMap() {
     }
 
-    private static final Map<String, AtomParser> map = new HashMap<>(605);
-    private static final Set<String> special = new HashSet<>(70);
+    private static final Map<String, AtomParser> map = new HashMap<>(620);
+    private static final Collection<String> special = new HashSet<>(75);
     private static final int MAX_LENGTH = 10;
     private static final int ASCII_UPPER_LOWER_OFFSET = 32;
 

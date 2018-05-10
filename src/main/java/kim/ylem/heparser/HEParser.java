@@ -1,9 +1,7 @@
 package kim.ylem.heparser;
 
 import kim.ylem.ParserException;
-import kim.ylem.heparser.GroupParser.Mode;
 import kim.ylem.heparser.atoms.Group;
-import kim.ylem.heparser.atoms.MatrixAtom;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -18,7 +16,7 @@ public class HEParser implements Iterator<Character> {
     private String warning = "";
 
     private int pos = -2;
-    private int attempt = 0;
+    private int attempt;
 
     public HEParser(String s) {
         originalEquation = s;
@@ -38,15 +36,18 @@ public class HEParser implements Iterator<Character> {
                     equation = '{' + equation;
                 }
                 pos = -1;
-                result = MatrixAtom.parse(this, "eqalign").toString();
+                result = parseMatrix("eqalign").toString();
             } while (hasNext());
-
-            if (!warning.isEmpty()) {
-                throw new ParserException();
-            }
         } catch (ParserException e) {
             System.err.println("While parsing equation: " + originalEquation);
             e.printStackTrace();
+            System.err.println(warning.trim());
+            System.err.println("Result: " + result);
+            return result;
+        }
+
+        if (!warning.isEmpty()) {
+            System.err.println("While parsing equation: " + originalEquation);
             System.err.println(warning.trim());
             System.err.println("Result: " + result);
         }
@@ -56,7 +57,7 @@ public class HEParser implements Iterator<Character> {
     public void appendWarning(String warning) throws ParserException {
         this.warning += pos + ": " + warning + '\n';
         if (++attempt > 50) {
-            throw new ParserException("Too many warnings, stopping to prevent infinitive loops");
+            throw new ParserException("Too many warnings, stopping to prevent infinite loops");
         }
     }
 
@@ -106,66 +107,41 @@ public class HEParser implements Iterator<Character> {
         pos -= n;
     }
 
+    public void skipToEnd() {
+        pos = equation.length() - 2;
+    }
+
     public void skipWhitespaces() {
         while (Character.isWhitespace(peek())) {
             pos++;
         }
     }
 
-    public Atom popGroup() {
-        return groupParserStack.peek().pop();
+    public Options getCurrentOptions() {
+        return groupParserStack.isEmpty() ? new Options() : getGroupParser().getOptions();
     }
 
-    private Group parseGroup(Mode mode, int maxLength, boolean onlySub) throws ParserException {
-        GroupParser groupParser = new GroupParser(this, mode, maxLength, onlySub);
+    public GroupParser getGroupParser() {
+        return groupParserStack.peek();
+    }
+
+    public Atom parseMatrix(String command) throws ParserException {
+        GroupParser groupParser = new GroupParser(this, ParserMode.IMPLICIT, getCurrentOptions());
+        groupParserStack.push(groupParser);
+        Atom matrix = groupParser.parseMatrix(command);
+        groupParserStack.pop();
+        return matrix;
+    }
+
+    public Group parseGroup(ParserMode mode) throws ParserException {
+        return parseGroup(mode, getCurrentOptions());
+    }
+
+    public Group parseGroup(ParserMode mode, Options options) throws ParserException {
+        GroupParser groupParser = new GroupParser(this, mode, options);
         groupParserStack.push(groupParser);
         Group group = groupParser.parse();
         groupParserStack.pop();
         return group;
-    }
-
-    // TODO: better name
-    public Group parseImplicitGroup(String function) throws ParserException {
-        return parseImplicitGroup(function, false);
-    }
-
-    public Group parseImplicitGroup(String function, boolean sub) throws ParserException {
-        Mode mode = Mode.IMPLICIT;
-        if (function != null) {
-            if (function.startsWith("{")) {
-                mode = Mode.EXPLICIT;
-            } else if ("left".equalsIgnoreCase(function)) {
-                mode = Mode.LEFT_RIGHT;
-            } else if ("\\".equals(function)) {
-                mode = Mode.ESCAPE;
-            }
-        }
-        return parseGroup(mode, 9, sub);
-    }
-
-    public Group nextGroup() throws ParserException {
-        return nextGroup(false);
-    }
-
-    public Group nextGroup(boolean sub) throws ParserException {
-        skipWhitespaces();
-        return peek() == '{' ? parseImplicitGroup(next().toString(), sub) : parseGroup(Mode.TERM, 9, sub);
-    }
-
-    public Group nextArgument(int maxLength) throws ParserException {
-        return parseGroup(Mode.ARGUMENT, maxLength, false);
-    }
-
-    public Group nextSymbol() throws ParserException {
-        return parseGroup(Mode.SYMBOL, 1, false);
-    }
-
-    public Group nextDelimiter(String side) throws ParserException {
-        Group delim = parseGroup(Mode.DELIMITER, 1, false);
-        if (delim != null && delim.isEmpty()) {
-            appendWarning(side + " delimiter not found, using empty delimiter");
-            delim = null;
-        }
-        return delim;
     }
 }

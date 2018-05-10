@@ -1,14 +1,12 @@
 package kim.ylem.heparser.atoms;
 
 import kim.ylem.ParserException;
-import kim.ylem.heparser.Atom;
-import kim.ylem.heparser.AtomMap;
-import kim.ylem.heparser.HEParser;
+import kim.ylem.heparser.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public final class FractionAtom extends Atom {
+public final class FractionAtom implements Atom {
     private static final Map<String, String> fractionMap = new HashMap<>(6);
 
     static {
@@ -29,14 +27,14 @@ public final class FractionAtom extends Atom {
     private static Atom parse(HEParser parser, String command) throws ParserException {
         Atom first;
         if ("over".equals(command) ||"atop".equals(command) || "choose".equals(command)) {
-            first = parser.popGroup();
+            first = parser.getGroupParser().popGroup();
             if (first == null) {
                 throw parser.newUnexpectedException("a term", command);
             }
         } else {
-            first = parser.nextGroup();
+            first = parser.parseGroup(ParserMode.TERM);
         }
-        Atom second = parser.nextGroup();
+        Atom second = parser.parseGroup(ParserMode.TERM);
         return new FractionAtom(command, first, second);
     }
 
@@ -51,13 +49,13 @@ public final class FractionAtom extends Atom {
     }
 
     @Override
-    public String toLaTeX(int flag) {
+    public String toString() {
         if ("\\overbrace".equals(function)) {
-            return function + '{' + first.toLaTeX(flag) + "}^{" + second.toLaTeX(flag) + '}';
+            return function + '{' + first + "}^{" + second + '}';
         } else if ("\\underbrace".equals(function)) {
-            return function + '{' + second.toLaTeX(flag) + "}_{" + first.toLaTeX(flag) + '}';
+            return function + '{' + second + "}_{" + first + '}';
         }
-        return function + '{' + first.toLaTeX(flag) + "}{" + second.toLaTeX(flag) + '}';
+        return function + '{' + first + "}{" + second + '}';
     }
 
 }

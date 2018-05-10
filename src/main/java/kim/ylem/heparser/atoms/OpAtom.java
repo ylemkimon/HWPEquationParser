@@ -7,7 +7,7 @@ import kim.ylem.heparser.HEParser;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class OpAtom extends Atom {
+public final class OpAtom implements Atom {
     private static final Map<String, String> opMap = new HashMap<>(25);
 
     static {
@@ -62,7 +62,7 @@ public final class OpAtom extends Atom {
     }
 
     @Override
-    public String toLaTeX(int flag) {
+    public String toString() {
         return function + ' ';
     }
 

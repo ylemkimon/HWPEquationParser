@@ -1,11 +1,9 @@
 package kim.ylem.heparser.atoms;
 
 import kim.ylem.ParserException;
-import kim.ylem.heparser.Atom;
-import kim.ylem.heparser.AtomMap;
-import kim.ylem.heparser.HEParser;
+import kim.ylem.heparser.*;
 
-public final class UnderOverAtom extends Atom {
+public final class UnderOverAtom implements Atom {
     public static void init() {
         AtomMap.putTo(UnderOverAtom::parse, "underover", "buildrel", "rel");
     }
@@ -15,38 +13,36 @@ public final class UnderOverAtom extends Atom {
         Atom over;
         Atom under;
         if ("underover".equals(command)) {
-            content = parser.nextGroup();
+            content = parser.parseGroup(ParserMode.TERM);
             under = content.popSub();
             over = content.popSup();
         } else {
-            content = parser.nextSymbol();
-            over = parser.nextGroup();
-            under = "rel".equals(command) ? parser.nextGroup() : null;
+            content = parser.parseGroup(ParserMode.SYMBOL, parser.getCurrentOptions().withFontStyle(true));
+            over = parser.parseGroup(ParserMode.TERM);
+            under = "rel".equals(command) ? parser.parseGroup(ParserMode.TERM) : null;
         }
 
-        return new UnderOverAtom(command, content, over, under);
+        return new UnderOverAtom(content, over, under);
     }
 
-    private final String command;
     private final Atom content;
     private final Atom over;
     private final Atom under;
 
-    private UnderOverAtom(String command, Atom content, Atom over, Atom under) {
-        this.command = command;
+    private UnderOverAtom(Atom content, Atom over, Atom under) {
         this.content = content;
         this.over = over;
         this.under = under;
     }
 
     @Override
-    public String toLaTeX(int flag) {
-        String result = content.toLaTeX(command.endsWith("rel") ? (flag | STYLE_ROMAN) : flag);
+    public String toString() {
+        String result = content.toString();
         if (over != null) {
-            result = "\\overset{" + over.toLaTeX(flag) + "}{" + result + '}';
+            result = "\\overset{" + over + "}{" + result + '}';
         }
         if (under != null) {
-            result = "\\underset{" + under.toLaTeX(flag) + "}{" + result + '}';
+            result = "\\underset{" + under + "}{" + result + '}';
         }
         return result;
     }

@@ -1,17 +1,14 @@
 package kim.ylem.heparser;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class SymbolMap {
     private SymbolMap() {
     }
 
-    private static final Map<String, Character> symbolMap = new HashMap<>(495);
-    private static final Map<Character, String> latexMap = new HashMap<>(259);
-    private static final Set<String> delimiters = new HashSet<>(16);
+    private static final Map<String, Character> symbolMap = new HashMap<>(501);
+    private static final Map<Character, String> latexMap = new HashMap<>(265);
+    private static final Collection<String> delimiters = new HashSet<>(16);
 
     private static void put(Character ch, String latex, String... commands) {
         for (String s : commands) {

@@ -1,12 +1,9 @@
 package kim.ylem.heparser.atoms;
 
 import kim.ylem.ParserException;
-import kim.ylem.heparser.Atom;
-import kim.ylem.heparser.AtomMap;
-import kim.ylem.heparser.HEParser;
-import kim.ylem.heparser.SymbolMap;
+import kim.ylem.heparser.*;
 
-public class TextAtom extends Atom {
+public class TextAtom implements Atom {
     public static void init() {
         AtomMap.putTo(TextAtom::parse, "\"");
     }
@@ -17,25 +14,28 @@ public class TextAtom extends Atom {
             sb.append(parser.next());
         }
         if (!parser.hasNext()) {
-            parser.appendWarning("expected \", got EOF instead, ignoring subsequent atoms");
-            parser.retreat(sb.length());
-            parser.parseImplicitGroup(null);
+            parser.appendWarning("expected \", got EOF instead, skipping to the end");
+            parser.retreat(1);
             return null;
         }
         parser.next();
-        return new TextAtom(sb.toString());
+        return new TextAtom(sb.toString(), parser.getCurrentOptions());
     }
 
     private final String text;
+    private final boolean roman;
+    private final boolean bold;
 
-    public TextAtom(String text) {
+    public TextAtom(String text, Options options) {
         this.text = text;
+        roman = options.isRoman();
+        bold = options.isBold();
     }
 
     @Override
-    public String toLaTeX(int flag) {
-        String mathCommand = (flag & STYLE_ROMAN) == STYLE_ROMAN ? "\\mathrm{" : "";
-        String textCommand = (flag & STYLE_BOLD) == STYLE_BOLD ? "\\textbf{" : "\\textrm{";
+    public String toString() {
+        String mathCommand = roman ? "\\mathrm{" : "";
+        String textCommand = bold ? "\\textbf{" : "\\textrm{";
 
         StringBuilder result = new StringBuilder();
         String currentCommand = "";
@@ -53,7 +53,7 @@ public class TextAtom extends Atom {
                 state = -1;
             } else {
                 String newCommand = c <= 0x7F ? mathCommand : textCommand;
-                // or
+                // TODO: or
                 if (state == -1 && (text.startsWith("det", i) || text.startsWith("arc", i))) {
                     newCommand = "\\mathrm{";
                     state = 1;
