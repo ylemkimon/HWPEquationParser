@@ -12,7 +12,7 @@ public final class LeftRightAtom implements Atom {
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {
-        Group delim = parser.parseGroup(ParserMode.DELIMITER, parser.getCurrentOptions().withFontStyle(true));
+        Group delim = parser.parseGroup(ParserMode.DELIMITER, parser.getCurrentOptions().withFontStyle(false));
         if (delim != null && delim.isEmpty()) {
             parser.appendWarning(command + " delimiter not found, using null delimiter");
             delim = null;

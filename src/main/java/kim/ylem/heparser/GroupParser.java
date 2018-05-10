@@ -15,11 +15,11 @@ public class GroupParser {
 
     private final boolean onlySub;
     private final StringBuilder textBuilder;
-    private final Group group = new Group();
 
     private ParserMode mode;
     private Options options;
 
+    private Group group = new Group();
     private int leftRight;
 
     GroupParser(HEParser parser, ParserMode mode, Options options) {
@@ -157,6 +157,7 @@ public class GroupParser {
             Queue<Atom> row = new ArrayDeque<>();
             do {
                 row.add(parse());
+                group = new Group();
                 c = parser.next();
             } while (c == '&');
             rows.add(row);
@@ -272,9 +273,10 @@ public class GroupParser {
         }
         buildTextAtom();
 
-        while (leftRight-- > 0) {
+        while (leftRight > 0) {
             parser.appendWarning("right not found, adding right with null delimiter");
             group.push(new LeftRightAtom(false, null));
+            leftRight--;
         }
 
         if (mode == ParserMode.EXPLICIT) {
