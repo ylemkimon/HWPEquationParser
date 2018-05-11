@@ -18,9 +18,9 @@ public enum ParserMode {
     DELIMITER(1);
 
     public static ParserMode getArgumentMode(int maxLength) {
-        for (ParserMode m : ParserMode.values()) {
-            if (m.parserMode == ARGUMENT && m.maxLength == maxLength) {
-                return m;
+        for (ParserMode mode : ParserMode.values()) {
+            if (mode.parserMode == ARGUMENT && mode.maxLength == maxLength) {
+                return mode;
             }
         }
         throw new IllegalArgumentException("Invalid command length!");
