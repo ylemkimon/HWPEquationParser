@@ -49,13 +49,10 @@ public final class SymbolMap {
         for (int i = 0; i < 26; i++) {
             char upper = (char) ('A' + i);
             char lower = (char) ('a' + i);
-
             symbolMap.put(Character.toString((char) ('\uE000' + i)), upper); // uppercase
             symbolMap.put(Character.toString((char) ('\uE0E5' + i)), lower); // lowercase
             latexMap.put((char) ('\uE01A' + i), "\\mathrm " + lower); // roman lowercase
-
-            // blackboard uppercase
-            put((char) ('\uE0CB' + i), "\\mathbb " + upper, "Vec" + upper);
+            put((char) ('\uE0CB' + i), "\\mathbb " + upper, "Vec" + upper); // blackboard uppercase
         }
 
         symbolMap.put("ℂ", '\uE0CD');

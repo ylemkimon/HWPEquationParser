@@ -60,47 +60,40 @@ public class TextAtom implements Atom {
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             String latex = SymbolMap.getLaTeX(c);
-            if (latex != null) {
+
+            String newCommand = latex == null ? (c <= 0x7F ? mathCommand : textCommand) : "";
+            if (state == -1 && c <= 0x7F) {
+                for (String s : keywords) {
+                    if (text.startsWith(s, i)) {
+                        newCommand = "\\mathrm{";
+                        state = s.length();
+                        break;
+                    }
+                }
+            }
+            if (!newCommand.equals(currentCommand)) {
                 if (!currentCommand.isEmpty()) {
                     result.append('}');
-                    currentCommand = "";
                 }
+                result.append(newCommand);
+                currentCommand = newCommand;
+            }
+
+            if (latex != null) {
                 result.append(latex);
                 result.append(' ');
-                state = -1;
+            } else if (state > 0) {
+                result.append(text, i, i + state);
+                i += state - 1;
             } else {
-                String newCommand = c <= 0x7F ? mathCommand : textCommand;
-                if (state == -1) {
-                    for (String s : keywords) {
-                        if (text.startsWith(s, i)) {
-                            newCommand = "\\mathrm{";
-                            state = s.length();
-                            break;
-                        }
-                    }
-                }
-
-                if (!newCommand.equals(currentCommand)) {
-                    if (!currentCommand.isEmpty()) {
-                        result.append('}');
-                    }
-                    result.append(newCommand);
-                    currentCommand = newCommand;
-                }
-
-                if (state > 0) {
-                    result.append(text, i, i + state);
-                    i += state - 1;
-                } else {
-                    result.append(c);
-                }
-                state = c < 'A' || c > 'z' || (c > 'Z' && c <'a') ? -1 : 0;
+                result.append(c);
             }
+
+            state = c > 'z' || c < 'A' || (c > 'Z' && c <'a') ? -1 : 0;
         }
         if (!currentCommand.isEmpty()) {
             result.append('}');
         }
         return result.toString();
     }
-
 }

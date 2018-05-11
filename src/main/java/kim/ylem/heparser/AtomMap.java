@@ -64,42 +64,42 @@ public final class AtomMap  {
         if (map.containsKey(s)) {
             return s;
         }
-
-        if (s.length() > 1) {
-            for (int i = 2; i <= 4 && i < s.length(); i++) {
-                String sub = s.substring(0, i);
-                if (special.contains(sub)) {
-                    return sub;
-                }
+        if (s.length() <= 1) {
+            return null;
+        }
+        for (int i = 2; i <= 4 && i < s.length(); i++) {
+            String sub = s.substring(0, i);
+            if (special.contains(sub)) {
+                return sub;
             }
+        }
 
-            int style = isASCIIUpperCase(s.charAt(0)) ? (isASCIIUpperCase(s.charAt(1)) ? 2 : 1) : 0;
-            char[] search = new char[MAX_LENGTH];
-            search[0] = toASCIILowerCase(s.charAt(0));
-            int length;
-            for (length = 1; length < s.length() && length < MAX_LENGTH; length++) {
-                if ((style == 2) != isASCIIUpperCase(s.charAt(length))) {
-                    break;
-                }
-                search[length] = toASCIILowerCase(s.charAt(length));
+        int style = isASCIIUpperCase(s.charAt(0)) ? (isASCIIUpperCase(s.charAt(1)) ? 2 : 1) : 0;
+        char[] search = new char[MAX_LENGTH];
+        search[0] = toASCIILowerCase(s.charAt(0));
+        int length;
+        for (length = 1; length < s.length() && length < MAX_LENGTH; length++) {
+            if ((style == 2) != isASCIIUpperCase(s.charAt(length))) {
+                break;
             }
+            search[length] = toASCIILowerCase(s.charAt(length));
+        }
 
-            for (int i = length; i > 1; i--) {
-                String sub = new String(search, 0, i);
-                if (map.containsKey(sub)) {
-                    if (style != 0) {
-                        if (special.contains(sub)) {
-                            continue;
-                        }
-
-                        search[0] -= ASCII_UPPER_LOWER_OFFSET;
-                        String camel = new String(search, 0, i);
-                        if (map.containsKey(camel)) {
-                            return camel;
-                        }
+        for (int i = length; i > 1; i--) {
+            String sub = new String(search, 0, i);
+            if (map.containsKey(sub)) {
+                if (style != 0) {
+                    if (special.contains(sub)) {
+                        continue;
                     }
-                    return sub;
+
+                    search[0] -= ASCII_UPPER_LOWER_OFFSET;
+                    String camel = new String(search, 0, i);
+                    if (map.containsKey(camel)) {
+                        return camel;
+                    }
                 }
+                return sub;
             }
         }
         return null;

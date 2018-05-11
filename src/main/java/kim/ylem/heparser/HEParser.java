@@ -14,7 +14,7 @@ public class HEParser implements Iterator<Character> {
     private String equation;
     private String warning = "";
 
-    private int pos = -2;
+    private int pos = -1;
     private int attempt;
 
     public HEParser(String s) {
@@ -30,7 +30,7 @@ public class HEParser implements Iterator<Character> {
         String result = "";
         try {
             do {
-                if (pos >= -1) {
+                if (pos > -1) {
                     appendWarning("expected EOF, appending { to the left");
                     equation = '{' + equation;
                 }

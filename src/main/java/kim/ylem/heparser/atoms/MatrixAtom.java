@@ -36,12 +36,12 @@ public final class MatrixAtom implements Atom {
 
     private final String function;
     private final Queue<Queue<Atom>> rows;
-    private final int cols;
+    private final int colCount;
 
-    public MatrixAtom(String command, Queue<Queue<Atom>> rows, int cols) {
+    public MatrixAtom(String command, Queue<Queue<Atom>> rows, int colCount) {
         function = matrixMap.get(command);
         this.rows = rows;
-        this.cols = cols;
+        this.colCount = colCount;
     }
 
     @Override
@@ -53,8 +53,8 @@ public final class MatrixAtom implements Atom {
                 .collect(Collectors.joining("\\\\"));
 
         if (function.startsWith("array")) {
-            char[] alignment = new char[cols];
-            for (int i = 0; i < cols; i++) {
+            char[] alignment = new char[colCount];
+            for (int i = 0; i < colCount; i++) {
                 alignment[i] = function.charAt(5);
             }
             return "\\begin{array}{" + new String(alignment) + '}' + result + "\\end{array}";

@@ -17,10 +17,10 @@ public final class ScriptAtom implements Atom {
     private static Atom parse(HEParser parser, String command) throws ParserException {
         boolean isFrom = "from".equals(command);
         Options textStyleOption = parser.getCurrentOptions().withTextStyle(true);
+        Atom content = parser.getGroupParser().popGroup();
         Atom sub = null;
         Atom sup = null;
 
-        Atom content = parser.getGroupParser().popGroup();
         if (content == null) {
             parser.appendWarning("expected a term, using empty term");
         } else if (!content.isFromToAllowed() && (isFrom || "to".equals(command))) {
@@ -31,11 +31,9 @@ public final class ScriptAtom implements Atom {
 
         if (isFrom || "_".equals(command) || "sub".equals(command)) {
             sub = parser.parseGroup(isFrom ? ParserMode.TERM : ParserMode.SUB_TERM, textStyleOption);
-            if ((isFrom && parser.search("to", "To", "TO")) ||
-                    parser.search("^", "sup", "Sup", "SUP")) {
-                sup = parser.parseGroup(ParserMode.TERM, textStyleOption);
-            }
-        } else {
+        }
+        if (sub == null || (isFrom && parser.search("to", "To", "TO")) ||
+                parser.search("^", "sup", "Sup", "SUP")) {
             sup = parser.parseGroup(ParserMode.TERM, textStyleOption);
         }
         return new ScriptAtom(content, sub, sup);
@@ -45,7 +43,6 @@ public final class ScriptAtom implements Atom {
         Options textStyleOption = parser.getCurrentOptions().withTextStyle(true);
         Atom sub = null;
         Atom sup = null;
-
         if (parser.search("_", "sub", "Sub", "SUB")) {
             sub = parser.parseGroup(ParserMode.SUB_TERM, textStyleOption);
         }
@@ -73,20 +70,16 @@ public final class ScriptAtom implements Atom {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        String result = "";
         if (content != null) {
-            sb.append(content);
+            result += content;
         }
         if (sub != null) {
-            sb.append("_{");
-            sb.append(sub);
-            sb.append('}');
+            result += "_{" + sub + '}';
         }
         if (sup != null) {
-            sb.append("^{");
-            sb.append(sup);
-            sb.append('}');
+            result += "^{" + sup + '}';
         }
-        return sb.toString();
+        return result;
     }
 }

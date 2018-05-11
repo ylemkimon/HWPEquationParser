@@ -107,7 +107,7 @@ public class GroupParser {
         }
 
         Queue<Queue<Atom>> rows = new ArrayDeque<>();
-        int cols = 0;
+        int colCount = 0;
         do {
             Queue<Atom> row = new ArrayDeque<>();
             do {
@@ -120,16 +120,16 @@ public class GroupParser {
             if ("eqalign".equals(command)) {
                 options = options.withRomanFont(false);
             }
-            if (row.size() > cols) {
-                cols = row.size();
+            if (row.size() > colCount) {
+                colCount = row.size();
             }
         } while (c == '#');
 
-        if (rows.size() == 1 && cols == 1 && ("matrix".equals(command) || "eqalign".equals(command) ||
+        if (rows.size() == 1 && colCount == 1 && ("matrix".equals(command) || "eqalign".equals(command) ||
                 command.endsWith("col") || command.endsWith("pile"))) {
             return rows.remove().remove();
         }
-        return new MatrixAtom(command, rows, cols);
+        return new MatrixAtom(command, rows, colCount);
     }
 
     // TODO: simplify
