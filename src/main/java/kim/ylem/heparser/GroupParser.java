@@ -8,9 +8,7 @@ import java.util.Queue;
 
 public class GroupParser {
     private final HEParser parser;
-    private final int maxLength;
-
-    private final ScriptAtom.Mode scriptParseMode;
+    private final ParserMode originalMode;
     private final StringBuilder textBuilder;
 
     private ParserMode mode;
@@ -22,61 +20,11 @@ public class GroupParser {
 
     GroupParser(HEParser parser, ParserMode mode, Options options) {
         this.parser = parser;
-        this.mode = mode;
+        originalMode = mode;
+        textBuilder = new StringBuilder(mode.getMaxLength());
+
+        this.mode = mode.getParserMode() != null ? mode.getParserMode() : mode;
         this.options = options;
-
-        switch (mode) {
-            case EXPLICIT:
-            case IMPLICIT:
-            case TERM:
-                scriptParseMode = ScriptAtom.Mode.NORMAL;
-                maxLength = 9;
-                break;
-            case SUB_TERM:
-                this.mode = ParserMode.TERM;
-                scriptParseMode = ScriptAtom.Mode.IN_SUB;
-                maxLength = 9;
-                break;
-            case UNDEROVER_TERM:
-                this.mode = ParserMode.TERM;
-                scriptParseMode = ScriptAtom.Mode.UNDEROVER;
-                maxLength = 9;
-                break;
-            case SYMBOL:
-            case DELIMITER:
-                scriptParseMode = ScriptAtom.Mode.NORMAL;
-                maxLength = 1;
-                break;
-            case ARGUMENT_1:
-                this.mode = ParserMode.ARGUMENT;
-                scriptParseMode = ScriptAtom.Mode.NORMAL;
-                maxLength = 1;
-                break;
-            case ARGUMENT_2:
-                this.mode = ParserMode.ARGUMENT;
-                scriptParseMode = ScriptAtom.Mode.NORMAL;
-                maxLength = 2;
-                break;
-            case ARGUMENT_3:
-                this.mode = ParserMode.ARGUMENT;
-                scriptParseMode = ScriptAtom.Mode.NORMAL;
-                maxLength = 3;
-                break;
-            case ARGUMENT_4:
-                this.mode = ParserMode.ARGUMENT;
-                scriptParseMode = ScriptAtom.Mode.NORMAL;
-                maxLength = 4;
-                break;
-            case ARGUMENT_5:
-                this.mode = ParserMode.ARGUMENT;
-                scriptParseMode = ScriptAtom.Mode.NORMAL;
-                maxLength = 5;
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid mode!");
-        }
-
-        textBuilder = new StringBuilder(maxLength);
     }
 
     public Options getOptions() {
@@ -115,6 +63,7 @@ public class GroupParser {
     }
 
     private boolean appendText(String text) {
+        int maxLength = originalMode.getMaxLength();
         int length = text.length();
         int remaining = maxLength - textBuilder.length();
 
@@ -311,7 +260,7 @@ public class GroupParser {
                     parser.peek().toString());
         }
         if (mode == ParserMode.ARGUMENT || mode == ParserMode.EXPLICIT || mode == ParserMode.TERM) {
-            return ScriptAtom.parse(parser, group, scriptParseMode);
+            return ScriptAtom.parse(parser, group, originalMode.getScriptParseMode());
         }
         return group;
     }

@@ -57,26 +57,7 @@ public final class FunctionAtom implements Atom {
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {
-        ParserMode mode;
-        switch (command.length()) {
-            case 2:
-                mode = ParserMode.ARGUMENT_5;
-                break;
-            case 3:
-                mode = ParserMode.ARGUMENT_4;
-                break;
-            case 4:
-                mode = ParserMode.ARGUMENT_3;
-                break;
-            case 5:
-                mode = ParserMode.ARGUMENT_2;
-                break;
-            case 6:
-                mode = ParserMode.ARGUMENT_1;
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid command length!");
-        }
+        ParserMode mode = ParserMode.getArgumentMode(7 - command.length());
         Atom content = parser.parseGroup(mode);
         return new FunctionAtom(command, content);
     }
