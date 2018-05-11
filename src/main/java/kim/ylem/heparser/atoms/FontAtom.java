@@ -15,14 +15,14 @@ public final class FontAtom {
 
         if ("\\".equals(command) && parser.hasNext()) {
             char c = parser.next();
-            if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
+            if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
                 StringBuilder tokenBuilder = new StringBuilder(8).append(c);
                 c = parser.peek();
-                while (tokenBuilder.length() < 8 && (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z'))) {
+                while (tokenBuilder.length() < 8 && ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))) {
                     tokenBuilder.append(parser.next());
                     c = parser.peek();
                 }
-                if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
+                if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
                     parser.next();
                 }
                 return new TextAtom(tokenBuilder.toString(), parser.getCurrentOptions());

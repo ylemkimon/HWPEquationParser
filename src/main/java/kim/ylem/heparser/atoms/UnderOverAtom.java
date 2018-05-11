@@ -14,12 +14,11 @@ public final class UnderOverAtom implements Atom {
     private static Atom parse(HEParser parser, String command) throws ParserException {
         if ("underover".equals(command)) {
             return parser.parseGroup(ParserMode.UNDEROVER_TERM);
-        } else {
-            Atom content = parser.parseGroup(ParserMode.SYMBOL, parser.getCurrentOptions().withRomanFont(true));
-            Atom over = parser.parseGroup(ParserMode.TERM);
-            Atom under = "rel".equals(command) ? parser.parseGroup(ParserMode.TERM) : null;
-            return new UnderOverAtom(content, over, under);
         }
+        Atom content = parser.parseGroup(ParserMode.SYMBOL, parser.getCurrentOptions().withRomanFont(true));
+        Atom over = parser.parseGroup(ParserMode.TERM);
+        Atom under = "rel".equals(command) ? parser.parseGroup(ParserMode.TERM) : null;
+        return new UnderOverAtom(content, over, under);
     }
 
     private final Atom content;

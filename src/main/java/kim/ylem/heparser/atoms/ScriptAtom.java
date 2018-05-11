@@ -52,6 +52,7 @@ public final class ScriptAtom implements Atom {
         if ((mode != Mode.IN_SUB || sub != null) && parser.search("^", "sup", "Sup", "SUP")) {
             sup = parser.parseGroup(ParserMode.TERM, textStyleOption);
         }
+
         if (sub == null && sup == null) {
             return content;
         } else if (mode == Mode.UNDEROVER) {

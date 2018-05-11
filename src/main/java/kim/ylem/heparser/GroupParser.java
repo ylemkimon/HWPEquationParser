@@ -165,7 +165,7 @@ public class GroupParser {
             rows.add(row);
 
             if ("eqalign".equals(command)) {
-                setOptions(getOptions().withRomanFont(false));
+                options = options.withRomanFont(false);
             }
             if (row.size() > cols) {
                 cols = row.size();
@@ -215,8 +215,8 @@ public class GroupParser {
 
             StringBuilder tokenBuilder = new StringBuilder(10).append(c);
             char next = parser.peek();
-            if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
-                while (('A' <= next && next <= 'Z') || ('a' <= next && next <= 'z')) {
+            if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+                while ((next >= 'A' && next <= 'Z') || (next >= 'a' && next <= 'z')) {
                     tokenBuilder.append(parser.next());
                     next = parser.peek();
                 }
@@ -226,7 +226,7 @@ public class GroupParser {
                     (c == '<' && next == '<') || (c == '>' && next == '>'))) {
                 char nn = parser.peek(2);
                 if (!(c == '<' && next == '-') ||
-                        nn == '\0' || Character.isWhitespace(nn) || ('!' <= nn && nn <= '=') || nn == '{') {
+                        nn == '\0' || Character.isWhitespace(nn) || (nn >= '!' && nn <= '=') || nn == '{') {
                     tokenBuilder.append(parser.next());
                     if (((c == '<' && next == '<') || (c == '>' && next == '>')) && nn == c) {
                         tokenBuilder.append(parser.next());

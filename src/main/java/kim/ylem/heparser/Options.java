@@ -38,4 +38,9 @@ public class Options {
     public boolean isRoman() {
         return roman;
     }
+
+    @Override
+    public String toString() {
+        return "{textStyle: " + textStyle + ", roman: " + roman + ", bold: " + bold + '}';
+    }
 }

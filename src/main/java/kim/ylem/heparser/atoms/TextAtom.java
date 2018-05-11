@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class TextAtom implements Atom {
-    private static Collection<String> keywords = new ArrayList<>(3);
+    private final static Collection<String> keywords = new ArrayList<>(3);
 
     static {
         keywords.add("or");
