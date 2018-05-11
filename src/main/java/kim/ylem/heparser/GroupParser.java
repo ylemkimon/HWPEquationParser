@@ -18,6 +18,7 @@ public class GroupParser {
 
     private Group group = new Group();
     private int leftRight;
+    private boolean escape;
 
     GroupParser(HEParser parser, ParserMode mode, Options options) {
         this.parser = parser;
@@ -114,10 +115,6 @@ public class GroupParser {
     }
 
     private boolean appendText(String text) {
-        return appendText(text, false);
-    }
-
-    private boolean appendText(String text, boolean escape) {
         int length = text.length();
         int remaining = maxLength - textBuilder.length();
 
@@ -146,6 +143,9 @@ public class GroupParser {
             if (remaining < length) {
                 textBuilder.append(text.substring(remaining));
             }
+        }
+        if (escape) {
+            escape = false;
         }
         return false;
     }
@@ -196,12 +196,10 @@ public class GroupParser {
             parser.next();
         }
 
-        boolean escape = false;
         while (true) {
             char c = parser.peek();
             if (Character.isWhitespace(c) || (c == '`' && (textBuilder.length() > 0 && textBuilder.charAt(0) != '`'))) {
                 if (escape) {
-                    escape = false;
                     appendText("~");
                 }
                 if (isSingle()) {
@@ -290,10 +288,9 @@ public class GroupParser {
                     }
                 }
             } else {
-                if (appendText(token, escape)) {
+                if (appendText(token)) {
                     break;
                 }
-                escape = false;
             }
         }
         buildTextAtom();
