@@ -2,7 +2,6 @@ package kim.ylem.heparser.atoms;
 
 import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
-import kim.ylem.heparser.HEParser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,13 +40,9 @@ public final class OpAtom implements Atom {
     }
 
     public static void init() {
-        AtomMap.putAll(opMap.keySet(), OpAtom::parse);
+        AtomMap.putAll(opMap.keySet(), (parser, command) -> new OpAtom(command));
         AtomMap.addSpecial("lim");
         AtomMap.addSpecial("Lim");
-    }
-
-    private static Atom parse(HEParser parser, String command) {
-        return new OpAtom(command);
     }
 
     private final String function;

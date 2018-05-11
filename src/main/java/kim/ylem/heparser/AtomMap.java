@@ -18,7 +18,6 @@ public final class AtomMap  {
 
     static {
         AccentAtom.init();
-        FontAtom.init();
         FractionAtom.init();
         FunctionAtom.init();
         Group.init();

@@ -11,10 +11,10 @@ public final class ScriptAtom implements Atom {
     }
 
     public static void init() {
-        AtomMap.putTo(ScriptAtom::parseScript, "_", "^", "sub", "sup", "from", "to");
+        AtomMap.putTo(ScriptAtom::parse, "_", "^", "sub", "sup", "from", "to");
     }
 
-    private static Atom parseScript(HEParser parser, String command) throws ParserException {
+    private static Atom parse(HEParser parser, String command) throws ParserException {
         boolean isFrom = "from".equals(command);
         Options textStyleOption = parser.getCurrentOptions().withTextStyle(true);
         Atom sub = null;
@@ -41,7 +41,7 @@ public final class ScriptAtom implements Atom {
         return new ScriptAtom(content, sub, sup);
     }
 
-    public static Atom parseScript(HEParser parser, Atom content, Mode mode) throws ParserException {
+    public static Atom parse(HEParser parser, Atom content, Mode mode) throws ParserException {
         Options textStyleOption = parser.getCurrentOptions().withTextStyle(true);
         Atom sub = null;
         Atom sup = null;

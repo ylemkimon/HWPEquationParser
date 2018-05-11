@@ -114,6 +114,10 @@ public class GroupParser {
     }
 
     private boolean appendText(String text) {
+        return appendText(text, false);
+    }
+
+    private boolean appendText(String text, boolean escape) {
         int length = text.length();
         int remaining = maxLength - textBuilder.length();
 
@@ -127,7 +131,7 @@ public class GroupParser {
         if (length < remaining) {
             textBuilder.append(text);
         } else {
-            textBuilder.append(text, 0, remaining);
+            textBuilder.append(text, 0, escape ? remaining - 1 : remaining);
             buildTextAtom();
 
             if (isSingle()) {
@@ -192,9 +196,14 @@ public class GroupParser {
             parser.next();
         }
 
+        boolean escape = false;
         while (true) {
             char c = parser.peek();
             if (Character.isWhitespace(c) || (c == '`' && (textBuilder.length() > 0 && textBuilder.charAt(0) != '`'))) {
+                if (escape) {
+                    escape = false;
+                    appendText("~");
+                }
                 if (isSingle()) {
                     break;
                 }
@@ -207,7 +216,8 @@ public class GroupParser {
                 parser.appendWarning("unexpected EOF, assuming }");
                 continue;
             }
-            if ((mode != ParserMode.DELIMITER && c == '}') || (mode != ParserMode.SYMBOL && (c == '&' || c == '#'))) {
+            if (!escape && ((mode != ParserMode.DELIMITER && c == '}') ||
+                    (mode != ParserMode.SYMBOL && (c == '&' || c == '#')))) {
                 break;
             }
 
@@ -220,7 +230,7 @@ public class GroupParser {
                     tokenBuilder.append(parser.next());
                     next = parser.peek();
                 }
-            } else if (mode != ParserMode.DELIMITER && (((c == '+' || c == '<') && next == '-') ||
+            } else if (!escape && mode != ParserMode.DELIMITER && (((c == '+' || c == '<') && next == '-') ||
                     (c == '-' && (next == '+' || next == '>')) ||
                     ((c == '!' || c == '=' || c == '<' || c == '>') && next == '=') ||
                     (c == '<' && next == '<') || (c == '>' && next == '>'))) {
@@ -247,8 +257,8 @@ public class GroupParser {
                 break;
             }
 
-            String command = (mode != ParserMode.SYMBOL || !("{".equals(token) ||
-                    "\"".equals(token) || "\\".equals(token) || "_".equals(token) || "^".equals(token)))
+            String command = (!escape && (mode != ParserMode.SYMBOL || !("{".equals(token) ||
+                    "\"".equals(token) || "\\".equals(token) || "_".equals(token) || "^".equals(token))))
                     ? AtomMap.search(token) : null;
 
             if (command != null) {
@@ -273,12 +283,17 @@ public class GroupParser {
                     buildTextAtom();
 
                     group.push(atomParser.parse(parser, command));
-                    if (isSingle()) {
+                    if ("\\".equals(command)) {
+                        escape = true;
+                    } else if (isSingle()) {
                         break;
                     }
                 }
-            } else if (appendText(token)) {
-                break;
+            } else {
+                if (appendText(token, escape)) {
+                    break;
+                }
+                escape = false;
             }
         }
         buildTextAtom();
@@ -299,7 +314,7 @@ public class GroupParser {
                     parser.peek().toString());
         }
         if (mode == ParserMode.ARGUMENT || mode == ParserMode.EXPLICIT || mode == ParserMode.TERM) {
-            return ScriptAtom.parseScript(parser, group, scriptParseMode);
+            return ScriptAtom.parse(parser, group, scriptParseMode);
         }
         return group;
     }

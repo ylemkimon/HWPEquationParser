@@ -17,6 +17,7 @@ public class TextAtom implements Atom {
 
     public static void init() {
         AtomMap.putTo(TextAtom::parse, "\"");
+        AtomMap.putTo(TextAtom::parseFont, "\\", "rm", "it");
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {
@@ -31,6 +32,11 @@ public class TextAtom implements Atom {
         }
         parser.next();
         return new TextAtom(sb.toString(), parser.getCurrentOptions());
+    }
+
+    private static Atom parseFont(HEParser parser, String command) {
+        parser.getGroupParser().setOptions(parser.getCurrentOptions().withRomanFont(!"it".equals(command)));
+        return null;
     }
 
     private final String text;
