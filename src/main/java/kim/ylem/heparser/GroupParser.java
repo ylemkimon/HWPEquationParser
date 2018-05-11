@@ -10,7 +10,7 @@ public class GroupParser {
     private final HEParser parser;
     private final int maxLength;
 
-    private final boolean onlySub;
+    private final ScriptAtom.Mode scriptParseMode;
     private final StringBuilder textBuilder;
 
     private ParserMode mode;
@@ -28,42 +28,47 @@ public class GroupParser {
             case EXPLICIT:
             case IMPLICIT:
             case TERM:
-                onlySub = false;
+                scriptParseMode = ScriptAtom.Mode.NORMAL;
                 maxLength = 9;
                 break;
             case SUB_TERM:
                 this.mode = ParserMode.TERM;
-                onlySub = true;
+                scriptParseMode = ScriptAtom.Mode.IN_SUB;
+                maxLength = 9;
+                break;
+            case UNDEROVER_TERM:
+                this.mode = ParserMode.TERM;
+                scriptParseMode = ScriptAtom.Mode.UNDEROVER;
                 maxLength = 9;
                 break;
             case SYMBOL:
             case DELIMITER:
-                onlySub = false;
+                scriptParseMode = ScriptAtom.Mode.NORMAL;
                 maxLength = 1;
                 break;
             case ARGUMENT_1:
                 this.mode = ParserMode.ARGUMENT;
-                onlySub = false;
+                scriptParseMode = ScriptAtom.Mode.NORMAL;
                 maxLength = 1;
                 break;
             case ARGUMENT_2:
                 this.mode = ParserMode.ARGUMENT;
-                onlySub = false;
+                scriptParseMode = ScriptAtom.Mode.NORMAL;
                 maxLength = 2;
                 break;
             case ARGUMENT_3:
                 this.mode = ParserMode.ARGUMENT;
-                onlySub = false;
+                scriptParseMode = ScriptAtom.Mode.NORMAL;
                 maxLength = 3;
                 break;
             case ARGUMENT_4:
                 this.mode = ParserMode.ARGUMENT;
-                onlySub = false;
+                scriptParseMode = ScriptAtom.Mode.NORMAL;
                 maxLength = 4;
                 break;
             case ARGUMENT_5:
                 this.mode = ParserMode.ARGUMENT;
-                onlySub = false;
+                scriptParseMode = ScriptAtom.Mode.NORMAL;
                 maxLength = 5;
                 break;
             default:
@@ -294,7 +299,7 @@ public class GroupParser {
                     parser.peek().toString());
         }
         if (mode == ParserMode.ARGUMENT || mode == ParserMode.EXPLICIT || mode == ParserMode.TERM) {
-            return ScriptAtom.parseScript(parser, group, onlySub);
+            return ScriptAtom.parseScript(parser, group, scriptParseMode);
         }
         return group;
     }

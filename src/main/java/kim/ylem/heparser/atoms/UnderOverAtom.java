@@ -12,31 +12,21 @@ public final class UnderOverAtom implements Atom {
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {
-        Atom content;
-        Atom over = null;
-        Atom under = null;
         if ("underover".equals(command)) {
-            content = parser.parseGroup(ParserMode.TERM);
-            if (parser.search("_", "sub", "Sub", "SUB")) {
-                under = parser.parseGroup(ParserMode.SUB_TERM);
-            }
-            if (parser.search("^", "sup", "Sup", "SUP")) {
-                over = parser.parseGroup(ParserMode.TERM);
-            }
+            return parser.parseGroup(ParserMode.UNDEROVER_TERM);
         } else {
-            content = parser.parseGroup(ParserMode.SYMBOL, parser.getCurrentOptions().withRomanFont(true));
-            over = parser.parseGroup(ParserMode.TERM);
-            under = "rel".equals(command) ? parser.parseGroup(ParserMode.TERM) : null;
+            Atom content = parser.parseGroup(ParserMode.SYMBOL, parser.getCurrentOptions().withRomanFont(true));
+            Atom over = parser.parseGroup(ParserMode.TERM);
+            Atom under = "rel".equals(command) ? parser.parseGroup(ParserMode.TERM) : null;
+            return new UnderOverAtom(content, over, under);
         }
-
-        return new UnderOverAtom(content, over, under);
     }
 
     private final Atom content;
     private final Atom over;
     private final Atom under;
 
-    private UnderOverAtom(Atom content, Atom over, Atom under) {
+    UnderOverAtom(Atom content, Atom over, Atom under) {
         this.content = content;
         this.over = over;
         this.under = under;

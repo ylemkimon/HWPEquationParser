@@ -5,6 +5,7 @@ public enum ParserMode {
     IMPLICIT,
     TERM,
     SUB_TERM,
+    UNDEROVER_TERM,
     SYMBOL,
     DELIMITER,
     ARGUMENT,
