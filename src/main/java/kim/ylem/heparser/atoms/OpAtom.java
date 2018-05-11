@@ -63,7 +63,7 @@ public final class OpAtom implements Atom {
 
     @Override
     public String toString() {
-        return function + ' ';
+        return "\\displaystyle" + function + ' ';
     }
 
 }

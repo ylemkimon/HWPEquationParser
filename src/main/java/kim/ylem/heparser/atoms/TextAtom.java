@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class TextAtom implements Atom {
-    public static Collection<String> keywords = new ArrayList<>(3);
+    private static Collection<String> keywords = new ArrayList<>(3);
 
     static {
         keywords.add("or");
@@ -19,7 +19,7 @@ public class TextAtom implements Atom {
         AtomMap.putTo(TextAtom::parse, "\"");
     }
 
-    private static TextAtom parse(HEParser parser, String command) throws ParserException {
+    private static Atom parse(HEParser parser, String command) throws ParserException {
         StringBuilder sb = new StringBuilder();
         while (parser.hasNext() && parser.peek() != '"') {
             sb.append(parser.next());

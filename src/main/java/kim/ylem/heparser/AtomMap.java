@@ -26,6 +26,7 @@ public final class AtomMap  {
         MatrixAtom.init();
         OpAtom.init();
         RootAtom.init();
+        ScriptAtom.init();
         TextAtom.init();
         UnderOverAtom.init();
         SymbolMap.init();

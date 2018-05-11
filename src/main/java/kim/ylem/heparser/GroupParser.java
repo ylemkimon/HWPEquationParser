@@ -1,10 +1,7 @@
 package kim.ylem.heparser;
 
 import kim.ylem.ParserException;
-import kim.ylem.heparser.atoms.Group;
-import kim.ylem.heparser.atoms.LeftRightAtom;
-import kim.ylem.heparser.atoms.MatrixAtom;
-import kim.ylem.heparser.atoms.TextAtom;
+import kim.ylem.heparser.atoms.*;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -163,7 +160,7 @@ public class GroupParser {
             rows.add(row);
 
             if ("eqalign".equals(command)) {
-                setOptions(getOptions().withFontStyle(false));
+                setOptions(getOptions().withRomanFont(false));
             }
             if (row.size() > cols) {
                 cols = row.size();
@@ -178,7 +175,7 @@ public class GroupParser {
     }
 
     // TODO: simplify
-    Group parse() throws ParserException {
+    Atom parse() throws ParserException {
         if (mode != ParserMode.ARGUMENT) {
             parser.skipWhitespaces();
         }
@@ -232,7 +229,20 @@ public class GroupParser {
                 }
             }
             String token = tokenBuilder.toString();
-            String command = ((mode != ParserMode.SYMBOL && mode != ParserMode.DELIMITER) || !("{".equals(token) ||
+
+            if (mode == ParserMode.DELIMITER) {
+                if (!SymbolMap.isDelimiter(token)) {
+                    if (!".".equals(token)) {
+                        parser.retreat(token.length());
+                        parser.appendWarning("delimiter not found, using null delimiter");
+                    }
+                    return null;
+                }
+                appendText(token);
+                break;
+            }
+
+            String command = (mode != ParserMode.SYMBOL || !("{".equals(token) ||
                     "\"".equals(token) || "\\".equals(token) || "_".equals(token) || "^".equals(token)))
                     ? AtomMap.search(token) : null;
 
@@ -262,11 +272,6 @@ public class GroupParser {
                         break;
                     }
                 }
-            } else if (mode == ParserMode.DELIMITER && ".".equals(token)) {
-                return null;
-            } else if (mode == ParserMode.DELIMITER && !SymbolMap.isDelimiter(token)) {
-                parser.retreat(token.length());
-                break;
             } else if (appendText(token)) {
                 break;
             }
@@ -289,9 +294,8 @@ public class GroupParser {
                     parser.peek().toString());
         }
         if (mode == ParserMode.ARGUMENT || mode == ParserMode.EXPLICIT || mode == ParserMode.TERM) {
-            group.parseSubSup(parser, onlySub, false);
+            return ScriptAtom.parseScript(parser, group, onlySub);
         }
-
         return group;
     }
 }

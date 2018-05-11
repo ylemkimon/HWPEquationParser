@@ -50,7 +50,7 @@ public final class AccentAtom implements Atom {
         if ("not".equals(command) || "bigg".equals(command)) {
             content = parser.parseGroup(ParserMode.SYMBOL);
         } else if ("bold".equals(command)) {
-            content = parser.parseGroup(ParserMode.TERM, parser.getCurrentOptions().withFontWeight(true));
+            content = parser.parseGroup(ParserMode.TERM, parser.getCurrentOptions().withBoldFont(true));
         } else {
             content = parser.parseGroup(ParserMode.TERM);
         }

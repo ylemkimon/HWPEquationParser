@@ -11,7 +11,7 @@ public final class RootAtom implements Atom {
         AtomMap.putTo(RootAtom::parse, "sqrt", "root");
     }
 
-    private static RootAtom parse(HEParser parser, String command) throws ParserException {
+    private static Atom parse(HEParser parser, String command) throws ParserException {
         Atom degree = null;
         Atom content = parser.parseGroup(ParserMode.TERM);
         if (parser.search("of", "Of", "OF")) {

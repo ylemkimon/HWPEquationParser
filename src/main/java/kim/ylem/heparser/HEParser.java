@@ -1,7 +1,6 @@
 package kim.ylem.heparser;
 
 import kim.ylem.ParserException;
-import kim.ylem.heparser.atoms.Group;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -133,14 +132,14 @@ public class HEParser implements Iterator<Character> {
         return matrix;
     }
 
-    public Group parseGroup(ParserMode mode) throws ParserException {
+    public Atom parseGroup(ParserMode mode) throws ParserException {
         return parseGroup(mode, getCurrentOptions());
     }
 
-    public Group parseGroup(ParserMode mode, Options options) throws ParserException {
+    public Atom parseGroup(ParserMode mode, Options options) throws ParserException {
         GroupParser groupParser = new GroupParser(this, mode, options);
         groupParserStack.push(groupParser);
-        Group group = groupParser.parse();
+        Atom group = groupParser.parse();
         groupParserStack.pop();
         return group;
     }

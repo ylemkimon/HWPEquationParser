@@ -11,7 +11,7 @@ public final class FontAtom {
     }
 
     private static Atom parse(HEParser parser, String command) {
-        parser.getGroupParser().setOptions(parser.getCurrentOptions().withFontStyle(!"it".equals(command)));
+        parser.getGroupParser().setOptions(parser.getCurrentOptions().withRomanFont(!"it".equals(command)));
 
         if ("\\".equals(command) && parser.hasNext()) {
             char c = parser.next();
