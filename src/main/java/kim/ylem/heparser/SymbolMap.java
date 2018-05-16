@@ -81,7 +81,6 @@ public final class SymbolMap {
 
         latexMap.put('`', "\\,");
         latexMap.put('□', "\\square");
-        latexMap.put('<', "<"); // escape HTML
 
         // Greek uppercase
         put('Α', "A", "Alpha", "\uE085");

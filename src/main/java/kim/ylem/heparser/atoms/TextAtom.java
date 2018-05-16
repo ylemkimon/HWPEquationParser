@@ -87,6 +87,9 @@ public class TextAtom implements Atom {
                 i += state - 1;
             } else {
                 result.append(c);
+                if (c == '<') { // escape HTML
+                    result.append(' ');
+                }
             }
 
             state = c > 'z' || c < 'A' || (c > 'Z' && c <'a') ? -1 : 0;
