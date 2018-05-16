@@ -42,7 +42,7 @@ public final class AccentAtom implements Atom {
     }
 
     public static void init() {
-        AtomMap.putAll(accentMap.keySet(), AccentAtom::parse);
+        AtomMap.register(AccentAtom::parse, accentMap.keySet());
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {

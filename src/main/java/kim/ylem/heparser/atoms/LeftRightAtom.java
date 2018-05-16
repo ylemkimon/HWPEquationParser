@@ -8,7 +8,7 @@ import kim.ylem.heparser.ParserMode;
 
 public final class LeftRightAtom implements Atom {
     public static void init() {
-        AtomMap.putTo(LeftRightAtom::parse, "left", "right");
+        AtomMap.register(LeftRightAtom::parse, "left", "right");
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {

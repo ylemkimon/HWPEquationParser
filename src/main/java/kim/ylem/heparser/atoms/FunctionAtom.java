@@ -53,7 +53,7 @@ public final class FunctionAtom implements Atom {
     }
 
     public static void init() {
-        AtomMap.putAll(functionMap.keySet(), FunctionAtom::parse, true);
+        AtomMap.register(FunctionAtom::parse, functionMap.keySet(), true);
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {

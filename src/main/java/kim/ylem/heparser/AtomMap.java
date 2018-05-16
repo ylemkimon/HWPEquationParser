@@ -35,20 +35,22 @@ public final class AtomMap  {
         return map.get(key);
     }
 
-    public static void putTo(AtomParser value, String... keys) {
-        for (String key : keys) {
-            map.put(key, value);
+    public static void register(AtomParser parser, String... commands) {
+        for (String command : commands) {
+            map.put(command, parser);
         }
     }
 
-    public static void putAll(Collection<String> keySet, AtomParser value) {
-        putAll(keySet, value, false);
+    public static void register(AtomParser parser, Collection<String> commands) {
+        register(parser, commands, false);
     }
 
-    public static void putAll(Collection<String> keySet, AtomParser value, boolean isSpecial) {
-        keySet.forEach(key -> map.put(key, value));
+    public static void register(AtomParser parser, Collection<String> commands, boolean isSpecial) {
+        for (String key : commands) {
+            map.put(key, parser);
+        }
         if (isSpecial) {
-            special.addAll(keySet);
+            special.addAll(commands);
         }
     }
 

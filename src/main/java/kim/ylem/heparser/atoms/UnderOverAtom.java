@@ -8,7 +8,7 @@ import kim.ylem.heparser.ParserMode;
 
 public final class UnderOverAtom implements Atom {
     public static void init() {
-        AtomMap.putTo(UnderOverAtom::parse, "underover", "buildrel", "rel");
+        AtomMap.register(UnderOverAtom::parse, "underover", "buildrel", "rel");
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {

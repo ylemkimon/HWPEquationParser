@@ -11,7 +11,7 @@ public final class ScriptAtom implements Atom {
     }
 
     public static void init() {
-        AtomMap.putTo(ScriptAtom::parse, "_", "^", "sub", "sup", "from", "to");
+        AtomMap.register(ScriptAtom::parse, "_", "^", "sub", "sup", "from", "to");
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {

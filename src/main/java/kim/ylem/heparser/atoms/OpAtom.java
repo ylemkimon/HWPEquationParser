@@ -40,7 +40,7 @@ public final class OpAtom implements Atom {
     }
 
     public static void init() {
-        AtomMap.putAll(opMap.keySet(), (parser, command) -> new OpAtom(command));
+        AtomMap.register((parser, command) -> new OpAtom(command), opMap.keySet());
         AtomMap.addSpecial("lim");
         AtomMap.addSpecial("Lim");
     }

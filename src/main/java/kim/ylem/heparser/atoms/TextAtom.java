@@ -16,8 +16,8 @@ public class TextAtom implements Atom {
     }
 
     public static void init() {
-        AtomMap.putTo(TextAtom::parse, "\"");
-        AtomMap.putTo(TextAtom::parseFont, "\\", "rm", "it");
+        AtomMap.register(TextAtom::parse, "\"");
+        AtomMap.register(TextAtom::parseFont, "\\", "rm", "it");
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {

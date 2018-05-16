@@ -31,7 +31,7 @@ public final class MatrixAtom implements Atom {
     }
 
     public static void init() {
-        AtomMap.putAll(matrixMap.keySet(), HEParser::parseMatrix);
+        AtomMap.register(HEParser::parseMatrix, matrixMap.keySet());
     }
 
     private final String function;

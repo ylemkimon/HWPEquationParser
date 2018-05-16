@@ -8,7 +8,7 @@ import kim.ylem.heparser.ParserMode;
 
 public final class RootAtom implements Atom {
     public static void init() {
-        AtomMap.putTo(RootAtom::parse, "sqrt", "root");
+        AtomMap.register(RootAtom::parse, "sqrt", "root");
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {

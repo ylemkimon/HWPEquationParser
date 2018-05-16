@@ -24,7 +24,7 @@ public final class FractionAtom implements Atom {
     }
 
     public static void init() {
-        AtomMap.putAll(fractionMap.keySet(), FractionAtom::parse);
+        AtomMap.register(FractionAtom::parse, fractionMap.keySet());
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {

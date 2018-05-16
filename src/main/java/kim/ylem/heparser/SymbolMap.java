@@ -310,7 +310,7 @@ public final class SymbolMap {
     }
 
     public static void init() {
-        AtomMap.putAll(symbolMap.keySet(), null);
+        AtomMap.register(null, symbolMap.keySet());
         AtomMap.addSpecial("IMAG");
         AtomMap.addSpecial("REAL");
         AtomMap.addSpecial("prime");
