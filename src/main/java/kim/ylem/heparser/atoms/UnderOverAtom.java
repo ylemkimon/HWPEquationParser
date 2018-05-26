@@ -7,6 +7,8 @@ import kim.ylem.heparser.HEParser;
 import kim.ylem.heparser.ParserMode;
 
 public final class UnderOverAtom implements Atom {
+    private static final long serialVersionUID = -6552226985365505508L;
+
     public static void init() {
         AtomMap.register(UnderOverAtom::parse, "underover", "buildrel", "rel");
     }

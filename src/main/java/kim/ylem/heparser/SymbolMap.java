@@ -6,12 +6,9 @@ import java.util.HashSet;
 import java.util.Map;
 
 public final class SymbolMap {
-    private SymbolMap() {
-    }
-
-    private static final Map<String, Character> symbolMap = new HashMap<>(501);
-    private static final Map<Character, String> latexMap = new HashMap<>(265);
-    private static final Collection<String> delimiters = new HashSet<>(16);
+    private static final Map<String, Character> symbolMap = new HashMap<>(506);
+    private static final Map<Character, String> latexMap = new HashMap<>(264);
+    private static final Collection<String> delimiters = new HashSet<>(17);
 
     private static void put(Character ch, String latex, String... commands) {
         for (String s : commands) {
@@ -33,7 +30,7 @@ public final class SymbolMap {
         putDelim(')', ")", "）", "rparen", "\uE045");
         putDelim('[', "[", "［", "lbrack", "\uE049");
         putDelim(']', "]", "］", "rbrack", "\uE04A");
-        putDelim('{', "\\{", "｛", "lbrace", "\uE04B");
+        putDelim('{', "\\{", "{", "｛", "lbrace", "\uE04B");
         putDelim('}', "\\}", "｝", "rbrace", "\uE04C");
         putDelim('⟨', "\\langle", "langle");
         putDelim('⟩', "\\rangle", "rangle");
@@ -45,6 +42,7 @@ public final class SymbolMap {
         putDelim('⌉', "\\rceil", "rceil", "\uE102");
         putDelim('⌊', "\\lfloor", "lfloor", "\uE103");
         putDelim('⌋', "\\rfloor", "rfloor", "\uE104");
+        putDelim('\\', "\\backslash", "\\", "backslash");
 
         for (int i = 0; i < 26; i++) {
             char upper = (char) ('A' + i);
@@ -52,6 +50,7 @@ public final class SymbolMap {
             symbolMap.put(Character.toString((char) ('\uE000' + i)), upper); // uppercase
             symbolMap.put(Character.toString((char) ('\uE0E5' + i)), lower); // lowercase
             latexMap.put((char) ('\uE01A' + i), "\\mathrm " + lower); // roman lowercase
+            //noinspection StringConcatenationMissingWhitespace
             put((char) ('\uE0CB' + i), "\\mathbb " + upper, "Vec" + upper); // blackboard uppercase
         }
 
@@ -167,7 +166,7 @@ public final class SymbolMap {
         put('+', "+", "＋", "\uE048");
         put(';', ";", "；", "\uE04E");
         put(':', ":", "：", "\uE04F");
-        put('"', "\"", "＂", "\uE051");
+        put('"', "\"", "\"", "＂", "\uE051");
         put(',', ",", "，", "\uE052");
         put('.', ".", "．", "\uE053");
         put('?', "?", "？", "\uE057");
@@ -175,8 +174,8 @@ public final class SymbolMap {
         put('&', "\\&", "＆");
         put('$', "\\$", "＄", "\uE041");
         put('%', "\\%", "％", "\uE042");
-        put('_', "\\_", "＿");
-        put('^', "\\hat{}", "＾");
+        put('_', "\\_", "_", "＿");
+        put('^', "\\hat{}", "^", "＾");
         put('≠', "\\neq", "!=", "ne", "neq");
         put('≡', "\\equiv", "==", "equiv");
         put('±', "\\pm", "+-", "plusminus");
@@ -194,7 +193,6 @@ public final class SymbolMap {
         put('≈', "\\approx", "approx");
         put('∗', "\\ast", "ast");
         put('≍', "\\asymp", "asymp");
-        put('\\', "\\backslash", "backslash");
         put('⌂', "\\house", "base");
         put('∵', "\\because", "because");
         put('⌬', "\\varhexagonlrbonds", "benzene");
@@ -322,19 +320,23 @@ public final class SymbolMap {
         AtomMap.addSpecial("varupsilon");
         AtomMap.addSpecial("varrho");
         for (char c = 'A'; c <= 'Z'; c++) {
+            //noinspection StringConcatenationMissingWhitespace
             AtomMap.addSpecial("Vec" + c);
         }
     }
 
-    public static Character getSymbol(String function) {
-        return symbolMap.get(function);
+    static String getSymbol(String function) {
+        return symbolMap.get(function).toString();
     }
 
     public static String getLaTeX(char c) {
         return latexMap.get(c);
     }
 
-    public static boolean isDelimiter(String s) {
+    static boolean isDelimiter(String s) {
         return delimiters.contains(s);
+    }
+
+    private SymbolMap() {
     }
 }

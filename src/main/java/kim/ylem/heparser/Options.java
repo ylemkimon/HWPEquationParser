@@ -15,16 +15,16 @@ public class Options {
         this.bold = bold;
     }
 
-    public Options withTextStyle(boolean textStyle) {
-        return new Options(textStyle, roman, bold);
+    public Options withTextStyle(boolean newTextStyle) {
+        return new Options(newTextStyle, roman, bold);
     }
 
-    public Options withRomanFont(boolean roman) {
-        return new Options(textStyle, roman, bold);
+    public Options withRomanFont(boolean newRoman) {
+        return new Options(textStyle, newRoman, bold);
     }
 
-    public Options withBoldFont(boolean bold) {
-        return new Options(textStyle, roman, bold);
+    public Options withBoldFont(boolean newBold) {
+        return new Options(textStyle, roman, newBold);
     }
 
     public boolean isTextStyle() {

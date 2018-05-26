@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class HEParser implements Iterator<Character> {
+    private static final int MAX_ATTEMPT = 50;
+
     private final String originalEquation;
     private final Deque<GroupParser> groupParserStack = new ArrayDeque<>();
 
@@ -29,20 +31,16 @@ public class HEParser implements Iterator<Character> {
     public String parse() {
         String result = "";
         try {
-            do {
+            while (hasNext()) {
                 if (pos > -1) {
                     appendWarning("expected EOF, appending { to the left");
                     equation = '{' + equation;
                 }
                 pos = -1;
                 result = parseMatrix("eqalign").toString();
-            } while (hasNext());
+            }
         } catch (ParserException e) {
-            System.err.println("While parsing equation: " + originalEquation);
             e.printStackTrace();
-            System.err.println(warning.trim());
-            System.err.println("Result: " + result);
-            return result;
         }
 
         if (!warning.isEmpty()) {
@@ -53,9 +51,9 @@ public class HEParser implements Iterator<Character> {
         return result;
     }
 
-    public void appendWarning(String warning) throws ParserException {
-        this.warning += pos + ": " + warning + '\n';
-        if (++attempt > 50) {
+    public void appendWarning(String message) throws ParserException {
+        warning += pos + ": " + message + '\n';
+        if (++attempt > MAX_ATTEMPT) {
             throw new ParserException("Too many warnings, stopping to prevent infinite loops");
         }
     }
@@ -73,9 +71,100 @@ public class HEParser implements Iterator<Character> {
         return equation.charAt(++pos);
     }
 
+    public void expect(char expected, String name, boolean consume) throws ParserException {
+        skipWhitespaces();
+        char c = consume ? next() : peek();
+        if (c != expected) {
+            throw newUnexpectedException(name + ", " + expected, Character.toString(c));
+        }
+    }
+
+    Token nextToken(boolean forceSymbol) {
+        char c = peek();
+        if (c <= '9' && c >= '0') {
+            return new Token(Character.toString(c), false);
+        } else if (!ASCIIUtil.isAlphabet(c)) {
+            return searchNonAlphabetic(forceSymbol);
+        }
+        Token special = searchSpecial();
+        return special != null ? special : searchAlphabetic();
+    }
+
+    private Token searchNonAlphabetic(boolean forceSymbol) {
+        int remaining = equation.length() - pos - 2;
+        for (int i = Math.min(remaining, 3); i > 0; i--) {
+            String sub = equation.substring(pos + 1, pos + i + 1);
+            if (AtomMap.containsKey(sub)) {
+                if ("<-".equals(sub) && remaining > 2) {
+                    char ch = equation.charAt(pos + 3);
+                    if (!(Character.isWhitespace(ch) || (ch >= '!' && ch <= '=') || ch == '{')) {
+                        break;
+                    }
+                }
+                return new Token(sub, true, forceSymbol);
+            }
+        }
+        return new Token(peek().toString(), false);
+    }
+
+    private Token searchSpecial() {
+        for (int i = 2; i <= 4 && pos + i + 1 < equation.length(); i++) {
+            String sub = equation.substring(pos + 1, pos + i + 1);
+            if (AtomMap.isSpecial(sub)) {
+                return new Token(sub, true);
+            }
+        }
+        return null;
+    }
+
+    private Token searchAlphabetic() {
+        char c = peek();
+        int style = ASCIIUtil.getStyle(c, equation.charAt(pos + 2)); // TODO: enumize
+        char[] search = new char[10];
+        search[0] = ASCIIUtil.toLowerCase(c);
+
+        int len;
+        int searchLen = 1;
+        boolean match = true;
+        for (len = 1; pos + len + 2 < equation.length(); len++) {
+            char ch = equation.charAt(pos + len + 1);
+            if (!ASCIIUtil.isAlphabet(ch)) {
+                break;
+            }
+
+            match = match && ASCIIUtil.isUpperCase(ch) == (style == 2) && len < 10;
+            if (match) {
+                search[searchLen++] = ASCIIUtil.toLowerCase(ch);
+            }
+        }
+
+        for (int i = searchLen; i > 1; i--) {
+            String sub = new String(search, 0, i);
+            if (AtomMap.containsKey(sub)) {
+                if (style != 0) {
+                    if (AtomMap.isSpecial(sub)) { // XXX: can break?
+                        continue;
+                    }
+                    sub = searchCamel(sub, search, i);
+                }
+                return new Token(sub, true);
+            }
+        }
+        return new Token(equation.substring(pos + 1, pos + len + 1), false);
+    }
+
+    private static String searchCamel(String sub, char[] search, int len) {
+        search[0] -= ASCIIUtil.UPPER_LOWER_OFFSET;
+        String camel = new String(search, 0, len);
+        return AtomMap.containsKey(camel) ? camel : sub;
+    }
+
     public boolean search(String... searchStrings) {
+        if (!hasNext()) {
+            return false;
+        }
         int n = 1;
-        while (Character.isWhitespace(peek(n))) {
+        while (Character.isWhitespace(equation.charAt(pos + n))) {
             n++;
         }
 
@@ -89,21 +178,13 @@ public class HEParser implements Iterator<Character> {
     }
 
     public Character peek() {
-        return peek(1);
+        return pos + 1 < equation.length() ? equation.charAt(pos + 1) : '\0';
     }
 
-    public Character peek(int n) {
-        if (n < 0) {
-            throw new IllegalArgumentException("Cannot peek backward");
+    void consume(Token token, int length) {
+        if (length > 0) {
+            pos += token.toString().length() > 1 ? length : token.getLength();
         }
-        return pos + n < equation.length() ? equation.charAt(pos + n) : '\0';
-    }
-
-    public void retreat(int n) {
-        if (n < 0 || pos - n < -1) {
-            throw new IllegalArgumentException("Cannot retreat " + (n < 0 ? "forward" : "beyond start"));
-        }
-        pos -= n;
     }
 
     public void skipToEnd() {
@@ -125,7 +206,7 @@ public class HEParser implements Iterator<Character> {
     }
 
     public Atom parseMatrix(String command) throws ParserException {
-        GroupParser groupParser = new GroupParser(this, ParserMode.IMPLICIT, getCurrentOptions());
+        GroupParser groupParser = new GroupParser(this, ParserMode.GROUP, getCurrentOptions());
         groupParserStack.push(groupParser);
         Atom matrix = groupParser.parseMatrix(command);
         groupParserStack.pop();

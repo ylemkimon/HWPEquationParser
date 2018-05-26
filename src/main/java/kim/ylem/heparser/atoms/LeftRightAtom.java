@@ -7,28 +7,32 @@ import kim.ylem.heparser.HEParser;
 import kim.ylem.heparser.ParserMode;
 
 public final class LeftRightAtom implements Atom {
+    private static final long serialVersionUID = -1865251277686618811L;
+
+    public enum Side { left, right }
+
     public static void init() {
         AtomMap.register(LeftRightAtom::parse, "left", "right");
     }
 
     private static Atom parse(HEParser parser, String command) throws ParserException {
         Atom delim = parser.parseGroup(ParserMode.DELIMITER, parser.getCurrentOptions().withRomanFont(false));
-        boolean left = "left".equals(command);
-        parser.getGroupParser().leftRight(left);
-        return new LeftRightAtom(left, delim);
+        Side side = Side.valueOf(command);
+        parser.getGroupParser().updateLeftRightDepth(side);
+        return new LeftRightAtom(side, delim);
     }
 
-    private final boolean left;
+    private final Side side;
     private final Atom delim;
 
-    public LeftRightAtom(boolean left, Atom delim) {
-        this.left = left;
+    public LeftRightAtom(Side side, Atom delim) {
+        this.side = side;
         this.delim = delim;
     }
 
     @Override
     public String toString() {
-        return '\\' + (left ? "left" : "right") + (delim != null ? delim : ".");
+        return '\\' + side.toString() + (delim != null ? delim : ".");
     }
 
 }

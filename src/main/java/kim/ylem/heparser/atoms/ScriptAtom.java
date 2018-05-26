@@ -4,6 +4,8 @@ import kim.ylem.ParserException;
 import kim.ylem.heparser.*;
 
 public final class ScriptAtom implements Atom {
+    private static final long serialVersionUID = -7787380238205077540L;
+
     public enum Mode {
         NORMAL,
         IN_SUB,
@@ -14,13 +16,15 @@ public final class ScriptAtom implements Atom {
         AtomMap.register(ScriptAtom::parse, "_", "^", "sub", "sup", "from", "to");
     }
 
+    private static boolean searchSup(HEParser parser, boolean allowTo) {
+        return (allowTo && parser.search("to", "To", "TO")) ||
+                parser.search("^", "sup", "Sup", "SUP");
+    }
+
     private static Atom parse(HEParser parser, String command) throws ParserException {
         boolean isFrom = "from".equals(command);
-        Options textStyleOption = parser.getCurrentOptions().withTextStyle(true);
-        Atom content = parser.getGroupParser().popGroup();
-        Atom sub = null;
-        Atom sup = null;
 
+        Atom content = parser.getGroupParser().popGroup();
         if (content == null) {
             parser.appendWarning("expected a term, using empty term");
         } else if (!content.isFromToAllowed() && (isFrom || "to".equals(command))) {
@@ -29,11 +33,13 @@ public final class ScriptAtom implements Atom {
             return content;
         }
 
+        Options textStyleOption = parser.getCurrentOptions().withTextStyle(true);
+        Atom sub = null;
+        Atom sup = null;
         if (isFrom || "_".equals(command) || "sub".equals(command)) {
             sub = parser.parseGroup(isFrom ? ParserMode.TERM : ParserMode.SUB_TERM, textStyleOption);
         }
-        if (sub == null || (isFrom && parser.search("to", "To", "TO")) ||
-                parser.search("^", "sup", "Sup", "SUP")) {
+        if (sub == null || searchSup(parser, isFrom)) {
             sup = parser.parseGroup(ParserMode.TERM, textStyleOption);
         }
         return new ScriptAtom(content, sub, sup);
@@ -46,16 +52,14 @@ public final class ScriptAtom implements Atom {
         if (parser.search("_", "sub", "Sub", "SUB")) {
             sub = parser.parseGroup(ParserMode.SUB_TERM, textStyleOption);
         }
-        if ((mode != Mode.IN_SUB || sub != null) && parser.search("^", "sup", "Sup", "SUP")) {
+        if ((mode != Mode.IN_SUB || sub != null) && searchSup(parser, false)) {
             sup = parser.parseGroup(ParserMode.TERM, textStyleOption);
         }
 
         if (sub == null && sup == null) {
             return content;
-        } else if (mode == Mode.UNDEROVER) {
-            return new UnderOverAtom(content, sup, sub);
         }
-        return new ScriptAtom(content, sub, sup);
+        return mode == Mode.UNDEROVER ? new UnderOverAtom(content, sup, sub) : new ScriptAtom(content, sub, sup);
     }
 
     private final Atom content;

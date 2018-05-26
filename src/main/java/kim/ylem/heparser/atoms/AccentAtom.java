@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class AccentAtom implements Atom {
+    private static final long serialVersionUID = 7616109053854504180L;
     private static final Map<String, String> accentMap = new HashMap<>(20);
 
     static {
@@ -67,9 +68,6 @@ public final class AccentAtom implements Atom {
 
     @Override
     public String toString() {
-        if ("\\huge".equals(function)) {
-            return '{' + function + ' ' + content + '}';
-        }
-        return function + '{' + content + '}';
+        return "\\huge".equals(function) ? '{' + function + ' ' + content + '}' : function + '{' + content + '}';
     }
 }

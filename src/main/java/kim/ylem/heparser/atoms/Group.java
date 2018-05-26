@@ -1,15 +1,25 @@
 package kim.ylem.heparser.atoms;
 
+import kim.ylem.ParserException;
 import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
+import kim.ylem.heparser.HEParser;
 import kim.ylem.heparser.ParserMode;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class Group implements Atom {
+    private static final long serialVersionUID = 2901822524810878507L;
+
     public static void init() {
-        AtomMap.putTo((parser, function) -> parser.parseGroup(ParserMode.EXPLICIT), "{");
+        AtomMap.register(Group::parse, "{");
+    }
+
+    private static Atom parse(HEParser parser, @SuppressWarnings("unused") String function) throws ParserException {
+        Atom result = parser.parseGroup(ParserMode.GROUP);
+        parser.expect('}', "end of group", true);
+        return result;
     }
 
     private final Deque<Atom> children = new ArrayDeque<>();

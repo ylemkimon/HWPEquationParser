@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class FunctionAtom implements Atom {
+    private static final long serialVersionUID = -3830759311333711872L;
     private static final Map<String, String> functionMap = new HashMap<>(37);
 
     static {

@@ -10,6 +10,7 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 
 public final class MatrixAtom implements Atom {
+    private static final long serialVersionUID = 641351819632980790L;
     private static final Map<String, String> matrixMap = new HashMap<>(14);
 
     static {
@@ -32,6 +33,11 @@ public final class MatrixAtom implements Atom {
 
     public static void init() {
         AtomMap.register(HEParser::parseMatrix, matrixMap.keySet());
+    }
+
+    public static boolean hasNoDelimiters(String command) {
+        return "matrix".equals(command) || "eqalign".equals(command) ||
+                command.endsWith("col") || command.endsWith("pile");
     }
 
     private final String function;

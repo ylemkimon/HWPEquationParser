@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class OpAtom implements Atom {
+    private static final long serialVersionUID = -3376243198235436669L;
     private static final Map<String, String> opMap = new HashMap<>(25);
 
     static {

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class FractionAtom implements Atom {
+    private static final long serialVersionUID = 4727732048507667055L;
     private static final Map<String, String> fractionMap = new HashMap<>(6);
     private static final Map<String, String> dfractionMap = new HashMap<>(6);
 
@@ -52,7 +53,7 @@ public final class FractionAtom implements Atom {
     private final Atom second;
 
     private FractionAtom(String command, Atom first, Atom second, boolean textStyle) {
-        this.function = textStyle ? fractionMap.get(command) : dfractionMap.get(command);
+        function = textStyle ? fractionMap.get(command) : dfractionMap.get(command);
         this.first = first;
         this.second = second;
     }

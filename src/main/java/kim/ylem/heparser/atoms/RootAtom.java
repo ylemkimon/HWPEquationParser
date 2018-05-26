@@ -7,11 +7,13 @@ import kim.ylem.heparser.HEParser;
 import kim.ylem.heparser.ParserMode;
 
 public final class RootAtom implements Atom {
+    private static final long serialVersionUID = -5879748029482233369L;
+
     public static void init() {
         AtomMap.register(RootAtom::parse, "sqrt", "root");
     }
 
-    private static Atom parse(HEParser parser, String command) throws ParserException {
+    private static Atom parse(HEParser parser, @SuppressWarnings("unused") String command) throws ParserException {
         Atom degree = null;
         Atom content = parser.parseGroup(ParserMode.TERM);
         if (parser.search("of", "Of", "OF")) {
