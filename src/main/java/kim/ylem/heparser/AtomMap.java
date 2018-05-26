@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public final class AtomMap  {
+public final class AtomMap {
     private static final Map<String, AtomParser> map = new HashMap<>(620);
     private static final Collection<String> special = new HashSet<>(75);
 
@@ -25,6 +25,9 @@ public final class AtomMap  {
         ScriptAtom.init();
         TextAtom.init();
         UnderOverAtom.init();
+    }
+
+    private AtomMap() {
     }
 
     public static AtomParser get(String key) {
@@ -67,12 +70,10 @@ public final class AtomMap  {
      *
      * <p>2. a command that has more than 4 letters and only lower case form should be
      * allowed
+     *
      * @param key name of the special command
      */
     public static void addSpecial(String key) {
         special.add(key);
-    }
-
-    private AtomMap() {
     }
 }

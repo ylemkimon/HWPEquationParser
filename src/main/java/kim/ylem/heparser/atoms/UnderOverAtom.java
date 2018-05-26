@@ -9,6 +9,16 @@ import kim.ylem.heparser.ParserMode;
 public final class UnderOverAtom implements Atom {
     private static final long serialVersionUID = -6552226985365505508L;
 
+    private final Atom content;
+    private final Atom over;
+    private final Atom under;
+
+    UnderOverAtom(Atom content, Atom over, Atom under) {
+        this.content = content;
+        this.over = over;
+        this.under = under;
+    }
+
     public static void init() {
         AtomMap.register(UnderOverAtom::parse, "underover", "buildrel", "rel");
     }
@@ -23,16 +33,6 @@ public final class UnderOverAtom implements Atom {
         return new UnderOverAtom(content, over, under);
     }
 
-    private final Atom content;
-    private final Atom over;
-    private final Atom under;
-
-    UnderOverAtom(Atom content, Atom over, Atom under) {
-        this.content = content;
-        this.over = over;
-        this.under = under;
-    }
-
     @Override
     public String toString() {
         String result = content.toString();
@@ -44,5 +44,4 @@ public final class UnderOverAtom implements Atom {
         }
         return result;
     }
-
 }

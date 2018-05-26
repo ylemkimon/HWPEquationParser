@@ -28,7 +28,7 @@ public final class OpAtom implements Atom {
         opMap.put("int", "\\int");
         opMap.put("inter", "\\bigcap");
         opMap.put("odint", "\\oiint"); // esint, mathdesign, mathabx, MdSymbol, MnSymbol, txfonts, pxfonts,
-                                            // stix, fdsymbol, fourier
+        // stix, fdsymbol, fourier
         opMap.put("oint", "\\oint");
         opMap.put("otint", "\\oiiint"); // mathdesign, MdSymbol, txfonts, pxfonts, stix, fdsymbol, fourier
         opMap.put("prod", "\\prod");
@@ -40,16 +40,16 @@ public final class OpAtom implements Atom {
         opMap.put("Lim", "\\operatorname*{Lim}");
     }
 
-    public static void init() {
-        AtomMap.register((parser, command) -> new OpAtom(command), opMap.keySet());
-        AtomMap.addSpecial("lim");
-        AtomMap.addSpecial("Lim");
-    }
-
     private final String function;
 
     private OpAtom(String command) {
         function = opMap.get(command);
+    }
+
+    public static void init() {
+        AtomMap.register((parser, command) -> new OpAtom(command), opMap.keySet());
+        AtomMap.addSpecial("lim");
+        AtomMap.addSpecial("Lim");
     }
 
     @Override
@@ -61,5 +61,4 @@ public final class OpAtom implements Atom {
     public String toString() {
         return "\\displaystyle" + function + ' ';
     }
-
 }

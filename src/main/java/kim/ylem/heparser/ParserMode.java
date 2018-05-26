@@ -16,15 +16,6 @@ public enum ParserMode {
     SYMBOL(1),
     DELIMITER(1);
 
-    public static ParserMode getArgumentMode(int maxLength) {
-        for (ParserMode mode : ParserMode.values()) {
-            if (mode.parserMode == ARGUMENT && mode.maxLength == maxLength) {
-                return mode;
-            }
-        }
-        throw new IllegalArgumentException("Invalid command length!");
-    }
-
     private final ParserMode parserMode;
     private final int maxLength;
     private final ScriptAtom.Mode scriptParseMode;
@@ -41,6 +32,15 @@ public enum ParserMode {
         this.parserMode = parserMode;
         this.maxLength = maxLength;
         this.scriptParseMode = scriptParseMode;
+    }
+
+    public static ParserMode getArgumentMode(int maxLength) {
+        for (ParserMode mode : ParserMode.values()) {
+            if (mode.parserMode == ARGUMENT && mode.maxLength == maxLength) {
+                return mode;
+            }
+        }
+        throw new IllegalArgumentException("Invalid command length!");
     }
 
     public ParserMode getParserMode() {

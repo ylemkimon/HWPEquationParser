@@ -9,7 +9,13 @@ import kim.ylem.heparser.ParserMode;
 public final class LeftRightAtom implements Atom {
     private static final long serialVersionUID = -1865251277686618811L;
 
-    public enum Side { left, right }
+    private final Side side;
+    private final Atom delim;
+
+    public LeftRightAtom(Side side, Atom delim) {
+        this.side = side;
+        this.delim = delim;
+    }
 
     public static void init() {
         AtomMap.register(LeftRightAtom::parse, "left", "right");
@@ -22,17 +28,10 @@ public final class LeftRightAtom implements Atom {
         return new LeftRightAtom(side, delim);
     }
 
-    private final Side side;
-    private final Atom delim;
-
-    public LeftRightAtom(Side side, Atom delim) {
-        this.side = side;
-        this.delim = delim;
-    }
-
     @Override
     public String toString() {
         return '\\' + side.toString() + (delim != null ? delim : ".");
     }
 
+    public enum Side {left, right}
 }

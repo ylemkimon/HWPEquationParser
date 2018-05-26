@@ -156,7 +156,7 @@ public class GroupParser {
         }
 
         //noinspection StatementWithEmptyBody
-        while (parseNext());
+        while (parseNext()) ;
         checkResult();
 
         if (group != null && (mode == ParserMode.ARGUMENT || mode == ParserMode.TERM)) {

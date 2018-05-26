@@ -53,6 +53,14 @@ public final class FunctionAtom implements Atom {
         functionMap.put("tanh", "\\tanh");
     }
 
+    private final String function;
+    private final Atom content;
+
+    private FunctionAtom(String command, Atom content) {
+        function = functionMap.get(command);
+        this.content = content;
+    }
+
     public static void init() {
         AtomMap.register(FunctionAtom::parse, functionMap.keySet(), true);
     }
@@ -63,17 +71,8 @@ public final class FunctionAtom implements Atom {
         return new FunctionAtom(command, content);
     }
 
-    private final String function;
-    private final Atom content;
-
-    private FunctionAtom(String command, Atom content) {
-        function = functionMap.get(command);
-        this.content = content;
-    }
-
     @Override
     public String toString() {
         return function + ' ' + (content != null ? content : "");
     }
-
 }

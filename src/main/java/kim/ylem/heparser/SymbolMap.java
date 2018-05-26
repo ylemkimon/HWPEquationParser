@@ -10,20 +10,6 @@ public final class SymbolMap {
     private static final Map<Character, String> latexMap = new HashMap<>(264);
     private static final Collection<String> delimiters = new HashSet<>(17);
 
-    private static void put(Character ch, String latex, String... commands) {
-        for (String s : commands) {
-            symbolMap.put(s, ch);
-        }
-        if (!latex.equals(ch.toString())) {
-            latexMap.put(ch, latex);
-        }
-    }
-
-    private static void putDelim(Character ch, String latex, String... commands) {
-        put(ch, latex, commands);
-        delimiters.add(ch.toString());
-    }
-
     static {
         // delimiters
         putDelim('(', "(", "（", "lparen", "\uE044");
@@ -307,6 +293,9 @@ public final class SymbolMap {
         put('⊻', "\\veebar", "xor");
     }
 
+    private SymbolMap() {
+    }
+
     public static void init() {
         AtomMap.register(null, symbolMap.keySet());
         AtomMap.addSpecial("IMAG");
@@ -325,6 +314,20 @@ public final class SymbolMap {
         }
     }
 
+    private static void put(Character ch, String latex, String... commands) {
+        for (String s : commands) {
+            symbolMap.put(s, ch);
+        }
+        if (!latex.equals(ch.toString())) {
+            latexMap.put(ch, latex);
+        }
+    }
+
+    private static void putDelim(Character ch, String latex, String... commands) {
+        put(ch, latex, commands);
+        delimiters.add(ch.toString());
+    }
+
     static String getSymbol(String function) {
         return symbolMap.get(function).toString();
     }
@@ -335,8 +338,5 @@ public final class SymbolMap {
 
     static boolean isDelimiter(String s) {
         return delimiters.contains(s);
-    }
-
-    private SymbolMap() {
     }
 }

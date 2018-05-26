@@ -12,6 +12,8 @@ import java.util.Deque;
 public class Group implements Atom {
     private static final long serialVersionUID = 2901822524810878507L;
 
+    private final Deque<Atom> children = new ArrayDeque<>();
+
     public static void init() {
         AtomMap.register(Group::parse, "{");
     }
@@ -21,8 +23,6 @@ public class Group implements Atom {
         parser.expect('}', "end of group", true);
         return result;
     }
-
-    private final Deque<Atom> children = new ArrayDeque<>();
 
     public boolean isEmpty() {
         return children.isEmpty();
@@ -52,5 +52,4 @@ public class Group implements Atom {
         }
         return sb.toString();
     }
-
 }

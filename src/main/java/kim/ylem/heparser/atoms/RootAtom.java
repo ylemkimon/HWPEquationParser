@@ -9,6 +9,14 @@ import kim.ylem.heparser.ParserMode;
 public final class RootAtom implements Atom {
     private static final long serialVersionUID = -5879748029482233369L;
 
+    private final Atom degree;
+    private final Atom content;
+
+    private RootAtom(Atom degree, Atom content) {
+        this.degree = degree;
+        this.content = content;
+    }
+
     public static void init() {
         AtomMap.register(RootAtom::parse, "sqrt", "root");
     }
@@ -23,14 +31,6 @@ public final class RootAtom implements Atom {
         return new RootAtom(degree, content);
     }
 
-    private final Atom degree;
-    private final Atom content;
-
-    private RootAtom(Atom degree, Atom content) {
-        this.degree = degree;
-        this.content = content;
-    }
-
     @Override
     public String toString() {
         String result = "\\sqrt";
@@ -39,5 +39,4 @@ public final class RootAtom implements Atom {
         }
         return result + '{' + content + '}';
     }
-
 }

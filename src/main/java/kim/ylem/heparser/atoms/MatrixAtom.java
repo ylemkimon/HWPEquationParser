@@ -31,15 +31,6 @@ public final class MatrixAtom implements Atom {
         matrixMap.put("rpile", "arrayr");
     }
 
-    public static void init() {
-        AtomMap.register(HEParser::parseMatrix, matrixMap.keySet());
-    }
-
-    public static boolean hasNoDelimiters(String command) {
-        return "matrix".equals(command) || "eqalign".equals(command) ||
-                command.endsWith("col") || command.endsWith("pile");
-    }
-
     private final String function;
     private final Queue<Queue<Atom>> rows;
     private final int colCount;
@@ -48,6 +39,15 @@ public final class MatrixAtom implements Atom {
         function = matrixMap.get(command);
         this.rows = rows;
         this.colCount = colCount;
+    }
+
+    public static void init() {
+        AtomMap.register(HEParser::parseMatrix, matrixMap.keySet());
+    }
+
+    public static boolean hasNoDelimiters(String command) {
+        return "matrix".equals(command) || "eqalign".equals(command) ||
+                command.endsWith("col") || command.endsWith("pile");
     }
 
     @Override
@@ -68,5 +68,4 @@ public final class MatrixAtom implements Atom {
 
         return "\\begin{" + function + '}' + result + "\\end{" + function + '}';
     }
-
 }

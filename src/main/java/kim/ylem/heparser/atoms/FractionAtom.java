@@ -25,6 +25,16 @@ public final class FractionAtom implements Atom {
         put("choose", "\\binom", "\\dbinom");
     }
 
+    private final String function;
+    private final Atom first;
+    private final Atom second;
+
+    private FractionAtom(String command, Atom first, Atom second, boolean textStyle) {
+        function = textStyle ? fractionMap.get(command) : dfractionMap.get(command);
+        this.first = first;
+        this.second = second;
+    }
+
     private static void put(String command, String textStyle, String displayStyle) {
         fractionMap.put(command, textStyle);
         dfractionMap.put(command, displayStyle);
@@ -36,7 +46,7 @@ public final class FractionAtom implements Atom {
 
     private static Atom parse(HEParser parser, String command) throws ParserException {
         Atom first;
-        if ("over".equals(command) ||"atop".equals(command) || "choose".equals(command)) {
+        if ("over".equals(command) || "atop".equals(command) || "choose".equals(command)) {
             first = parser.getGroupParser().popGroup();
             if (first == null) {
                 throw parser.newUnexpectedException("a term", command);
@@ -48,16 +58,6 @@ public final class FractionAtom implements Atom {
         return new FractionAtom(command, first, second, parser.getCurrentOptions().isTextStyle());
     }
 
-    private final String function;
-    private final Atom first;
-    private final Atom second;
-
-    private FractionAtom(String command, Atom first, Atom second, boolean textStyle) {
-        function = textStyle ? fractionMap.get(command) : dfractionMap.get(command);
-        this.first = first;
-        this.second = second;
-    }
-
     @Override
     public String toString() {
         if ("\\overbrace".equals(function)) {
@@ -67,5 +67,4 @@ public final class FractionAtom implements Atom {
         }
         return function + '{' + first + "}{" + second + '}';
     }
-
 }

@@ -42,6 +42,14 @@ public final class AccentAtom implements Atom {
         accentMap.put("bigg", "\\huge");
     }
 
+    private final String function;
+    private final Atom content;
+
+    private AccentAtom(String command, Atom content) {
+        function = accentMap.get(command);
+        this.content = content;
+    }
+
     public static void init() {
         AtomMap.register(AccentAtom::parse, accentMap.keySet());
     }
@@ -56,14 +64,6 @@ public final class AccentAtom implements Atom {
             content = parser.parseGroup(ParserMode.TERM);
         }
         return new AccentAtom(command, content);
-    }
-
-    private final String function;
-    private final Atom content;
-
-    private AccentAtom(String command, Atom content) {
-        function = accentMap.get(command);
-        this.content = content;
     }
 
     @Override

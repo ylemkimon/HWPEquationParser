@@ -16,6 +16,19 @@ public class TextAtom implements Atom {
         keywords.add("det");
     }
 
+    private final String text;
+    private final boolean roman;
+    private final boolean bold;
+
+    private transient String currentCommand;
+    private transient int state;
+
+    public TextAtom(String text, Options options) {
+        this.text = text;
+        roman = options.isRoman();
+        bold = options.isBold();
+    }
+
     public static void init() {
         AtomMap.register(TextAtom::parse, "\"");
         AtomMap.register(TextAtom::parseFont, "\\", "rm", "it");
@@ -55,19 +68,6 @@ public class TextAtom implements Atom {
             return new TextAtom(sb.toString(), options);
         }
         return null;
-    }
-
-    private final String text;
-    private final boolean roman;
-    private final boolean bold;
-
-    private transient String currentCommand;
-    private transient int state;
-
-    public TextAtom(String text, Options options) {
-        this.text = text;
-        roman = options.isRoman();
-        bold = options.isBold();
     }
 
     private String getCommand(char c, int pos) {

@@ -6,10 +6,14 @@ import kim.ylem.heparser.*;
 public final class ScriptAtom implements Atom {
     private static final long serialVersionUID = -7787380238205077540L;
 
-    public enum Mode {
-        NORMAL,
-        IN_SUB,
-        UNDEROVER
+    private final Atom content;
+    private final Atom sub;
+    private final Atom sup;
+
+    private ScriptAtom(Atom content, Atom sub, Atom sup) {
+        this.content = content;
+        this.sub = sub;
+        this.sup = sup;
     }
 
     public static void init() {
@@ -62,16 +66,6 @@ public final class ScriptAtom implements Atom {
         return mode == Mode.UNDEROVER ? new UnderOverAtom(content, sup, sub) : new ScriptAtom(content, sub, sup);
     }
 
-    private final Atom content;
-    private final Atom sub;
-    private final Atom sup;
-
-    private ScriptAtom(Atom content, Atom sub, Atom sup) {
-        this.content = content;
-        this.sub = sub;
-        this.sup = sup;
-    }
-
     @Override
     public String toString() {
         String result = "";
@@ -86,4 +80,6 @@ public final class ScriptAtom implements Atom {
         }
         return result;
     }
+
+    public enum Mode { NORMAL, IN_SUB, UNDEROVER }
 }

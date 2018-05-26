@@ -3,6 +3,9 @@ package kim.ylem.heparser;
 public final class ASCIIUtil {
     public static final int UPPER_LOWER_OFFSET = 32;
 
+    private ASCIIUtil() {
+    }
+
     public static boolean isAlphabet(char c) {
         return (c <= 'Z' && c >= 'A') || (c <= 'z' && c >= 'a');
     }
@@ -13,9 +16,6 @@ public final class ASCIIUtil {
 
     public static char toLowerCase(char c) {
         return isUpperCase(c) ? (char) (c + UPPER_LOWER_OFFSET) : c;
-    }
-
-    private ASCIIUtil() {
     }
 
     public static int getStyle(char first, char second) {
