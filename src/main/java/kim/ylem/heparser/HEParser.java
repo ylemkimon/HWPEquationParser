@@ -119,7 +119,7 @@ public class HEParser implements Iterator<Character> {
 
     private Token searchAlphabetic() {
         char c = peek();
-        int style = ASCIIUtil.getStyle(c, equation.charAt(pos + 2)); // TODO: enumize
+        int style = ASCIIUtil.getStyle(c, equation.charAt(pos + 2));
         char[] search = new char[10];
         search[0] = ASCIIUtil.toLowerCase(c);
 
@@ -142,8 +142,8 @@ public class HEParser implements Iterator<Character> {
             String sub = new String(search, 0, i);
             if (AtomMap.containsKey(sub)) {
                 if (style != 0) {
-                    if (AtomMap.isSpecial(sub)) { // XXX: can break?
-                        continue;
+                    if (AtomMap.isSpecial(sub)) {
+                        break;
                     }
                     sub = searchCamel(sub, search, i);
                 }
