@@ -7,6 +7,7 @@ import kim.ylem.heparser.HEParser;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class MatrixAtom implements Atom {
@@ -19,7 +20,7 @@ public final class MatrixAtom implements Atom {
         matrixMap.put("bmatrix", "bmatrix");
         matrixMap.put("dmatrix", "vmatrix");
         matrixMap.put("cases", "cases");
-        matrixMap.put("eqalign", "aligned");
+        matrixMap.put("eqalign", "alignedat");
 
         matrixMap.put("col", "arrayc");
         matrixMap.put("ccol", "arrayc");
@@ -52,20 +53,34 @@ public final class MatrixAtom implements Atom {
 
     @Override
     public String toString() {
-        String result = rows.stream()
-                .map(row -> row.stream()
-                        .map(Object::toString)
-                        .collect(Collectors.joining("&")))
-                .collect(Collectors.joining("\\\\"));
+        Function<Queue<Atom>, String> rowToString;
+        String function = this.function;
+        String argument = null;
 
-        if (function.startsWith("array")) {
-            char[] alignment = new char[colCount];
-            for (int i = 0; i < colCount; i++) {
-                alignment[i] = function.charAt(5);
+        if ("alignedat".equals(function)) {
+            rowToString = colCount == 1 ? row -> '&' + row.remove().toString()
+                    : row -> row.remove().toString() + '&' + row.stream()
+                            .map(Object::toString)
+                            .collect(Collectors.joining("&&"));
+            argument = Integer.toString(colCount);
+        } else {
+            rowToString = row -> row.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining("&"));
+
+            if (function.startsWith("array")) {
+                char[] alignment = new char[colCount];
+                for (int i = 0; i < colCount; i++) {
+                    alignment[i] = function.charAt(5);
+                }
+                function = "array";
+                argument = new String(alignment);
             }
-            return "\\begin{array}{" + new String(alignment) + '}' + result + "\\end{array}";
         }
 
-        return "\\begin{" + function + '}' + result + "\\end{" + function + '}';
+        return "\\begin{" + function + '}' + (argument != null ? '{' + argument  + '}' : "") +
+                rows.stream()
+                        .map(rowToString)
+                        .collect(Collectors.joining("\\\\")) + "\\end{" + function + '}';
     }
 }
