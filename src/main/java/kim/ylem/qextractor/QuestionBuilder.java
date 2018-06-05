@@ -13,6 +13,7 @@ public class QuestionBuilder implements Updatable {
 
     static {
         for (int i = 0; i < 5; i++) {
+            //noinspection Annotator
             CHOICE_PATTERN[i] = Pattern.compile("[\\u278" + i + "\\u246" + i +
                     "]([^\\n\\u278" + (i + 1) + "\\u246" + (i + 1) + "]*)");
         }
