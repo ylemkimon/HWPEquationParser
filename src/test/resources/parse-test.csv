@@ -1,0 +1,14 @@
+expr,expected
+"",""
+"     ",""
+1234567890,1234567890
+ABCDEvwxyz,ABCDEvwxyz
+한글,\textrm{한글}
+acutex,\acute{x}
+vecA,\overrightarrow{A}
+VecA,"\mathbb A "
+boldx,\boldsymbol{x}
+bold한글,\boldsymbol{\textbf{한글}}
+not#,\not{\# }
+1over2,\dfrac{1}{2}
+binom1 2,\dbinom{1}{2}
