@@ -2,6 +2,7 @@ package kim.ylem.hmlparser;
 
 import kim.ylem.hmlparser.image.ImageTaskFactory;
 import kim.ylem.ParserException;
+import kim.ylem.xmlparser.HMLCloner;
 import kim.ylem.xmlparser.XMLParser;
 
 import java.util.concurrent.ExecutorService;
@@ -9,8 +10,8 @@ import java.util.function.Function;
 
 public abstract class HTMLExtractor extends HMLParser {
     protected HTMLExtractor(XMLParser xmlParser, Function<String, String> equationParser,
-                            ExecutorService imageTaskExecutor, ImageTaskFactory imageTaskFactory) {
-        super(xmlParser, equationParser, imageTaskExecutor, imageTaskFactory);
+                            ExecutorService imageTaskExecutor, ImageTaskFactory imageTaskFactory, HMLCloner hmlCloner) {
+        super(xmlParser, equationParser, imageTaskExecutor, imageTaskFactory, hmlCloner);
     }
 
     @Override

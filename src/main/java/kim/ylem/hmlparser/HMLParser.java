@@ -2,6 +2,7 @@ package kim.ylem.hmlparser;
 
 import kim.ylem.hmlparser.image.ImageTaskFactory;
 import kim.ylem.ParserException;
+import kim.ylem.xmlparser.HMLCloner;
 import kim.ylem.xmlparser.XMLParser;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ public abstract class HMLParser {
     private static final int POINT_TO_PIXEL = 75;
 
     protected final XMLParser xmlParser;
+    protected final HMLCloner hmlCloner;
     private final Function<String, String> equationParser;
     private final ExecutorService imageTaskExecutor;
     private final ImageTaskFactory imageTaskFactory;
@@ -21,11 +23,12 @@ public abstract class HMLParser {
     private final List<BinItem> binList = new ArrayList<>();
 
     protected HMLParser(XMLParser xmlParser, Function<String, String> equationParser,
-                     ExecutorService imageTaskExecutor, ImageTaskFactory imageTaskFactory) {
+                    ExecutorService imageTaskExecutor, ImageTaskFactory imageTaskFactory, HMLCloner hmlCloner) {
         this.xmlParser = xmlParser;
         this.equationParser = equationParser;
         this.imageTaskExecutor = imageTaskExecutor;
         this.imageTaskFactory = imageTaskFactory;
+        this.hmlCloner = hmlCloner;
     }
 
     public Object parse() throws ParserException {
@@ -63,7 +66,7 @@ public abstract class HMLParser {
                     processBinData();
                     break;
             }
-        }, null, false);
+        }, null);
     }
 
     protected void processBinItem() throws ParserException {
@@ -120,7 +123,7 @@ public abstract class HMLParser {
                     sb.append("    ");
                     break;
             }
-        }, sb::append, true);
+        }, sb::append);
     }
 
     protected void parseEquation(StringBuilder sb) throws ParserException {
@@ -161,6 +164,9 @@ public abstract class HMLParser {
                     break;
                 case "IMAGE":
                     binList.get(xmlParser.getIntAttribute("BinItem") - 1).addImageData(image);
+                    if (hmlCloner != null) {
+                        hmlCloner.cloneImage();
+                    }
                     break;
             }
         });

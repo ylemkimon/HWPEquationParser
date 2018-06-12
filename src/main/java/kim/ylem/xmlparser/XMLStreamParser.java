@@ -13,12 +13,15 @@ public class XMLStreamParser implements XMLParser {
     private final XMLStreamReader streamReader;
     private final InputStream stream;
 
-    protected XMLStreamParser(XMLStreamReader streamReader, InputStream stream) {
+    protected XMLStreamParser(XMLStreamReader streamReader, InputStream stream) throws XMLStreamException {
         this.streamReader = streamReader;
         this.stream = stream;
+
+        //noinspection StatementWithEmptyBody
+        while (streamReader.hasNext() && streamReader.next() != XMLStreamConstants.START_ELEMENT);
     }
 
-    protected XMLStreamParser(XMLStreamReader streamReader) {
+    protected XMLStreamParser(XMLStreamReader streamReader) throws XMLStreamException {
         this(streamReader, null);
     }
 
@@ -70,11 +73,10 @@ public class XMLStreamParser implements XMLParser {
     }
 
     @Override
-    public void forEach(String ancestor, ElementProcessor elementProcessor, Consumer<String> textConsumer,
-                        boolean inAncestor) throws ParserException {
+    public void forEach(String ancestor, ElementProcessor elementProcessor, Consumer<String> textConsumer)
+            throws ParserException {
         try {
-            int nestCount = inAncestor ? 0 : -1;
-            read:
+            int nestCount = 0;
             while (streamReader.hasNext()) {
                 switch (streamReader.next()) {
                     case XMLStreamConstants.START_ELEMENT:
@@ -86,7 +88,7 @@ public class XMLStreamParser implements XMLParser {
                         break;
                     case XMLStreamConstants.END_ELEMENT:
                         if (ancestor.equals(streamReader.getLocalName()) && --nestCount <= 0) {
-                            break read;
+                            return;
                         }
                         break;
                     case XMLStreamConstants.CHARACTERS:

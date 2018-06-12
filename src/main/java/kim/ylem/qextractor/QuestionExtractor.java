@@ -4,6 +4,7 @@ import kim.ylem.hmlparser.HTMLExtractor;
 import kim.ylem.hmlparser.Updatable;
 import kim.ylem.hmlparser.image.ImageTaskFactory;
 import kim.ylem.ParserException;
+import kim.ylem.xmlparser.HMLCloner;
 import kim.ylem.xmlparser.XMLParser;
 
 import java.util.ArrayList;
@@ -21,8 +22,8 @@ public class QuestionExtractor extends HTMLExtractor {
     private String currentParaShape;
 
     public QuestionExtractor(XMLParser xmlParser, Function<String, String> equationParser,
-                             ExecutorService imageTaskExecutor, ImageTaskFactory imageTaskFactory) {
-        super(xmlParser, equationParser, imageTaskExecutor, imageTaskFactory);
+                             ExecutorService imageTaskExecutor, ImageTaskFactory imageTaskFactory, HMLCloner hmlCloner) {
+        super(xmlParser, equationParser, imageTaskExecutor, imageTaskFactory, hmlCloner);
     }
 
     @Override
@@ -52,6 +53,10 @@ public class QuestionExtractor extends HTMLExtractor {
     protected void processParagraph() throws ParserException {
         currentParaShape = xmlParser.getAttribute("ParaShape");
         if (outlineParaShapes.contains(currentParaShape)) {
+            if (hmlCloner != null && !questionBuilderList.isEmpty()) {
+                hmlCloner.extract(Integer.toString(questionBuilderList.size()));
+                hmlCloner.reset();
+            }
             current = new QuestionBuilder();
             questionBuilderList.add(current);
         } else if (questionBuilderList.isEmpty()) {
@@ -59,6 +64,9 @@ public class QuestionExtractor extends HTMLExtractor {
         }
 
         parseParagraph(current.getTextBuilder());
+        if (hmlCloner != null && !questionBuilderList.isEmpty()) {
+            hmlCloner.cloneParagraph();
+        }
     }
 
     @Override

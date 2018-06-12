@@ -14,10 +14,10 @@ public interface XMLParser extends AutoCloseable {
     String getElementText() throws ParserException;
 
     void forEach(String ancestor, ElementProcessor elementProcessor,
-                 Consumer<String> textConsumer, boolean inAncestor) throws ParserException;
+                 Consumer<String> textConsumer) throws ParserException;
 
     default void forEach(String ancestor, ElementProcessor elementProcessor) throws ParserException {
-        forEach(ancestor, elementProcessor, null, true);
+        forEach(ancestor, elementProcessor, null);
     }
 
     default void join(String ancestor, String child,
