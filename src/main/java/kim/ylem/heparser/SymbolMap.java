@@ -1,11 +1,17 @@
 package kim.ylem.heparser;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
 public final class SymbolMap {
+    private static final Logger logger = LogManager.getLogger();
     private static final Map<String, Character> symbolMap = new HashMap<>(506);
     private static final Map<Character, String> latexMap = new HashMap<>(264);
     private static final Collection<String> delimiters = new HashSet<>(17);
@@ -328,15 +334,25 @@ public final class SymbolMap {
         delimiters.add(ch.toString());
     }
 
+    @Contract(pure = true)
     static String getSymbol(String function) {
         return symbolMap.get(function).toString();
     }
 
+    @Contract(pure = true)
+    @Nullable
     public static String getLaTeX(char c) {
         return latexMap.get(c);
     }
 
-    static boolean isDelimiter(String s) {
-        return delimiters.contains(s);
+    @Contract(pure = true)
+    static boolean checkDelimiter(String s) {
+        if (delimiters.contains(s)) {
+            return true;
+        }
+        if (!".".equals(s)) {
+            logger.warn("Delimiter not found, using null delimiter");
+        }
+        return false;
     }
 }

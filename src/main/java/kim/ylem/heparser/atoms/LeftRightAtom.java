@@ -5,6 +5,7 @@ import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
 import kim.ylem.heparser.HEParser;
 import kim.ylem.heparser.ParserMode;
+import org.jetbrains.annotations.Contract;
 
 public final class LeftRightAtom implements Atom {
     private static final long serialVersionUID = -1865251277686618811L;
@@ -28,6 +29,7 @@ public final class LeftRightAtom implements Atom {
         return new LeftRightAtom(side, delim);
     }
 
+    @Contract(pure = true)
     @Override
     public String toString() {
         return '\\' + side.toString() + (delim != null ? delim : ".");

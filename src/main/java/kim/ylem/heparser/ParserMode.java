@@ -1,6 +1,8 @@
 package kim.ylem.heparser;
 
 import kim.ylem.heparser.atoms.ScriptAtom;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public enum ParserMode {
     ARGUMENT(0),
@@ -34,6 +36,7 @@ public enum ParserMode {
         this.scriptParseMode = scriptParseMode;
     }
 
+    @NotNull
     public static ParserMode getArgumentMode(int maxLength) {
         for (ParserMode mode : ParserMode.values()) {
             if (mode.parserMode == ARGUMENT && mode.maxLength == maxLength) {
@@ -43,6 +46,7 @@ public enum ParserMode {
         throw new IllegalArgumentException("Invalid command length!");
     }
 
+    @Nullable
     public ParserMode getParserMode() {
         return parserMode;
     }
@@ -51,6 +55,7 @@ public enum ParserMode {
         return maxLength;
     }
 
+    @NotNull
     public ScriptAtom.Mode getScriptParseMode() {
         return scriptParseMode;
     }

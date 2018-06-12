@@ -1,74 +1,75 @@
 package kim.ylem.heparser;
 
 import kim.ylem.ParserException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
+/**
+ * The HEParser parses HWP(Hangul Document) equation.
+ */
 public class HEParser implements Iterator<Character> {
-    private static final int MAX_ATTEMPT = 50;
+    private static final Logger logger = LogManager.getLogger();
 
     private final String originalEquation;
     private final Deque<GroupParser> groupParserStack = new ArrayDeque<>();
 
     private String equation;
-    private String warning = "";
-
     private int pos = -1;
-    private int attempt;
 
     public HEParser(String s) {
         originalEquation = s;
         equation = '{' + s + '}';
     }
 
+    @Contract(pure = true)
     public ParserException newUnexpectedException(String expected, String actual) {
         return new ParserException("Expected " + expected + " at " + pos + ", but got " + actual + " instead");
     }
 
+    @NotNull
     public String parse() {
-        String result = "";
+        String result = originalEquation;
         try {
             while (hasNext()) {
                 if (pos > -1) {
-                    appendWarning("expected EOF, appending { to the left");
+                    logger.warn("Expected EOF, appending { to the left");
                     equation = '{' + equation;
                 }
                 pos = -1;
+
+                ThreadContext.put("equation", equation);
+                ThreadContext.put("pos", Integer.toString(pos));
+
                 result = parseMatrix("eqalign").toString();
             }
         } catch (ParserException e) {
-            e.printStackTrace();
+            logger.error("A ParserException occurred", e);
         }
-
-        if (!warning.isEmpty()) {
-            System.err.println("While parsing equation: " + originalEquation);
-            System.err.println(warning.trim());
-            System.err.println("Result: " + result);
-        }
+        logger.info("Result: {}", result);
         return result;
     }
 
-    public void appendWarning(String message) throws ParserException {
-        warning += pos + ": " + message + '\n';
-        if (++attempt > MAX_ATTEMPT) {
-            throw new ParserException("Too many warnings, stopping to prevent infinite loops");
-        }
-    }
-
     @Override
+    @Contract(pure = true)
     public boolean hasNext() {
         return pos < equation.length() - 1;
     }
 
+    @NotNull
     @Override
     public Character next() {
         if (!hasNext()) {
             throw new NoSuchElementException("Reached EOF");
         }
-        return equation.charAt(++pos);
+        pos++;
+        ThreadContext.put("pos", Integer.toString(pos));
+        return equation.charAt(pos);
     }
 
     public void expect(char expected, String name, boolean consume) throws ParserException {
@@ -79,6 +80,8 @@ public class HEParser implements Iterator<Character> {
         }
     }
 
+    @Contract(pure = true)
+    @NotNull
     Token nextToken(boolean forceSymbol) {
         char c = peek();
         if (c <= '9' && c >= '0') {
@@ -90,6 +93,7 @@ public class HEParser implements Iterator<Character> {
         return special != null ? special : searchAlphabetic();
     }
 
+    @Contract(pure = true)
     private Token searchNonAlphabetic(boolean forceSymbol) {
         int remaining = equation.length() - pos - 2;
         for (int i = Math.min(remaining, 3); i > 0; i--) {
@@ -107,6 +111,7 @@ public class HEParser implements Iterator<Character> {
         return new Token(peek().toString(), false);
     }
 
+    @Contract(pure = true)
     private Token searchSpecial() {
         for (int i = 2; i <= 4 && pos + i + 1 < equation.length(); i++) {
             String sub = equation.substring(pos + 1, pos + i + 1);
@@ -117,6 +122,7 @@ public class HEParser implements Iterator<Character> {
         return null;
     }
 
+    @Contract(pure = true)
     private Token searchAlphabetic() {
         char c = peek();
         int style = ASCIIUtil.getStyle(c, equation.charAt(pos + 2));
@@ -153,6 +159,8 @@ public class HEParser implements Iterator<Character> {
         return new Token(equation.substring(pos + 1, pos + len + 1), false);
     }
 
+    @Contract(pure = true)
+    @NotNull
     private static String searchCamel(String sub, char[] search, int len) {
         search[0] -= ASCIIUtil.UPPER_LOWER_OFFSET;
         String camel = new String(search, 0, len);
@@ -171,12 +179,15 @@ public class HEParser implements Iterator<Character> {
         for (String s : searchStrings) {
             if (equation.startsWith(s, pos + n)) {
                 pos += n + s.length() - 1;
+                ThreadContext.put("pos", Integer.toString(pos));
                 return true;
             }
         }
         return false;
     }
 
+    @Contract(pure = true)
+    @NotNull
     public Character peek() {
         return pos + 1 < equation.length() ? equation.charAt(pos + 1) : '\0';
     }
@@ -184,27 +195,35 @@ public class HEParser implements Iterator<Character> {
     void consume(Token token, int length) {
         if (length > 0) {
             pos += token.toString().length() > 1 ? length : token.getLength();
+            ThreadContext.put("pos", Integer.toString(pos));
         }
     }
 
     public void skipToEnd() {
         pos = equation.length() - 2;
+        ThreadContext.put("pos", Integer.toString(pos));
     }
 
-    public void skipWhitespaces() {
+    void skipWhitespaces() {
         while (Character.isWhitespace(peek())) {
             pos++;
         }
+        ThreadContext.put("pos", Integer.toString(pos));
     }
 
+    @Contract(pure = true)
+    @NotNull
     public Options getCurrentOptions() {
         return groupParserStack.isEmpty() ? new Options() : getGroupParser().getOptions();
     }
 
+    @Contract(pure = true)
+    @NotNull
     public GroupParser getGroupParser() {
-        return groupParserStack.peek();
+        return groupParserStack.getFirst();
     }
 
+    @NotNull
     public Atom parseMatrix(String command) throws ParserException {
         GroupParser groupParser = new GroupParser(this, ParserMode.GROUP, getCurrentOptions());
         groupParserStack.push(groupParser);
@@ -213,10 +232,12 @@ public class HEParser implements Iterator<Character> {
         return matrix;
     }
 
+    @Nullable
     public Atom parseGroup(ParserMode mode) throws ParserException {
         return parseGroup(mode, getCurrentOptions());
     }
 
+    @Nullable
     public Atom parseGroup(ParserMode mode, Options options) throws ParserException {
         GroupParser groupParser = new GroupParser(this, mode, options);
         groupParserStack.push(groupParser);

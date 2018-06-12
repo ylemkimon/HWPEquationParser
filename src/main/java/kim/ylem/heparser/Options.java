@@ -1,5 +1,8 @@
 package kim.ylem.heparser;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 public class Options {
     private final boolean textStyle;
     private final boolean roman;
@@ -15,26 +18,32 @@ public class Options {
         this.bold = bold;
     }
 
+    @NotNull
     public Options withTextStyle(boolean newTextStyle) {
         return new Options(newTextStyle, roman, bold);
     }
 
+    @NotNull
     public Options withRomanFont(boolean newRoman) {
         return new Options(textStyle, newRoman, bold);
     }
 
+    @NotNull
     public Options withBoldFont(boolean newBold) {
         return new Options(textStyle, roman, newBold);
     }
 
+    @Contract(pure = true)
     public boolean isTextStyle() {
         return textStyle;
     }
 
+    @Contract(pure = true)
     public boolean isBold() {
         return bold;
     }
 
+    @Contract(pure = true)
     public boolean isRoman() {
         return roman;
     }

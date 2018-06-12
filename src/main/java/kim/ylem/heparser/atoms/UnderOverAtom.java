@@ -5,6 +5,8 @@ import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
 import kim.ylem.heparser.HEParser;
 import kim.ylem.heparser.ParserMode;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public final class UnderOverAtom implements Atom {
     private static final long serialVersionUID = -6552226985365505508L;
@@ -23,7 +25,7 @@ public final class UnderOverAtom implements Atom {
         AtomMap.register(UnderOverAtom::parse, "underover", "buildrel", "rel");
     }
 
-    private static Atom parse(HEParser parser, String command) throws ParserException {
+    private static @NotNull Atom parse(HEParser parser, String command) throws ParserException {
         if ("underover".equals(command)) {
             return parser.parseGroup(ParserMode.UNDEROVER_TERM);
         }
@@ -33,8 +35,10 @@ public final class UnderOverAtom implements Atom {
         return new UnderOverAtom(content, over, under);
     }
 
+
     @Override
-    public String toString() {
+    @Contract(pure = true)
+    public @NotNull String toString() {
         String result = content.toString();
         if (over != null) {
             result = "\\overset{" + over + "}{" + result + '}';

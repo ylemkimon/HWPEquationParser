@@ -5,6 +5,9 @@ import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
 import kim.ylem.heparser.HEParser;
 import kim.ylem.heparser.ParserMode;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -18,12 +21,13 @@ public class Group implements Atom {
         AtomMap.register(Group::parse, "{");
     }
 
-    private static Atom parse(HEParser parser, @SuppressWarnings("unused") String function) throws ParserException {
+    private static @NotNull Atom parse(HEParser parser, @SuppressWarnings("unused") String function) throws ParserException {
         Atom result = parser.parseGroup(ParserMode.GROUP);
         parser.expect('}', "end of group", true);
         return result;
     }
 
+    @Contract(pure = true)
     public boolean isEmpty() {
         return children.isEmpty();
     }
@@ -40,12 +44,14 @@ public class Group implements Atom {
         }
     }
 
+    @Nullable
     public Atom pop() {
         return children.pollLast();
     }
 
     @Override
-    public String toString() {
+    @Contract(pure = true)
+    public @NotNull String toString() {
         StringBuilder sb = new StringBuilder();
         for (Atom atom : children) {
             sb.append(atom);

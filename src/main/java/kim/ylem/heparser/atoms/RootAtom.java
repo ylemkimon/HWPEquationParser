@@ -5,6 +5,7 @@ import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
 import kim.ylem.heparser.HEParser;
 import kim.ylem.heparser.ParserMode;
+import org.jetbrains.annotations.Contract;
 
 public final class RootAtom implements Atom {
     private static final long serialVersionUID = -5879748029482233369L;
@@ -31,6 +32,7 @@ public final class RootAtom implements Atom {
         return new RootAtom(degree, content);
     }
 
+    @Contract(pure = true)
     @Override
     public String toString() {
         String result = "\\sqrt";

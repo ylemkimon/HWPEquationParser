@@ -1,6 +1,8 @@
 package kim.ylem.heparser;
 
 import kim.ylem.heparser.atoms.*;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,6 +32,8 @@ public final class AtomMap {
     private AtomMap() {
     }
 
+    @Nullable
+    @Contract(pure = true)
     public static AtomParser get(String key) {
         return map.get(key);
     }

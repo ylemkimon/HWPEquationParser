@@ -3,6 +3,7 @@ package kim.ylem.heparser.atoms;
 import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
 import kim.ylem.heparser.HEParser;
+import org.jetbrains.annotations.Contract;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,11 +47,13 @@ public final class MatrixAtom implements Atom {
         AtomMap.register(HEParser::parseMatrix, matrixMap.keySet());
     }
 
+    @Contract(pure = true)
     public static boolean hasNoDelimiters(String command) {
         return "matrix".equals(command) || "eqalign".equals(command) ||
                 command.endsWith("col") || command.endsWith("pile");
     }
 
+    @Contract(pure = true)
     @Override
     public String toString() {
         Function<Queue<Atom>, String> rowToString;

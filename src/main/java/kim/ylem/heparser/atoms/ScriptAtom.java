@@ -2,9 +2,14 @@ package kim.ylem.heparser.atoms;
 
 import kim.ylem.ParserException;
 import kim.ylem.heparser.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public final class ScriptAtom implements Atom {
     private static final long serialVersionUID = -7787380238205077540L;
+    private static final Logger logger = LogManager.getLogger();
 
     private final Atom content;
     private final Atom sub;
@@ -25,14 +30,14 @@ public final class ScriptAtom implements Atom {
                 parser.search("^", "sup", "Sup", "SUP");
     }
 
-    private static Atom parse(HEParser parser, String command) throws ParserException {
+    private static @NotNull Atom parse(HEParser parser, String command) throws ParserException {
         boolean isFrom = "from".equals(command);
 
         Atom content = parser.getGroupParser().popGroup();
         if (content == null) {
-            parser.appendWarning("expected a term, using empty term");
+            logger.warn("Expected a term, using empty term");
         } else if (!content.isFromToAllowed() && (isFrom || "to".equals(command))) {
-            parser.appendWarning("unexpected " + command + ", skipping to the end");
+            logger.warn("Unexpected " + command + ", skipping to the end");
             parser.skipToEnd();
             return content;
         }
@@ -49,6 +54,7 @@ public final class ScriptAtom implements Atom {
         return new ScriptAtom(content, sub, sup);
     }
 
+    @Contract("_, !null, _ -> !null")
     public static Atom parse(HEParser parser, Atom content, Mode mode) throws ParserException {
         Options textStyleOption = parser.getCurrentOptions().withTextStyle(true);
         Atom sub = null;
@@ -67,7 +73,7 @@ public final class ScriptAtom implements Atom {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         String result = "";
         if (content != null) {
             result += content;

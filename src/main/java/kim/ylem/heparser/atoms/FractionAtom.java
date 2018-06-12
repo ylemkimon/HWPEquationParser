@@ -5,6 +5,7 @@ import kim.ylem.heparser.Atom;
 import kim.ylem.heparser.AtomMap;
 import kim.ylem.heparser.HEParser;
 import kim.ylem.heparser.ParserMode;
+import org.jetbrains.annotations.Contract;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,6 +59,7 @@ public final class FractionAtom implements Atom {
         return new FractionAtom(command, first, second, parser.getCurrentOptions().isTextStyle());
     }
 
+    @Contract(pure = true)
     @Override
     public String toString() {
         if ("\\overbrace".equals(function)) {

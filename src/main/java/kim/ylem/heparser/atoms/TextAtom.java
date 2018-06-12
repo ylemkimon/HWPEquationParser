@@ -2,12 +2,16 @@ package kim.ylem.heparser.atoms;
 
 import kim.ylem.ParserException;
 import kim.ylem.heparser.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class TextAtom implements Atom {
     private static final long serialVersionUID = -6448670049973372435L;
+    private static final Logger logger = LogManager.getLogger();
     private static final Collection<String> keywords = new ArrayList<>(3);
 
     static {
@@ -40,7 +44,7 @@ public class TextAtom implements Atom {
             sb.append(parser.next());
         }
         if (!parser.hasNext()) {
-            parser.appendWarning("expected \", got EOF instead, skipping to the end");
+            logger.warn("Expected \", got EOF instead, skipping to the end");
             parser.skipToEnd();
             return null;
         }
@@ -95,7 +99,7 @@ public class TextAtom implements Atom {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         StringBuilder result = new StringBuilder();
         state = -1;
         for (int i = 0; i < text.length(); i++) {

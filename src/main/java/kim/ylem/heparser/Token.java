@@ -1,5 +1,8 @@
 package kim.ylem.heparser;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
+
 class Token {
     private final String text;
     private final AtomParser atomParser;
@@ -15,10 +18,13 @@ class Token {
         length = text.length();
     }
 
+    @Contract(pure = true)
     int getLength() {
         return length;
     }
 
+    @Contract(pure = true)
+    @Nullable
     AtomParser getAtomParser() {
         return atomParser;
     }

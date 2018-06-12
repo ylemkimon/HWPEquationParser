@@ -2,11 +2,18 @@ package kim.ylem.heparser;
 
 import kim.ylem.ParserException;
 import kim.ylem.heparser.atoms.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
 
 public class GroupParser {
+    private static final Logger logger = LogManager.getLogger();
+
     private final HEParser parser;
     private final ParserMode originalMode;
     private final ParserMode mode;
@@ -27,7 +34,9 @@ public class GroupParser {
         this.options = options;
     }
 
-    public Options getOptions() {
+    @Contract(pure = true)
+    @NotNull
+    Options getOptions() {
         return options;
     }
 
@@ -35,11 +44,11 @@ public class GroupParser {
         this.options = options;
     }
 
-    public void updateLeftRightDepth(LeftRightAtom.Side side) throws ParserException {
+    public void updateLeftRightDepth(LeftRightAtom.Side side) {
         if (side == LeftRightAtom.Side.left) {
             leftRight++;
         } else if (leftRight <= 0) {
-            parser.appendWarning("unexpected right, adding left with null delimiter");
+            logger.warn("Unexpected right, adding left with null delimiter");
             group.addFirst(new LeftRightAtom(LeftRightAtom.Side.left, null));
             leftRight = 0;
         } else {
@@ -49,7 +58,7 @@ public class GroupParser {
 
     private void checkResult() throws ParserException {
         while (leftRight > 0) {
-            parser.appendWarning("right not found, adding right with null delimiter");
+            logger.warn("Right not found, adding right with null delimiter");
             group.push(new LeftRightAtom(LeftRightAtom.Side.right, null));
             leftRight--;
         }
@@ -64,6 +73,7 @@ public class GroupParser {
         }
     }
 
+    @Nullable
     public Atom popGroup() {
         return group.pop();
     }
@@ -111,6 +121,7 @@ public class GroupParser {
         return true;
     }
 
+    @NotNull
     private Queue<Atom> parseRow() throws ParserException {
         Queue<Atom> row = new ArrayDeque<>();
         do {
@@ -121,6 +132,7 @@ public class GroupParser {
         return row;
     }
 
+    @NotNull
     Atom parseMatrix(String command) throws ParserException {
         parser.expect('{', "start of matrix", false);
 
@@ -145,6 +157,7 @@ public class GroupParser {
         return new MatrixAtom(command, rows, colCount);
     }
 
+    @Nullable
     Atom parse() throws ParserException {
         char c = parser.peek();
         if (mode == ParserMode.ARGUMENT) {
@@ -168,7 +181,7 @@ public class GroupParser {
     private boolean parseNext() throws ParserException {
         char c = parser.peek();
         if (!parser.hasNext()) {
-            parser.appendWarning("unexpected EOF, assuming }");
+            logger.warn("Unexpected EOF, assuming }");
             parser.skipToEnd();
             c = '}';
         } else if (isTermBreaker(c)) {
@@ -184,7 +197,7 @@ public class GroupParser {
         }
 
         Token token = parser.nextToken(mode == ParserMode.SYMBOL || mode == ParserMode.DELIMITER);
-        if (mode == ParserMode.DELIMITER && !checkDelimiter(token.toString())) {
+        if (mode == ParserMode.DELIMITER && !SymbolMap.checkDelimiter(token.toString())) {
             return false;
         }
 
@@ -199,21 +212,12 @@ public class GroupParser {
         return !breakTerm();
     }
 
-    private boolean checkDelimiter(String text) throws ParserException {
-        if (SymbolMap.isDelimiter(text)) {
-            return true;
-        }
-        if (!".".equals(text)) {
-            parser.appendWarning("delimiter not found, using null delimiter");
-        }
-        return false;
-    }
-
     private boolean isGroupTerminator(char c) {
         return (mode != ParserMode.DELIMITER && c == '}') ||
                 (mode != ParserMode.SYMBOL && (c == '&' || c == '#'));
     }
 
+    @Contract(pure = true)
     private boolean isTermBreaker(char c) {
         return Character.isWhitespace(c) ||
                 (c == '`' && textBuilder.length() > 0 && textBuilder.charAt(0) != '`');
