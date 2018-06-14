@@ -13,15 +13,19 @@ public class XMLStreamParser implements XMLParser {
     private final XMLStreamReader streamReader;
     private final InputStream stream;
 
-    protected XMLStreamParser(XMLStreamReader streamReader, InputStream stream) throws XMLStreamException {
+    private XMLStreamParser(XMLStreamReader streamReader, InputStream stream) throws ParserException {
         this.streamReader = streamReader;
         this.stream = stream;
 
-        //noinspection StatementWithEmptyBody
-        while (streamReader.hasNext() && streamReader.next() != XMLStreamConstants.START_ELEMENT);
+        try {
+            //noinspection StatementWithEmptyBody
+            while (streamReader.hasNext() && streamReader.next() != XMLStreamConstants.START_ELEMENT) ;
+        } catch (XMLStreamException e) {
+            throw new ParserException(e);
+        }
     }
 
-    protected XMLStreamParser(XMLStreamReader streamReader) throws XMLStreamException {
+    private XMLStreamParser(XMLStreamReader streamReader) throws ParserException {
         this(streamReader, null);
     }
 

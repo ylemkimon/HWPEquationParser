@@ -32,9 +32,8 @@ public final class AtomMap {
     private AtomMap() {
     }
 
-    @Nullable
     @Contract(pure = true)
-    public static AtomParser get(String key) {
+    public static @Nullable AtomParser get(String key) {
         return map.get(key);
     }
 

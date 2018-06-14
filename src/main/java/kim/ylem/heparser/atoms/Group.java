@@ -21,9 +21,11 @@ public class Group implements Atom {
         AtomMap.register(Group::parse, "{");
     }
 
-    private static @NotNull Atom parse(HEParser parser, @SuppressWarnings("unused") String function) throws ParserException {
+    private static @NotNull Atom parse(HEParser parser, @SuppressWarnings("unused") String function)
+            throws ParserException {
         Atom result = parser.parseGroup(ParserMode.GROUP);
         parser.expect('}', "end of group", true);
+        assert result != null;
         return result;
     }
 
@@ -44,8 +46,7 @@ public class Group implements Atom {
         }
     }
 
-    @Nullable
-    public Atom pop() {
+    public @Nullable Atom pop() {
         return children.pollLast();
     }
 

@@ -18,18 +18,15 @@ public class Options {
         this.bold = bold;
     }
 
-    @NotNull
-    public Options withTextStyle(boolean newTextStyle) {
+    public @NotNull Options withTextStyle(boolean newTextStyle) {
         return new Options(newTextStyle, roman, bold);
     }
 
-    @NotNull
-    public Options withRomanFont(boolean newRoman) {
+    public @NotNull Options withRomanFont(boolean newRoman) {
         return new Options(textStyle, newRoman, bold);
     }
 
-    @NotNull
-    public Options withBoldFont(boolean newBold) {
+    public @NotNull Options withBoldFont(boolean newBold) {
         return new Options(textStyle, roman, newBold);
     }
 

@@ -340,8 +340,7 @@ public final class SymbolMap {
     }
 
     @Contract(pure = true)
-    @Nullable
-    public static String getLaTeX(char c) {
+    public static @Nullable String getLaTeX(char c) {
         return latexMap.get(c);
     }
 

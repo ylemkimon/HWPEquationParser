@@ -20,7 +20,7 @@ public class XMLDOMParser implements XMLParser {
     private Element current;
     private boolean visited;
 
-    protected XMLDOMParser(Document document) {
+    private XMLDOMParser(Document document) {
         this.document = document;
         current = document.getDocumentElement();
     }
@@ -62,25 +62,25 @@ public class XMLDOMParser implements XMLParser {
         return current.getTextContent();
     }
 
-    private Element getNextElement(Consumer<String> textConsumer, boolean child) {
+    private Element getNextElement(Consumer<String> consumer, boolean child) {
         Node node = child ? current.getFirstChild() : current.getNextSibling();
         while (node != null && node.getNodeType() != Node.ELEMENT_NODE) {
-            if (textConsumer != null && node.getNodeType() == Node.TEXT_NODE) {
-                textConsumer.accept(node.getNodeValue());
+            if (consumer != null && node.getNodeType() == Node.TEXT_NODE) {
+                consumer.accept(node.getNodeValue());
             }
             node = node.getNextSibling();
         }
         return (Element) node;
     }
 
-    private Element next(String ancestor, Consumer<String> textConsumer, Counter nestCounter) {
+    private Element next(String ancestor, Consumer<String> consumer, Counter counter) {
         Element next;
         Node parent;
-        for (next = getNextElement(textConsumer, !visited), parent = current;
+        for (next = getNextElement(consumer, !visited), parent = current;
              next == null && parent.getNodeType() == Node.ELEMENT_NODE;
-             next = getNextElement(textConsumer, false), parent = current.getParentNode()) {
+             next = getNextElement(consumer, false), parent = current.getParentNode()) {
             current = (Element) parent;
-            if (ancestor.equals(current.getTagName()) && nestCounter.decrement() <= 0) {
+            if (ancestor.equals(current.getTagName()) && counter.decrement() <= 0) {
                 return null;
             }
         }
@@ -91,13 +91,13 @@ public class XMLDOMParser implements XMLParser {
     @Override
     public void forEach(String ancestor, ElementProcessor elementProcessor, Consumer<String> textConsumer)
             throws ParserException {
-        Counter nestCounter = new Counter();
+        Counter counter = new Counter();
         for (Element next = getNextElement(textConsumer, true); next != null;
-             next = next(ancestor, textConsumer, nestCounter)) {
+             next = next(ancestor, textConsumer, counter)) {
             current = next;
             String tagName = current.getTagName();
             if (ancestor.equals(tagName)) {
-                nestCounter.increment();
+                counter.increment();
             }
             elementProcessor.process(tagName);
         }
@@ -106,13 +106,14 @@ public class XMLDOMParser implements XMLParser {
 
     @Override
     public void close() {
+        current = null;
     }
 
-    public Element getRoot() {
+    Element getRoot() {
         return document.getDocumentElement();
     }
 
-    public Element getCurrent() {
+    Element getCurrent() {
         return current;
     }
 

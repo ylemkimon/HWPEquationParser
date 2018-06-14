@@ -57,10 +57,10 @@ public final class MatrixAtom implements Atom {
     @Override
     public String toString() {
         Function<Queue<Atom>, String> rowToString;
-        String function = this.function;
+        String func = function;
         String argument = null;
 
-        if ("alignedat".equals(function)) {
+        if ("alignedat".equals(func)) {
             rowToString = colCount == 1 ? row -> '&' + row.remove().toString()
                     : row -> row.remove().toString() + '&' + row.stream()
                             .map(Object::toString)
@@ -71,19 +71,19 @@ public final class MatrixAtom implements Atom {
                     .map(Object::toString)
                     .collect(Collectors.joining("&"));
 
-            if (function.startsWith("array")) {
+            if (func.startsWith("array")) {
                 char[] alignment = new char[colCount];
                 for (int i = 0; i < colCount; i++) {
-                    alignment[i] = function.charAt(5);
+                    alignment[i] = func.charAt(5);
                 }
-                function = "array";
+                func = "array";
                 argument = new String(alignment);
             }
         }
 
-        return "\\begin{" + function + '}' + (argument != null ? '{' + argument  + '}' : "") +
+        return "\\begin{" + func + '}' + (argument != null ? '{' + argument  + '}' : "") +
                 rows.stream()
                         .map(rowToString)
-                        .collect(Collectors.joining("\\\\")) + "\\end{" + function + '}';
+                        .collect(Collectors.joining("\\\\")) + "\\end{" + func + '}';
     }
 }

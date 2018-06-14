@@ -73,8 +73,7 @@ public class GroupParser {
         }
     }
 
-    @Nullable
-    public Atom popGroup() {
+    public @Nullable Atom popGroup() {
         return group.pop();
     }
 
@@ -121,8 +120,7 @@ public class GroupParser {
         return true;
     }
 
-    @NotNull
-    private Queue<Atom> parseRow() throws ParserException {
+    private @NotNull Queue<Atom> parseRow() throws ParserException {
         Queue<Atom> row = new ArrayDeque<>();
         do {
             parser.next();

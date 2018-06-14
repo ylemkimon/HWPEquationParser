@@ -15,7 +15,7 @@ import java.io.File;
 
 public class HMLDOMCloner implements HMLCloner { // TODO: profile
     private final XMLDOMParser parser;
-    private final String filepath; // TODO: improve
+    private final String path;
     private final Document document;
     private final Element body;
     private final Element binDataList;
@@ -25,9 +25,9 @@ public class HMLDOMCloner implements HMLCloner { // TODO: profile
     private Element section;
     private int binCount;
 
-    public HMLDOMCloner(XMLDOMParser parser, String filepath) throws ParserException {
+    public HMLDOMCloner(XMLDOMParser parser, String path) throws ParserException {
         this.parser = parser;
-        this.filepath = filepath;
+        this.path = path;
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
@@ -92,7 +92,7 @@ public class HMLDOMCloner implements HMLCloner { // TODO: profile
         }
 
         Source source = new DOMSource(document);
-        Result result = new StreamResult(new File(filepath + name + ".hml"));
+        Result result = new StreamResult(new File(path + name + ".hml"));
         try {
             transformer.transform(source, result);
         } catch (TransformerException e) {

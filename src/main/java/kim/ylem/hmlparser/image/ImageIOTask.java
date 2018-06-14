@@ -1,8 +1,7 @@
-package kim.ylem.hmlparser.image.imageio;
+package kim.ylem.hmlparser.image;
 
 import kim.ylem.hmlparser.BinItem;
 import kim.ylem.hmlparser.ImageData;
-import kim.ylem.hmlparser.image.ImageTask;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

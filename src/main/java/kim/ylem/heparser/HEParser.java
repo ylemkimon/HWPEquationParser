@@ -32,8 +32,7 @@ public class HEParser implements Iterator<Character> {
         return new ParserException("Expected " + expected + " at " + pos + ", but got " + actual + " instead");
     }
 
-    @NotNull
-    public String parse() {
+    public @NotNull String parse() {
         String result = originalEquation;
         try {
             while (hasNext()) {
@@ -61,9 +60,8 @@ public class HEParser implements Iterator<Character> {
         return pos < equation.length() - 1;
     }
 
-    @NotNull
     @Override
-    public Character next() {
+    public @NotNull Character next() {
         if (!hasNext()) {
             throw new NoSuchElementException("Reached EOF");
         }
@@ -160,8 +158,7 @@ public class HEParser implements Iterator<Character> {
     }
 
     @Contract(pure = true)
-    @NotNull
-    private static String searchCamel(String sub, char[] search, int len) {
+    private static @NotNull String searchCamel(String sub, char[] search, int len) {
         search[0] -= ASCIIUtil.UPPER_LOWER_OFFSET;
         String camel = new String(search, 0, len);
         return AtomMap.containsKey(camel) ? camel : sub;
@@ -187,8 +184,7 @@ public class HEParser implements Iterator<Character> {
     }
 
     @Contract(pure = true)
-    @NotNull
-    public Character peek() {
+    public @NotNull Character peek() {
         return pos + 1 < equation.length() ? equation.charAt(pos + 1) : '\0';
     }
 
@@ -212,19 +208,16 @@ public class HEParser implements Iterator<Character> {
     }
 
     @Contract(pure = true)
-    @NotNull
-    public Options getCurrentOptions() {
+    public @NotNull Options getCurrentOptions() {
         return groupParserStack.isEmpty() ? new Options() : getGroupParser().getOptions();
     }
 
     @Contract(pure = true)
-    @NotNull
-    public GroupParser getGroupParser() {
+    public @NotNull GroupParser getGroupParser() {
         return groupParserStack.getFirst();
     }
 
-    @NotNull
-    public Atom parseMatrix(String command) throws ParserException {
+    public @NotNull Atom parseMatrix(String command) throws ParserException {
         GroupParser groupParser = new GroupParser(this, ParserMode.GROUP, getCurrentOptions());
         groupParserStack.push(groupParser);
         Atom matrix = groupParser.parseMatrix(command);
@@ -232,13 +225,11 @@ public class HEParser implements Iterator<Character> {
         return matrix;
     }
 
-    @Nullable
-    public Atom parseGroup(ParserMode mode) throws ParserException {
+    public @Nullable Atom parseGroup(ParserMode mode) throws ParserException {
         return parseGroup(mode, getCurrentOptions());
     }
 
-    @Nullable
-    public Atom parseGroup(ParserMode mode, Options options) throws ParserException {
+    public @Nullable Atom parseGroup(ParserMode mode, Options options) throws ParserException {
         GroupParser groupParser = new GroupParser(this, mode, options);
         groupParserStack.push(groupParser);
         Atom group = groupParser.parse();

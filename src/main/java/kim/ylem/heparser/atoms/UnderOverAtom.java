@@ -27,7 +27,9 @@ public final class UnderOverAtom implements Atom {
 
     private static @NotNull Atom parse(HEParser parser, String command) throws ParserException {
         if ("underover".equals(command)) {
-            return parser.parseGroup(ParserMode.UNDEROVER_TERM);
+            Atom result = parser.parseGroup(ParserMode.UNDEROVER_TERM);
+            assert result != null;
+            return result;
         }
         Atom content = parser.parseGroup(ParserMode.SYMBOL, parser.getCurrentOptions().withRomanFont(true));
         Atom over = parser.parseGroup(ParserMode.TERM);

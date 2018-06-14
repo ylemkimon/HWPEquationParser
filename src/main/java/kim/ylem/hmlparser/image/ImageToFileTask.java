@@ -1,4 +1,4 @@
-package kim.ylem.hmlparser.image.imageio;
+package kim.ylem.hmlparser.image;
 
 import kim.ylem.hmlparser.BinItem;
 import kim.ylem.hmlparser.ImageData;
@@ -8,11 +8,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class ToFileTask extends ImageIOTask {
+public class ImageToFileTask extends ImageIOTask {
     private final File filepath;
     private final String publicPath;
 
-    public ToFileTask(BinItem bin, String base64, File filepath, String publicPath) {
+    public ImageToFileTask(BinItem bin, String base64, File filepath, String publicPath) {
         super(bin, base64);
         this.filepath = filepath;
         this.publicPath = publicPath;

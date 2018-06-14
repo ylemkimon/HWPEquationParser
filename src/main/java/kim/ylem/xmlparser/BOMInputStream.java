@@ -19,6 +19,8 @@
  */
 package kim.ylem.xmlparser;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -97,38 +99,38 @@ public class BOMInputStream extends FilterInputStream {
     /**
      * Invokes the delegate's {@code read(byte[], int, int)} method, detecting and skipping BOM.
      *
-     * @param buf the buffer to read the bytes into
+     * @param b the buffer to read the bytes into
      * @param off The start offset
      * @param len The number of bytes to read (excluding BOM)
      * @return the number of bytes read or -1 if the end of stream
      * @throws IOException if an I/O error occurs
      */
     @Override
-    public int read(byte[] buf, int off, int len) throws IOException {
+    public int read(@NotNull byte[] b, int off, int len) throws IOException {
         int firstCount = 0;
-        int b = 0;
-        while (len > 0 && b >= 0) {
-            b = readFirstBytes();
-            if (b >= 0) {
-                buf[off++] = (byte) (b & 0xFF);
+        int fb = 0;
+        while (len > 0 && fb >= 0) {
+            fb = readFirstBytes();
+            if (fb >= 0) {
+                b[off++] = (byte) (fb & 0xFF);
                 len--;
                 firstCount++;
             }
         }
-        int secondCount = in.read(buf, off, len);
+        int secondCount = in.read(b, off, len);
         return secondCount < 0 ? firstCount > 0 ? firstCount : EOF : firstCount + secondCount;
     }
 
     /**
      * Invokes the delegate's {@code read(byte[])} method, detecting and skipping BOM.
      *
-     * @param buf the buffer to read the bytes into
+     * @param b the buffer to read the bytes into
      * @return the number of bytes read (excluding BOM) or -1 if the end of stream
      * @throws IOException if an I/O error occurs
      */
     @Override
-    public int read(byte[] buf) throws IOException {
-        return read(buf, 0, buf.length);
+    public int read(@NotNull byte[] b) throws IOException {
+        return read(b, 0, b.length);
     }
 
     /**

@@ -1,4 +1,4 @@
-package kim.ylem.hmlparser.image.imageio;
+package kim.ylem.hmlparser.image;
 
 import kim.ylem.hmlparser.BinItem;
 import kim.ylem.hmlparser.ImageData;
@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Base64;
 
-public class ToBase64Task extends ImageIOTask {
-    public ToBase64Task(BinItem binItem, String base64) {
+public class ImageToBase64Task extends ImageIOTask {
+    public ImageToBase64Task(BinItem binItem, String base64) {
         super(binItem, base64);
     }
 

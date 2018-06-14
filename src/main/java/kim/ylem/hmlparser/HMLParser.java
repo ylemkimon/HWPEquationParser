@@ -1,9 +1,11 @@
 package kim.ylem.hmlparser;
 
-import kim.ylem.hmlparser.image.ImageTaskFactory;
 import kim.ylem.ParserException;
+import kim.ylem.hmlparser.image.ImageTask;
+import kim.ylem.hmlparser.image.ImageTaskFactory;
 import kim.ylem.xmlparser.HMLCloner;
 import kim.ylem.xmlparser.XMLParser;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +25,7 @@ public abstract class HMLParser {
     private final List<BinItem> binList = new ArrayList<>();
 
     protected HMLParser(XMLParser xmlParser, Function<String, String> equationParser,
-                    ExecutorService imageTaskExecutor, ImageTaskFactory imageTaskFactory, HMLCloner hmlCloner) {
+                        ExecutorService imageTaskExecutor, ImageTaskFactory imageTaskFactory, HMLCloner hmlCloner) {
         this.xmlParser = xmlParser;
         this.equationParser = equationParser;
         this.imageTaskExecutor = imageTaskExecutor;
@@ -31,7 +33,7 @@ public abstract class HMLParser {
         this.hmlCloner = hmlCloner;
     }
 
-    public Object parse() throws ParserException {
+    public @Nullable Object parse() throws ParserException {
         processHWPML();
         awaitImageTask();
         return null;
@@ -176,10 +178,12 @@ public abstract class HMLParser {
         if (imageTaskFactory != null) {
             BinItem binItem = binList.get(xmlParser.getIntAttribute("Id") - 1);
             binItem.setCompressed("true".equals(xmlParser.getAttribute("Compress")));
+
+            ImageTask imageTask = imageTaskFactory.create(binItem, xmlParser.getElementText());
             if (imageTaskExecutor != null) {
-                imageTaskExecutor.execute(imageTaskFactory.create(binItem, xmlParser.getElementText()));
+                imageTaskExecutor.execute(imageTask);
             } else {
-                imageTaskFactory.create(binItem, xmlParser.getElementText()).run();
+                imageTask.run();
             }
         }
     }

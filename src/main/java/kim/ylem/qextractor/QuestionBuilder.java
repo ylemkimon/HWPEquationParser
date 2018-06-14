@@ -22,14 +22,6 @@ public class QuestionBuilder implements Updatable {
     private final StringBuilder textBuilder = new StringBuilder();
     private final StringBuilder expTextBuilder = new StringBuilder();
 
-    public StringBuilder getTextBuilder() {
-        return textBuilder;
-    }
-
-    public StringBuilder getExpTextBuilder() {
-        return expTextBuilder;
-    }
-
     private static boolean replace(StringBuilder sb, String searchString, String replacement) {
         int index = sb.indexOf(searchString);
         if (index == -1) {
@@ -37,6 +29,14 @@ public class QuestionBuilder implements Updatable {
         }
         sb.replace(index, index + searchString.length(), replacement);
         return true;
+    }
+
+    public StringBuilder getTextBuilder() {
+        return textBuilder;
+    }
+
+    public StringBuilder getExpTextBuilder() {
+        return expTextBuilder;
     }
 
     public synchronized void update(String placeholder, String replacement) {
