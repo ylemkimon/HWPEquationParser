@@ -66,7 +66,7 @@ public class GroupParser {
         if (group.isEmpty()) {
             if (mode == ParserMode.SYMBOL || mode == ParserMode.TERM) {
                 throw parser.newUnexpectedException(mode == ParserMode.TERM ? "a term" : "a symbol",
-                        parser.peek().toString());
+                        Character.toString(parser.next()));
             } else if (mode != ParserMode.GROUP) {
                 group = null;
             }
@@ -123,10 +123,10 @@ public class GroupParser {
     private @NotNull Queue<Atom> parseRow() throws ParserException {
         Queue<Atom> row = new ArrayDeque<>();
         do {
-            parser.next();
+            parser.consume(null, 1);
             row.add(parse());
             group = new Group();
-        } while (parser.peek() == '&');
+        } while (parser.next() == '&');
         return row;
     }
 
@@ -146,7 +146,7 @@ public class GroupParser {
             if ("eqalign".equals(command)) {
                 options = options.withRomanFont(false);
             }
-        } while (parser.peek() == '#');
+        } while (parser.next() == '#');
         parser.expect('}', "end of matrix", true);
 
         if (rows.size() == 1 && colCount == 1 && MatrixAtom.hasNoDelimiters(command)) {
@@ -157,13 +157,13 @@ public class GroupParser {
 
     @Nullable
     Atom parse() throws ParserException {
-        char c = parser.peek();
+        char c = parser.next();
         if (mode == ParserMode.ARGUMENT) {
             if (Character.isWhitespace(c) || c == '`' || c == '~') {
                 return null;
             }
         } else {
-            parser.skipWhitespaces();
+            parser.search("");
         }
 
         //noinspection StatementWithEmptyBody
@@ -177,8 +177,8 @@ public class GroupParser {
     }
 
     private boolean parseNext() throws ParserException {
-        char c = parser.peek();
-        if (!parser.hasNext()) {
+        char c = parser.next();
+        if (c == '\0') {
             logger.warn("Unexpected EOF, assuming }");
             parser.skipToEnd();
             c = '}';
@@ -186,8 +186,8 @@ public class GroupParser {
             if (breakTerm()) {
                 return false;
             }
-            parser.skipWhitespaces();
-            c = parser.peek();
+            parser.search("");
+            c = parser.next();
         }
         if (isGroupTerminator(c)) {
             breakTerm();

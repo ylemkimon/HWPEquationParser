@@ -11,6 +11,6 @@ class HEParserTest {
     @ParameterizedTest(name = "\"{0}\" should parse to \"{1}\"")
     @CsvFileSource(resources = "/parse-test.csv", numLinesToSkip = 1)
     void toParse(String expr, String expected) {
-        assertEquals(expected, new HEParser(expr).parse());
+        assertEquals(expected, HEParser.parseToLaTeX(expr));
     }
 }

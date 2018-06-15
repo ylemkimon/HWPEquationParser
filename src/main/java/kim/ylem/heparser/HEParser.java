@@ -8,12 +8,13 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * The HEParser parses HWP(Hangul Document) equation.
  */
-public class HEParser implements Iterator<Character> {
+public class HEParser {
     private static final Logger logger = LogManager.getLogger();
 
     private final String originalEquation;
@@ -22,9 +23,20 @@ public class HEParser implements Iterator<Character> {
     private String equation;
     private int pos = -1;
 
-    public HEParser(String s) {
+    private HEParser(String s) {
         originalEquation = s;
         equation = '{' + s + '}';
+    }
+
+    public static String parseToLaTeX(String s) {
+        return '$' + new HEParser(s).parse() + '$';
+    }
+
+    @Contract(pure = true)
+    private static @NotNull String searchCamel(String sub, char[] search, int len) {
+        search[0] -= ASCIIUtil.UPPER_LOWER_OFFSET;
+        String camel = new String(search, 0, len);
+        return AtomMap.containsKey(camel) ? camel : sub;
     }
 
     @Contract(pure = true)
@@ -35,7 +47,7 @@ public class HEParser implements Iterator<Character> {
     public @NotNull String parse() {
         String result = originalEquation;
         try {
-            while (hasNext()) {
+            while (pos < equation.length() - 1) {
                 if (pos > -1) {
                     logger.warn("Expected EOF, appending { to the left");
                     equation = '{' + equation;
@@ -54,34 +66,26 @@ public class HEParser implements Iterator<Character> {
         return result;
     }
 
-    @Override
     @Contract(pure = true)
-    public boolean hasNext() {
-        return pos < equation.length() - 1;
-    }
-
-    @Override
-    public @NotNull Character next() {
-        if (!hasNext()) {
-            throw new NoSuchElementException("Reached EOF");
-        }
-        pos++;
-        ThreadContext.put("pos", Integer.toString(pos));
-        return equation.charAt(pos);
+    public char next() {
+        return pos + 1 < equation.length() ? equation.charAt(pos + 1) : '\0';
     }
 
     public void expect(char expected, String name, boolean consume) throws ParserException {
-        skipWhitespaces();
-        char c = consume ? next() : peek();
+        search("");
+        char c = next();
         if (c != expected) {
             throw newUnexpectedException(name + ", " + expected, Character.toString(c));
+        }
+        if (consume) {
+            consume(null, 1);
         }
     }
 
     @Contract(pure = true)
     @NotNull
     Token nextToken(boolean forceSymbol) {
-        char c = peek();
+        char c = next();
         if (c <= '9' && c >= '0') {
             return new Token(Character.toString(c), false);
         } else if (!ASCIIUtil.isAlphabet(c)) {
@@ -106,7 +110,7 @@ public class HEParser implements Iterator<Character> {
                 return new Token(sub, true, forceSymbol);
             }
         }
-        return new Token(peek().toString(), false);
+        return new Token(Character.toString(next()), false);
     }
 
     @Contract(pure = true)
@@ -122,7 +126,7 @@ public class HEParser implements Iterator<Character> {
 
     @Contract(pure = true)
     private Token searchAlphabetic() {
-        char c = peek();
+        char c = next();
         int style = ASCIIUtil.getStyle(c, equation.charAt(pos + 2));
         char[] search = new char[10];
         search[0] = ASCIIUtil.toLowerCase(c);
@@ -157,15 +161,8 @@ public class HEParser implements Iterator<Character> {
         return new Token(equation.substring(pos + 1, pos + len + 1), false);
     }
 
-    @Contract(pure = true)
-    private static @NotNull String searchCamel(String sub, char[] search, int len) {
-        search[0] -= ASCIIUtil.UPPER_LOWER_OFFSET;
-        String camel = new String(search, 0, len);
-        return AtomMap.containsKey(camel) ? camel : sub;
-    }
-
     public boolean search(String... searchStrings) {
-        if (!hasNext()) {
+        if (pos >= equation.length() - 1) {
             return false;
         }
         int n = 1;
@@ -183,27 +180,15 @@ public class HEParser implements Iterator<Character> {
         return false;
     }
 
-    @Contract(pure = true)
-    public @NotNull Character peek() {
-        return pos + 1 < equation.length() ? equation.charAt(pos + 1) : '\0';
-    }
-
-    void consume(Token token, int length) {
+    public void consume(Token token, int length) {
         if (length > 0) {
-            pos += token.toString().length() > 1 ? length : token.getLength();
+            pos += token == null || token.toString().length() > 1 ? length : token.getLength();
             ThreadContext.put("pos", Integer.toString(pos));
         }
     }
 
     public void skipToEnd() {
         pos = equation.length() - 2;
-        ThreadContext.put("pos", Integer.toString(pos));
-    }
-
-    void skipWhitespaces() {
-        while (Character.isWhitespace(peek())) {
-            pos++;
-        }
         ThreadContext.put("pos", Integer.toString(pos));
     }
 

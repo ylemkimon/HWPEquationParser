@@ -40,15 +40,18 @@ public class TextAtom implements Atom {
 
     private static Atom parse(HEParser parser, @SuppressWarnings("unused") String command) throws ParserException {
         StringBuilder sb = new StringBuilder();
-        while (parser.hasNext() && parser.peek() != '"') {
-            sb.append(parser.next());
+        char c = parser.next();
+        while (c != '\0' && c != '"') {
+            sb.append(c);
+            parser.consume(null, 1);
+            c = parser.next();
         }
-        if (!parser.hasNext()) {
+        if (c == '\0') {
             logger.warn("Expected \", got EOF instead, skipping to the end");
             parser.skipToEnd();
             return null;
         }
-        parser.next();
+        parser.consume(null, 1);
         return new TextAtom(sb.toString(), parser.getCurrentOptions());
     }
 
@@ -59,12 +62,16 @@ public class TextAtom implements Atom {
         if ("\\".equals(command)) {
             char c = parser.next();
             if (!ASCIIUtil.isAlphabet(c)) {
+                parser.consume(null, 1);
                 return new TextAtom(Character.isWhitespace(c) ? "~" : Character.toString(c), options);
             }
 
             StringBuilder sb = new StringBuilder(9).append(c);
-            while (ASCIIUtil.isAlphabet(parser.peek()) && sb.length() < 9) {
-                sb.append(parser.next());
+            c = parser.next();
+            while (ASCIIUtil.isAlphabet(c) && sb.length() < 9) {
+                sb.append(c);
+                parser.consume(null, 1);
+                c = parser.next();
             }
             if (sb.length() == 9) {
                 sb.setLength(8);
