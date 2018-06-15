@@ -1,6 +1,7 @@
-package kim.ylem.xmlparser;
+package kim.ylem.hmlparser;
 
 import kim.ylem.ParserException;
+import kim.ylem.xmlparser.XMLDOMParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

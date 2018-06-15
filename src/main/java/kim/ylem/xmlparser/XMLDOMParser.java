@@ -109,11 +109,11 @@ public class XMLDOMParser implements XMLParser {
         current = null;
     }
 
-    Element getRoot() {
+    public Element getRoot() {
         return document.getDocumentElement();
     }
 
-    Element getCurrent() {
+    public Element getCurrent() {
         return current;
     }
 

@@ -4,7 +4,7 @@ import kim.ylem.ParserException;
 import kim.ylem.hmlparser.HTMLExtractor;
 import kim.ylem.hmlparser.Updatable;
 import kim.ylem.hmlparser.image.ImageTaskFactory;
-import kim.ylem.xmlparser.HMLCloner;
+import kim.ylem.hmlparser.HMLCloner;
 import kim.ylem.xmlparser.XMLParser;
 
 import java.util.ArrayList;

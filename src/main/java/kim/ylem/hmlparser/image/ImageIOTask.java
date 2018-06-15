@@ -11,7 +11,7 @@ import java.io.IOException;
 public abstract class ImageIOTask extends ImageTask {
     private BufferedImage image;
 
-    ImageIOTask(BinItem binItem, String base64) {
+    protected ImageIOTask(BinItem binItem, String base64) {
         super(binItem, base64);
     }
 
@@ -26,9 +26,11 @@ public abstract class ImageIOTask extends ImageTask {
 
     @Override
     protected void write(ImageData data) {
-        BufferedImage subimage = image.getSubimage(data.getLeft(), data.getTop(),
-                data.getRight() - data.getLeft(), data.getBottom() - data.getTop());
-        writeBufferedImage(subimage, data);
+        if (image != null) {
+            BufferedImage subimage = image.getSubimage(data.getLeft(), data.getTop(),
+                    data.getRight() - data.getLeft(), data.getBottom() - data.getTop());
+            writeBufferedImage(subimage, data);
+        }
     }
 
     protected abstract void writeBufferedImage(BufferedImage subimage, ImageData data);

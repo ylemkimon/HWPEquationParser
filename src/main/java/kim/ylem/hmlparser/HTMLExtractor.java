@@ -2,7 +2,6 @@ package kim.ylem.hmlparser;
 
 import kim.ylem.ParserException;
 import kim.ylem.hmlparser.image.ImageTaskFactory;
-import kim.ylem.xmlparser.HMLCloner;
 import kim.ylem.xmlparser.XMLParser;
 
 import java.util.concurrent.ExecutorService;

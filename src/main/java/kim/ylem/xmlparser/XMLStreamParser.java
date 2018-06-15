@@ -25,10 +25,6 @@ public class XMLStreamParser implements XMLParser {
         }
     }
 
-    private XMLStreamParser(XMLStreamReader streamReader) throws ParserException {
-        this(streamReader, null);
-    }
-
     public static XMLStreamParser newInstance(String filepath) throws ParserException {
         try {
             InputStream is = new BOMInputStream(new FileInputStream(filepath));
@@ -42,7 +38,7 @@ public class XMLStreamParser implements XMLParser {
         XMLInputFactory factory = XMLInputFactory.newInstance();
         try {
             XMLStreamReader streamReader = factory.createXMLStreamReader(stream);
-            return close ? new XMLStreamParser(streamReader, stream) : new XMLStreamParser(streamReader);
+            return new XMLStreamParser(streamReader, close ? stream : null);
         } catch (XMLStreamException e) {
             throw new ParserException(e);
         }
@@ -56,7 +52,7 @@ public class XMLStreamParser implements XMLParser {
         XMLInputFactory factory = XMLInputFactory.newInstance();
         try {
             XMLStreamReader streamReader = factory.createXMLStreamReader(reader);
-            return new XMLStreamParser(streamReader);
+            return new XMLStreamParser(streamReader, null);
         } catch (XMLStreamException e) {
             throw new ParserException(e);
         }

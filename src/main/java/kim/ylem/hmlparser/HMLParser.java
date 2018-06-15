@@ -3,7 +3,6 @@ package kim.ylem.hmlparser;
 import kim.ylem.ParserException;
 import kim.ylem.hmlparser.image.ImageTask;
 import kim.ylem.hmlparser.image.ImageTaskFactory;
-import kim.ylem.xmlparser.HMLCloner;
 import kim.ylem.xmlparser.XMLParser;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,8 +45,7 @@ public abstract class HMLParser {
             imageTaskExecutor.shutdown();
             try {
                 imageTaskExecutor.awaitTermination(1L, TimeUnit.DAYS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ignored) {
             }
         }
     }
