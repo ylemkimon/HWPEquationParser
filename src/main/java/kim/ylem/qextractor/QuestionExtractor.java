@@ -6,6 +6,7 @@ import kim.ylem.hmlparser.Updatable;
 import kim.ylem.hmlparser.image.ImageTaskFactory;
 import kim.ylem.hmlparser.HMLCloner;
 import kim.ylem.xmlparser.XMLParser;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,7 +28,7 @@ public class QuestionExtractor extends HTMLExtractor {
     }
 
     @Override
-    public List<Question> parse() throws ParserException {
+    public @NotNull List<Question> parse() throws ParserException {
         super.parse();
 
         List<Question> questionList = new ArrayList<>();

@@ -33,9 +33,9 @@ public class Demo {
             QuestionExtractor extractor = new QuestionExtractor(
                     xmlParser,
                     HEParser::parseToLaTeX,
-                    null, // 단일 쓰레드
-                    ImageToBase64Task::new,  // Base64 data URL로 이미지 임베드
-                    null);           // StAX 사용시, 개별 문제 추출 미지원
+                    null,                   // 단일 쓰레드
+                    ImageToBase64Task::new, // Base64 data URL로 이미지 임베드
+                    null);                  // StAX 사용시, 개별 문제 추출 미지원
             List<Question> result1 = extractor.parse();
             exportToHTML(result1, HTML_PATH + "1.html");
         }
@@ -95,6 +95,7 @@ public class Demo {
 
                 // com.amazonaws.services.s3.AmazonS3ClientBuilder
                 // com.amazonaws.services.s3.AmazonS3
+                // com.amazonaws.regions.Regions
                 AmazonS3 s3client = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_2).build();
                 s3client.putObject(request);
 
