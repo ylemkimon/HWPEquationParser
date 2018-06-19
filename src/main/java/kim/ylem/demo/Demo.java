@@ -7,7 +7,7 @@ import kim.ylem.hmlparser.ImageData;
 import kim.ylem.hmlparser.image.ImageIOTask;
 import kim.ylem.hmlparser.image.ImageToBase64Task;
 import kim.ylem.hmlparser.image.ImageToFileTaskFactory;
-import kim.ylem.qextractor.Question;
+import kim.ylem.qextractor.QuestionInfo;
 import kim.ylem.qextractor.QuestionExtractor;
 import kim.ylem.xmlparser.XMLDOMParser;
 import kim.ylem.xmlparser.XMLStreamParser;
@@ -36,7 +36,7 @@ public class Demo {
                     null, // 단일 쓰레드
                     ImageToBase64Task::new,  // Base64 data URL로 이미지 임베드
                     null);           // StAX 사용시, 개별 문제 추출 미지원
-            List<Question> result1 = extractor.parse();
+            List<QuestionInfo> result1 = extractor.parse();
             exportToHTML(result1, HTML_PATH + "1.html");
         }
 
@@ -48,7 +48,7 @@ public class Demo {
                     Executors.newCachedThreadPool(),                 // 멀티 쓰레드
                     new ImageToFileTaskFactory(IMG_PATH),            // 이미지 파일로 추출
                     new HMLDOMCloner(xmlParser, QUESTION_HML_PATH)); // 개별 문제 추출
-            List<Question> result2 = extractor.parse();
+            List<QuestionInfo> result2 = extractor.parse();
             exportToHTML(result2, HTML_PATH + "2.html");
         }
 
@@ -60,7 +60,7 @@ public class Demo {
                     Executors.newCachedThreadPool(),
                     ImageToS3Task::new,
                     null);
-            List<Question> result3 = extractor.parse();
+            List<QuestionInfo> result3 = extractor.parse();
             exportToHTML(result3, HTML_PATH + "3.html");
         }
     }
@@ -109,7 +109,7 @@ public class Demo {
         }
     }
 
-    private static void exportToHTML(List<Question> questionList, String path) {
+    private static void exportToHTML(List<QuestionInfo> questionList, String path) {
         try (FileWriter fw = new FileWriter(path)) {
             fw.write("<!DOCTYPE html>\n" +
                     "<html>\n" +
@@ -137,8 +137,8 @@ public class Demo {
                     "  </head>\n" +
                     "  <body>\n");
             for (int i = 0; i < questionList.size(); i++) {
-                Question q = questionList.get(i);
-                fw.write("\n<h1>" + (i + 1) + "</h1> <h2>Question</h2>\n");
+                QuestionInfo q = questionList.get(i);
+                fw.write("\n<h1>" + (i + 1) + "</h1> <h2>QuestionInfo</h2>\n");
                 fw.write(q.getText());
                 fw.write("\n<h2>Choices</h2>\n");
                 fw.write(q.getChoices().toString());

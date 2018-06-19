@@ -27,10 +27,10 @@ public class QuestionExtractor extends HTMLExtractor {
     }
 
     @Override
-    public List<Question> parse() throws ParserException {
+    public List<QuestionInfo> parse() throws ParserException {
         super.parse();
 
-        List<Question> questionList = new ArrayList<>();
+        List<QuestionInfo> questionList = new ArrayList<>();
         for (QuestionBuilder qb : questionBuilderList) {
             questionList.add(qb.build());
         }
@@ -58,10 +58,10 @@ public class QuestionExtractor extends HTMLExtractor {
                 hmlCloner.extract(Integer.toString(qno));
                 hmlCloner.reset();
             }
-            current = new QuestionBuilder();
+            current = new QuestionBuilder(qno);
             questionBuilderList.add(current);
         } else if (questionBuilderList.isEmpty()) {
-            current = new QuestionBuilder();
+            current = new QuestionBuilder(0);
         }
 
         parseParagraph(current.getTextBuilder());

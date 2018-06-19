@@ -62,7 +62,7 @@ public class HEParser {
         } catch (ParserException e) {
             logger.error("A ParserException occurred", e);
         }
-        logger.info("Result: {}", result);
+        //logger.info("Result: {}", result);
         return result;
     }
 

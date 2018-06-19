@@ -21,6 +21,14 @@ public class QuestionBuilder implements Updatable {
 
     private final StringBuilder textBuilder = new StringBuilder();
     private final StringBuilder expTextBuilder = new StringBuilder();
+    
+    QuestionBuilder() {
+    	super();
+    }
+    private int qno = 0;
+    QuestionBuilder(int qno) {
+    	this.qno = qno;
+    }
 
     private static boolean replace(StringBuilder sb, String searchString, String replacement) {
         int index = sb.indexOf(searchString);
@@ -45,7 +53,7 @@ public class QuestionBuilder implements Updatable {
         }
     }
 
-    public Question build() {
+    public QuestionInfo build() {
         String text = textBuilder.toString().trim();
         String expText = expTextBuilder.toString().trim();
 
@@ -61,6 +69,6 @@ public class QuestionBuilder implements Updatable {
             }
         }
 
-        return new Question(text, expText, choices, answer);
+        return new QuestionInfo(qno+1, text, expText, choices, answer);
     }
 }
