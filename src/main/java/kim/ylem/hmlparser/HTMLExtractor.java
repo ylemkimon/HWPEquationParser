@@ -22,7 +22,7 @@ public abstract class HTMLExtractor extends HMLParser {
 
     @Override
     protected void parseTable(StringBuilder sb) throws ParserException {
-        sb.append("<table>");
+        sb.append("<table class=\"table table-bordered text-center center-block\" style=\"width: 80%\">");
         super.parseTable(sb);
         sb.append("</table>");
     }
@@ -40,7 +40,7 @@ public abstract class HTMLExtractor extends HMLParser {
         sb.append(xmlParser.getAttribute("RowSpan"));
         sb.append("' colspan='");
         sb.append(xmlParser.getAttribute("ColSpan"));
-        sb.append("'>");
+        sb.append("' style=\"vertical-align: middle;\" >");
         super.parseCell(sb);
         sb.append("</td>");
     }

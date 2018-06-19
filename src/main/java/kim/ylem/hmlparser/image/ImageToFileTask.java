@@ -23,8 +23,13 @@ public class ImageToFileTask extends ImageIOTask {
         try {
             File output = new File(filepath, data.getUuid() + ".png");
             ImageIO.write(subimage, "png", output);
+            /*
             data.updateUpdatable("<img src=\"" + publicPath + output.getName()
                     + "\" style=\"width:" + data.getWidth() + "px;height:" + data.getHeight() + "px;\">");
+            */
+            data.updateUpdatable(" \n <div class=\'ext-resource center-block\' data-imgLink=\'" + publicPath + output.getName() + "\'" + 
+            		" data-img-width=\'" + data.getWidth() + "\' data-img-height=\'" + data.getHeight() + "\'" + 
+            		"/> \n");
         } catch (IOException e) {
             e.printStackTrace();
         }
