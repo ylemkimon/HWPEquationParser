@@ -31,7 +31,7 @@ public class ConvertHwpTest {
 	private static final Logger logger = LogManager.getLogger();
 	
 	public static void main(String[] args) throws Exception {
-		String filename = "D:/_resources/resources.ext/origin-7.hml";
+		String filename = "C:\\Users\\haenvi\\Desktop\\test\\testcase\\t3-deg.hml";
 		File targetFile = new File(filename);
 		String workDir =  targetFile.getParent() + "/";
 
