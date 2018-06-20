@@ -6,6 +6,9 @@ import kim.ylem.hmlparser.Updatable;
 import kim.ylem.hmlparser.image.ImageTaskFactory;
 import kim.ylem.hmlparser.HMLCloner;
 import kim.ylem.xmlparser.XMLParser;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -16,6 +19,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
 public class QuestionExtractor extends HTMLExtractor {
+	private static final Logger logger = LogManager.getLogger();
+	
     private final Collection<QuestionBuilder> questionBuilderList = new ArrayList<>();
     private final Collection<String> outlineParaShapes = new HashSet<>();
 

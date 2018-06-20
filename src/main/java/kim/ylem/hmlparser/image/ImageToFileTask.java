@@ -11,11 +11,15 @@ import java.io.IOException;
 public class ImageToFileTask extends ImageIOTask {
     private final File filepath;
     private final String publicPath;
+    
+    // add: 2018.06.20 @leria95 -- select img tag (local/proc) 
+    private final boolean procMode;
 
-    public ImageToFileTask(BinItem bin, String base64, File filepath, String publicPath) {
+    public ImageToFileTask(BinItem bin, String base64, File filepath, String publicPath, boolean procMode) {
         super(bin, base64);
         this.filepath = filepath;
         this.publicPath = publicPath;
+        this.procMode = procMode;
     }
 
     @Override
@@ -23,13 +27,17 @@ public class ImageToFileTask extends ImageIOTask {
         try {
             File output = new File(filepath, data.getUuid() + ".png");
             ImageIO.write(subimage, "png", output);
-            /*
-            data.updateUpdatable("<img src=\"" + publicPath + output.getName()
-                    + "\" style=\"width:" + data.getWidth() + "px;height:" + data.getHeight() + "px;\">");
-            */
-            data.updateUpdatable(" \n <div class=\'ext-resource center-block\' data-imgLink=\'" + publicPath + output.getName() + "\'" + 
-            		" data-img-width=\'" + data.getWidth() + "\' data-img-height=\'" + data.getHeight() + "\'" + 
-            		"/> \n");
+            
+            // edit: 2018.06.20 @leria95 -- select img tag (local/proc)
+            if(procMode) {
+            	data.updateUpdatable(" \n <div class=\'ext-resource center-block\' data-imgLink=\'" + publicPath + output.getName() + "\'" + 
+                		" data-img-width=\'" + data.getWidth() + "\' data-img-height=\'" + data.getHeight() + "\'" + 
+                		"/> \n");
+            } else {
+            	data.updateUpdatable("<img src=\"" + publicPath + output.getName()
+                + "\" style=\"width:" + data.getWidth() + "px;height:" + data.getHeight() + "px;\">");
+            }
+            
         } catch (IOException e) {
             e.printStackTrace();
         }

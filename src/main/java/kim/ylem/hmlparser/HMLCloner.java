@@ -10,4 +10,7 @@ public interface HMLCloner {
     void cloneParagraph();
 
     void cloneImage();
+    
+    // add: 2018.06.20 @leria95 -- extract last q.hml
+    int getParaCount();
 }

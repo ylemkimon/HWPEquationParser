@@ -4,6 +4,9 @@ import kim.ylem.ParserException;
 import kim.ylem.hmlparser.image.ImageTask;
 import kim.ylem.hmlparser.image.ImageTaskFactory;
 import kim.ylem.xmlparser.XMLParser;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -13,6 +16,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public abstract class HMLParser {
+	private static final Logger logger = LogManager.getLogger();
+
     private static final int POINT_TO_PIXEL = 75;
 
     protected final XMLParser xmlParser;
@@ -35,6 +40,12 @@ public abstract class HMLParser {
     public @Nullable Object parse() throws ParserException {
         processHWPML();
         awaitImageTask();
+        
+        // add: 2018.06.20 @leria95 -- extract last q.hml
+        if(hmlCloner.getParaCount() > 0) {
+        	hmlCloner.extract("last");	
+        }
+        
         return null;
     }
 
