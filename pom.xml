@@ -8,17 +8,73 @@
     <artifactId>hwp-equation-parser</artifactId>
     <version>1.0.0</version>
 
+	<properties>
+	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- jar생성 속성 -->
+		<deploy.target.root>D:/work/git_mts</deploy.target.root>
+		<deploy.target.core.dir>${deploy.target.root}/mts3-core/lib</deploy.target.core.dir>
+		<deploy.target.dgs.dir>${deploy.target.root}/mts3-dgs/WebContent/WEB-INF/lib</deploy.target.dgs.dir>
+		<jar.name>${project.artifactId}</jar.name>    
+	  </properties>
+  
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.0.2</version>
+				<executions>
+					<execution>
+						<id>default-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<finalName>${jar.name}</finalName>
+							<!-- jar 파일이 생성될 폴더 -->
+							<outputDirectory>${basedir}/target</outputDirectory>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<archive>
+								<manifest>
+									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+								</manifest>
+								<manifestEntries>
+								 	<Implementation-Vendor-Id>Vitruv</Implementation-Vendor-Id>
+									<Build-Date>${build.timestamp}</Build-Date>
+								</manifestEntries>
+							</archive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
         </plugins>
+        <!-- jar 파일이 copy할 폴더 -->
+		<resources>
+			<resource>
+				<directory>${basedir}/target</directory>
+			    <targetPath>${deploy.target.core.dir}</targetPath>
+			    <includes>
+			    	<include>${jar.name}.jar</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>${basedir}/target</directory>
+			    <targetPath>${deploy.target.dgs.dir}</targetPath>
+			    <includes>
+					<include>${jar.name}.jar</include>
+				</includes>
+			</resource>
+		</resources>
     </build>
     <dependencies>
         <dependency>
