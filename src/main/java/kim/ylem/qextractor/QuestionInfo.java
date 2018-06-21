@@ -5,14 +5,14 @@ import java.util.Map;
 
 public class QuestionInfo implements Serializable {
     private static final long serialVersionUID = 1L;
-    private int qno;
+    private final int qno;
     private final String text;
     private final String expText;
     private final Map<Integer, String> choices;
     private final String answer;
 
     public QuestionInfo(int qno, String text, String expText, Map<Integer, String> choices, String answer) {
-    	this.qno = qno;
+        this.qno = qno;
         this.text = text;
         this.expText = expText;
         this.choices = choices;
@@ -34,7 +34,7 @@ public class QuestionInfo implements Serializable {
     public String getAnswer() {
         return answer;
     }
-    
+
     public int getQno() {
         return qno;
     }

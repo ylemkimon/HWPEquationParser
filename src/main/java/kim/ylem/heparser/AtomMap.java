@@ -10,8 +10,8 @@ import java.util.HashSet;
 import java.util.Map;
 
 public final class AtomMap {
-    private static final Map<String, AtomParser> map = new HashMap<>(620);
-    private static final Collection<String> special = new HashSet<>(75);
+    private static final Map<String, AtomParser> map = new HashMap<>(622);
+    private static final Collection<String> special = new HashSet<>(77);
 
     static {
         SymbolMap.init();

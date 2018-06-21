@@ -19,8 +19,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
 public class QuestionExtractor extends HTMLExtractor {
-	private static final Logger logger = LogManager.getLogger();
-	
+    private static final Logger logger = LogManager.getLogger();
+
     private final Collection<QuestionBuilder> questionBuilderList = new ArrayList<>();
     private final Collection<String> outlineParaShapes = new HashSet<>();
 
@@ -35,6 +35,15 @@ public class QuestionExtractor extends HTMLExtractor {
     @Override
     public @NotNull List<QuestionInfo> parse() throws ParserException {
         super.parse();
+
+        int size = questionBuilderList.size();
+        if (current != null && size > 0) {
+            if (current.isEmpty()) {
+                questionBuilderList.remove(current);
+            } else if (hmlCloner != null) {
+                hmlCloner.extract(Integer.toString(size));
+            }
+        }
 
         List<QuestionInfo> questionList = new ArrayList<>();
         for (QuestionBuilder qb : questionBuilderList) {
@@ -59,15 +68,22 @@ public class QuestionExtractor extends HTMLExtractor {
     protected void processParagraph() throws ParserException {
         currentParaShape = xmlParser.getAttribute("ParaShape");
         if (outlineParaShapes.contains(currentParaShape)) {
-            int qno = questionBuilderList.size();
-            if (hmlCloner != null && qno > 0) {
-                hmlCloner.extract(Integer.toString(qno));
-                hmlCloner.reset();
+            if (current != null && current.isEmpty()) {
+                current.reset();
+                if (hmlCloner != null) {
+                    hmlCloner.reset();
+                }
+            } else {
+                int size = questionBuilderList.size();
+                if (hmlCloner != null && size > 0) {
+                    hmlCloner.extract(Integer.toString(size));
+                    hmlCloner.reset();
+                }
+                current = new QuestionBuilder(size + 1);
+                questionBuilderList.add(current);
             }
-            current = new QuestionBuilder(qno);
-            questionBuilderList.add(current);
         } else if (questionBuilderList.isEmpty()) {
-            current = new QuestionBuilder(0);
+            current = new QuestionBuilder(1);
         }
 
         parseParagraph(current.getTextBuilder());

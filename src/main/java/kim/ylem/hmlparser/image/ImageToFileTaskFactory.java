@@ -8,7 +8,7 @@ import java.nio.file.Path;
 public class ImageToFileTaskFactory implements ImageTaskFactory {
     private final File filepath;
     private String publicPath;
-    private boolean procMode = false;
+    private boolean procMode;
 
     public ImageToFileTaskFactory(File filepath) {
         this.filepath = filepath;
@@ -26,9 +26,9 @@ public class ImageToFileTaskFactory implements ImageTaskFactory {
     public void setPublicPath(String publicPath) {
         this.publicPath = publicPath;
     }
-    
+
     public void setProcMode(boolean procMode) {
-    	this.procMode = procMode;
+        this.procMode = procMode;
     }
 
     @Override

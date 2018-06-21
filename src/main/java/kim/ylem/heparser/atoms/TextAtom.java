@@ -61,8 +61,8 @@ public class TextAtom implements Atom {
 
         if ("\\".equals(command)) {
             char c = parser.next();
+            parser.consume(null, 1);
             if (!ASCIIUtil.isAlphabet(c)) {
-                parser.consume(null, 1);
                 return new TextAtom(Character.isWhitespace(c) ? "~" : Character.toString(c), options);
             }
 

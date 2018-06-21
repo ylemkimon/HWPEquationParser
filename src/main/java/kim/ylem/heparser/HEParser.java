@@ -16,7 +16,6 @@ import java.util.Deque;
  */
 public class HEParser {
     private static final Logger logger = LogManager.getLogger();
-    private boolean traced = false;
 
     private final String originalEquation;
     private final Deque<GroupParser> groupParserStack = new ArrayDeque<>();
@@ -30,11 +29,7 @@ public class HEParser {
     }
 
     public static String parseToLaTeX(String s) {
-    	
-    	// add: 2018.06.20 @leria95 -- blank equation
-    	if(s.isEmpty()) return "";
-        
-    	return '$' + new HEParser(s).parse() + '$';
+        return '$' + new HEParser(s).parse() + '$';
     }
 
     @Contract(pure = true)
@@ -67,9 +62,9 @@ public class HEParser {
         } catch (ParserException e) {
             logger.error("A ParserException occurred", e);
         }
-        
-        if(traced) { logger.info("Result: {}", result); }
-        
+
+        logger.trace("Result: {}", result);
+
         return result;
     }
 

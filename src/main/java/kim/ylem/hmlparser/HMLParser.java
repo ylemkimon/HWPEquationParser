@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public abstract class HMLParser {
-	private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
 
     private static final int POINT_TO_PIXEL = 75;
 
@@ -40,12 +40,6 @@ public abstract class HMLParser {
     public @Nullable Object parse() throws ParserException {
         processHWPML();
         awaitImageTask();
-        
-        // add: 2018.06.20 @leria95 -- extract last q.hml
-        if(hmlCloner.getParaCount() > 0) {
-        	hmlCloner.extract("last");	
-        }
-        
         return null;
     }
 
@@ -138,7 +132,10 @@ public abstract class HMLParser {
     }
 
     protected void parseEquation(StringBuilder sb) throws ParserException {
-        sb.append(equationParser.apply(xmlParser.getElementText()));
+        String script = xmlParser.getElementText();
+        if (!script.isEmpty()) {
+            sb.append(equationParser.apply(script));
+        }
     }
 
     protected void parseRectangle(StringBuilder sb) throws ParserException {

@@ -37,7 +37,7 @@ public final class ScriptAtom implements Atom {
         if (content == null) {
             logger.warn("Expected a term, using empty term");
         } else if (!content.isFromToAllowed() && (isFrom || "to".equals(command))) {
-            logger.warn("Unexpected " + command + ", skipping to the end");
+            logger.warn("Unexpected {}, skipping to the end", command);
             parser.skipToEnd();
             return content;
         }

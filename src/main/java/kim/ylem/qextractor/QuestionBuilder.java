@@ -21,13 +21,10 @@ public class QuestionBuilder implements Updatable {
 
     private final StringBuilder textBuilder = new StringBuilder();
     private final StringBuilder expTextBuilder = new StringBuilder();
-    
-    QuestionBuilder() {
-    	super();
-    }
-    private int qno = 0;
+    private final int qno;
+
     QuestionBuilder(int qno) {
-    	this.qno = qno;
+        this.qno = qno;
     }
 
     private static boolean replace(StringBuilder sb, String searchString, String replacement) {
@@ -45,6 +42,15 @@ public class QuestionBuilder implements Updatable {
 
     public StringBuilder getExpTextBuilder() {
         return expTextBuilder;
+    }
+
+    public boolean isEmpty() {
+        return textBuilder.toString().trim().isEmpty() && expTextBuilder.toString().trim().isEmpty();
+    }
+
+    public void reset() {
+        textBuilder.setLength(0);
+        expTextBuilder.setLength(0);
     }
 
     public synchronized void update(String placeholder, String replacement) {
@@ -69,6 +75,6 @@ public class QuestionBuilder implements Updatable {
             }
         }
 
-        return new QuestionInfo(qno+1, text, expText, choices, answer);
+        return new QuestionInfo(qno, text, expText, choices, answer);
     }
 }

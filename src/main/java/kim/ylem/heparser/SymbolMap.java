@@ -12,7 +12,7 @@ import java.util.Map;
 
 public final class SymbolMap {
     private static final Logger logger = LogManager.getLogger();
-    private static final Map<String, Character> symbolMap = new HashMap<>(506);
+    private static final Map<String, Character> symbolMap = new HashMap<>(507);
     private static final Map<Character, String> latexMap = new HashMap<>(264);
     private static final Collection<String> delimiters = new HashSet<>(17);
 
@@ -202,7 +202,7 @@ public final class SymbolMap {
         put('⊣', "\\dashv", "dashv", "massert");
         put('‡', "\\ddagger", "ddagger", "\uE0CA");
         put('⋱', "\\ddots", "ddots", "dotsdiag");
-        put('°', "^\\circ", "deg", "\uE0C8");
+        put('°', "^\\circ", "Deg", "DEG", "\uE0C8");
         put('⋄', "\\diamond", "diamond");
         put('÷', "\\div", "div", "divide");
         put('≐', "\\doteq", "doteq");
@@ -297,11 +297,6 @@ public final class SymbolMap {
         put('⌗', "\\viewdata", "well");
         put('℘', "\\wp", "wp", "\uE0BC");
         put('⊻', "\\veebar", "xor");
-        
-        //add: 2018.06.20 @leria95 --add special\
-        //memo: 대/소문자 구분이 필요한가 검토 필요
-        put('°', "^\\circ", "DEG", "\uE0C8");
-        put('°', "^\\circ", "Deg", "\uE0C8");
     }
 
     private SymbolMap() {
@@ -319,14 +314,12 @@ public final class SymbolMap {
         AtomMap.addSpecial("vartheta");
         AtomMap.addSpecial("varupsilon");
         AtomMap.addSpecial("varrho");
+        AtomMap.addSpecial("Deg");
+        AtomMap.addSpecial("DEG");
         for (char c = 'A'; c <= 'Z'; c++) {
             //noinspection StringConcatenationMissingWhitespace
             AtomMap.addSpecial("Vec" + c);
         }
-        
-        // add: 2018.06.20 @leria95 --add special
-        AtomMap.addSpecial("DEG");
-        AtomMap.addSpecial("Deg");
     }
 
     private static void put(Character ch, String latex, String... commands) {
@@ -354,11 +347,14 @@ public final class SymbolMap {
     }
 
     @Contract(pure = true)
-    static boolean checkDelimiter(String s) {
-        if (delimiters.contains(s)) {
+    static boolean checkDelimiter(HEParser parser, Token token) {
+        String tokenString = token.toString();
+        if (delimiters.contains(tokenString)) {
             return true;
         }
-        if (!".".equals(s)) {
+        if (".".equals(tokenString)) {
+            parser.consume(token, token.getLength());
+        } else {
             logger.warn("Delimiter not found, using null delimiter");
         }
         return false;

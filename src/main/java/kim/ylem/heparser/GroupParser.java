@@ -195,7 +195,7 @@ public class GroupParser {
         }
 
         Token token = parser.nextToken(mode == ParserMode.SYMBOL || mode == ParserMode.DELIMITER);
-        if (mode == ParserMode.DELIMITER && !SymbolMap.checkDelimiter(token.toString())) {
+        if (mode == ParserMode.DELIMITER && !SymbolMap.checkDelimiter(parser, token)) {
             return false;
         }
 

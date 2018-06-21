@@ -139,7 +139,7 @@ public class Demo {
                     "  <body>\n");
             for (int i = 0; i < questionList.size(); i++) {
                 QuestionInfo q = questionList.get(i);
-                fw.write("\n<h1>" + (i + 1) + "</h1> <h2>QuestionInfo</h2>\n");
+                fw.write("\n<h1>" + (i + 1) + "</h1> <h2>Question</h2>\n");
                 fw.write(q.getText());
                 fw.write("\n<h2>Choices</h2>\n");
                 fw.write(q.getChoices().toString());

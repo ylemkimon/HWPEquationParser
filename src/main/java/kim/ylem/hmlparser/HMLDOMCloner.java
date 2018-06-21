@@ -25,9 +25,6 @@ public class HMLDOMCloner implements HMLCloner { // TODO: profile
 
     private Element section;
     private int binCount;
-    
-    // add: 2018.06.20 @leria95 -- extract last q.hml
-    private int paraCount = 0;
 
     public HMLDOMCloner(XMLDOMParser parser, String path) throws ParserException {
         this.parser = parser;
@@ -69,7 +66,7 @@ public class HMLDOMCloner implements HMLCloner { // TODO: profile
         }
     }
 
-    private void importBin(String name, String childName, String idAttr, int id, Element list) {
+    private void importBin(String name, String childName, String idAttr, int id, Node list) {
         Element e = (Element) document.importNode(find(parser.getRoot(), name).getElementsByTagName(childName).item(id),
                 true);
         e.setAttribute(idAttr, Integer.toString(binCount));
@@ -87,8 +84,6 @@ public class HMLDOMCloner implements HMLCloner { // TODO: profile
         body.appendChild(section);
 
         binCount = 0;
-        
-        paraCount = 0;
     }
 
     @Override
@@ -111,8 +106,6 @@ public class HMLDOMCloner implements HMLCloner { // TODO: profile
         Element current = parser.getCurrent();
         if ("SECTION".equals(((Element) current.getParentNode()).getTagName())) {
             section.appendChild(document.importNode(current, true));
-            
-            paraCount ++;
         }
     }
 
@@ -122,11 +115,5 @@ public class HMLDOMCloner implements HMLCloner { // TODO: profile
         parser.getCurrent().setAttribute("BinItem", Integer.toString(++binCount));
         importBin("BINDATALIST", "BINITEM", "BinData", id, binDataList);
         importBin("BINDATASTORAGE", "BINDATA", "Id", id, binDataStorage);
-    }
-    
-    // add: 2018.06.20 @leria95 -- extract last q.hml
-    @Override
-    public int getParaCount() {
-    	return paraCount;
     }
 }
