@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -8,15 +8,15 @@
     <artifactId>hwp-equation-parser</artifactId>
     <version>1.0.0</version>
 
-	<properties>
-	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<!-- jar생성 속성 -->
-		<deploy.target.root>D:/work/git_mts</deploy.target.root>
-		<deploy.target.core.dir>${deploy.target.root}/mts3-core/lib</deploy.target.core.dir>
-		<deploy.target.dgs.dir>${deploy.target.root}/mts3-dgs/WebContent/WEB-INF/lib</deploy.target.dgs.dir>
-		<jar.name>${project.artifactId}</jar.name>    
-	  </properties>
-  
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- jar생성 속성 -->
+        <deploy.target.root>D:/work/git_mts</deploy.target.root>
+        <deploy.target.core.dir>${deploy.target.root}/mts3-core/lib</deploy.target.core.dir>
+        <deploy.target.dgs.dir>${deploy.target.root}/mts3-dgs/WebContent/WEB-INF/lib</deploy.target.dgs.dir>
+        <jar.name>${project.artifactId}</jar.name>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -29,72 +29,71 @@
                 </configuration>
             </plugin>
             <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.0.2</version>
-				<executions>
-					<execution>
-						<id>default-jar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<configuration>
-							<finalName>${jar.name}</finalName>
-							<!-- jar 파일이 생성될 폴더 -->
-							<outputDirectory>${basedir}/target</outputDirectory>
-							<overWriteIfNewer>true</overWriteIfNewer>
-							<archive>
-								<manifest>
-									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-								</manifest>
-								<manifestEntries>
-								 	<Implementation-Vendor-Id>Vitruv</Implementation-Vendor-Id>
-									<Build-Date>${build.timestamp}</Build-Date>
-								</manifestEntries>
-							</archive>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-<!-- package 실행할때 프로젝트 디펜던시들을 특정폴더로 복사해주게 설정
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.0.2</version>
-				<executions>
-					<execution>
-						<id>copy-dependencies</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<outputDirectory>${basedir}/target/lib-dependencies</outputDirectory>
-					<overWriteIfNewer>false</overWriteIfNewer>
-				</configuration>
-			</plugin>
- -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${jar.name}</finalName>
+                            <!-- jar 파일이 생성될 폴더 -->
+                            <outputDirectory>${basedir}/target</outputDirectory>
+                            <archive>
+                                <manifest>
+                                    <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                </manifest>
+                                <manifestEntries>
+                                    <Implementation-Vendor-Id>Vitruv</Implementation-Vendor-Id>
+                                    <Build-Date>${maven.build.timestamp}</Build-Date>
+                                </manifestEntries>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- package 실행할때 프로젝트 디펜던시들을 특정폴더로 복사해주게 설정
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <outputDirectory>${basedir}/target/lib-dependencies</outputDirectory>
+                    <overWriteIfNewer>false</overWriteIfNewer>
+                </configuration>
+            </plugin>
+             -->
         </plugins>
         <!-- jar 파일이 copy할 폴더 -->
-		<resources>
-			<resource>
-				<directory>${basedir}/target</directory>
-			    <targetPath>${deploy.target.core.dir}</targetPath>
-			    <includes>
-			    	<include>${jar.name}.jar</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>${basedir}/target</directory>
-			    <targetPath>${deploy.target.dgs.dir}</targetPath>
-			    <includes>
-					<include>${jar.name}.jar</include>
-				</includes>
-			</resource>
-		</resources>
+        <resources>
+            <resource>
+                <directory>${basedir}/target</directory>
+                <targetPath>${deploy.target.core.dir}</targetPath>
+                <includes>
+                    <include>${jar.name}.jar</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/target</directory>
+                <targetPath>${deploy.target.dgs.dir}</targetPath>
+                <includes>
+                    <include>${jar.name}.jar</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
     <dependencies>
         <dependency>
