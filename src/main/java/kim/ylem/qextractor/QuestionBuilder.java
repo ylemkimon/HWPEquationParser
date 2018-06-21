@@ -63,6 +63,7 @@ public class QuestionBuilder implements Updatable {
         String text = textBuilder.toString().trim();
         String expText = expTextBuilder.toString().trim();
 
+        // TODO: better answer detection heuristic, e.g., exclude images
         int nlIndex = expText.indexOf('\n');
         String firstLine = nlIndex == -1 ? expText : expText.substring(0, nlIndex);
         String answer = ANSWER_PATTERN.matcher(firstLine).replaceAll("");
