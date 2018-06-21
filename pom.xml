@@ -57,6 +57,26 @@
 					</execution>
 				</executions>
 			</plugin>
+<!-- package 실행할때 프로젝트 디펜던시들을 특정폴더로 복사해주게 설정
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.0.2</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<outputDirectory>${basedir}/target/lib-dependencies</outputDirectory>
+					<overWriteIfNewer>false</overWriteIfNewer>
+				</configuration>
+			</plugin>
+ -->
         </plugins>
         <!-- jar 파일이 copy할 폴더 -->
 		<resources>
