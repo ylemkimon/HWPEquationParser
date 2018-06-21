@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
-public class XMLDOMParser implements XMLParser {
+public final class XMLDOMParser implements XMLParser {
     private final Document document;
     private Element current;
     private boolean visited;

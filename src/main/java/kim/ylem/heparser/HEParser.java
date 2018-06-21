@@ -14,7 +14,7 @@ import java.util.Deque;
 /**
  * The HEParser parses HWP(Hangul Document) equation.
  */
-public class HEParser {
+public final class HEParser {
     private static final Logger logger = LogManager.getLogger();
 
     private final String originalEquation;

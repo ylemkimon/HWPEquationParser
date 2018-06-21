@@ -9,7 +9,7 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.*;
 import java.util.function.Consumer;
 
-public class XMLStreamParser implements XMLParser {
+public final class XMLStreamParser implements XMLParser {
     private final XMLStreamReader streamReader;
     private final InputStream stream;
 
