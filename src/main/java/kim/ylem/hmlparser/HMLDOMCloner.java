@@ -14,7 +14,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 
-public class HMLDOMCloner implements HMLCloner { // TODO: profile
+public class HMLDOMCloner implements HMLCloner {
     private final XMLDOMParser parser;
     private final String path;
     private final Document document;
@@ -95,6 +95,7 @@ public class HMLDOMCloner implements HMLCloner { // TODO: profile
         Source source = new DOMSource(document);
         Result result = new StreamResult(new File(path + name + ".hml"));
         try {
+            // TODO: more memory, time efficient XML write
             transformer.transform(source, result);
         } catch (TransformerException e) {
             throw new ParserException(e);
