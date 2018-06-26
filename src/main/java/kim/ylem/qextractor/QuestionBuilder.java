@@ -2,6 +2,9 @@ package kim.ylem.qextractor;
 
 import kim.ylem.hmlparser.Updatable;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -63,10 +66,22 @@ public class QuestionBuilder implements Updatable {
         String text = textBuilder.toString().trim();
         String expText = expTextBuilder.toString().trim();
 
-        // TODO: better answer detection heuristic, e.g., exclude images
-        int nlIndex = expText.indexOf('\n');
-        String firstLine = nlIndex == -1 ? expText : expText.substring(0, nlIndex);
-        String answer = ANSWER_PATTERN.matcher(firstLine).replaceAll("");
+        String answer = "";
+        try (BufferedReader reader = new BufferedReader(new StringReader(expText))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty() && !line.contains("<img") && !line.contains("<div")) {
+                    Matcher matcher = ANSWER_PATTERN.matcher(line);
+                    if (matcher.find()) {
+                        line = line.substring(matcher.end());
+                    }
+                    answer = line;
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         Map<Integer, String> choices = new HashMap<>(5);
         for (int i = 0; i < 5; i++) {

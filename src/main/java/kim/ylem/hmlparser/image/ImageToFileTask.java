@@ -30,9 +30,9 @@ public class ImageToFileTask extends ImageIOTask {
 
             // edit: 2018.06.20 @leria95 -- select img tag (local/proc)
             if(procMode) {
-                data.updateUpdatable(" \n <div class=\"ext-resource center-block\" data-imgLink=\"" + publicPath +
+                data.updateUpdatable("<div class=\"ext-resource center-block\" data-imgLink=\"" + publicPath +
                     output.getName() + "\" data-img-width=\"" + data.getWidth() + "\" data-img-height=\"" +
-                    data.getHeight() + "\"/> \n");
+                    data.getHeight() + "\"/>");
             } else {
                 data.updateUpdatable("<img src=\"" + publicPath + output.getName()
                     + "\" style=\"width:" + data.getWidth() + "px;height:" + data.getHeight() + "px;\">");
