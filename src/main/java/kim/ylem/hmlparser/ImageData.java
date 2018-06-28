@@ -22,7 +22,8 @@ public class ImageData {
         return uuid;
     }
 
-    public String getPlaceholder() {
+    @Override
+    public String toString() {
         return "@[" + uuid + ']';
     }
 
@@ -63,6 +64,6 @@ public class ImageData {
     }
 
     public void updateUpdatable(String replacement) {
-        updatable.update(getPlaceholder(), replacement);
+        updatable.update(toString(), replacement);
     }
 }

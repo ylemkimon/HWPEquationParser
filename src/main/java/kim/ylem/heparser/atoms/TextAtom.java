@@ -61,18 +61,17 @@ public class TextAtom implements Atom {
 
         if ("\\".equals(command)) {
             char c = parser.next();
-            parser.consume(null, 1);
             if (!ASCIIUtil.isAlphabet(c)) {
+                parser.consume(null, 1);
                 return new TextAtom(Character.isWhitespace(c) ? "~" : Character.toString(c), options);
             }
 
-            StringBuilder sb = new StringBuilder(9).append(c);
-            c = parser.next();
-            while (ASCIIUtil.isAlphabet(c) && sb.length() < 9) {
+            StringBuilder sb = new StringBuilder(9);
+            do {
                 sb.append(c);
                 parser.consume(null, 1);
                 c = parser.next();
-            }
+            } while (ASCIIUtil.isAlphabet(c) && sb.length() < 9);
             if (sb.length() == 9) {
                 sb.setLength(8);
             }

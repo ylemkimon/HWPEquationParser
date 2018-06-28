@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class QuestionInfo implements Serializable {
     private static final long serialVersionUID = 1L;
+
     private final int qno;
     private final String text;
     private final String expText;
@@ -17,6 +18,10 @@ public class QuestionInfo implements Serializable {
         this.expText = expText;
         this.choices = choices;
         this.answer = answer;
+    }
+
+    public int getQno() {
+        return qno;
     }
 
     public String getText() {
@@ -35,7 +40,14 @@ public class QuestionInfo implements Serializable {
         return answer;
     }
 
-    public int getQno() {
-        return qno;
+    @Override
+    public String toString() {
+        return "QuestionInfo{" +
+                "qno=" + qno +
+                ", text='" + text + '\'' +
+                ", expText='" + expText + '\'' +
+                ", choices=" + choices +
+                ", answer='" + answer + '\'' +
+                '}';
     }
 }

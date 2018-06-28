@@ -112,6 +112,7 @@ public class BOMInputStream extends FilterInputStream {
         while (len > 0 && fb >= 0) {
             fb = readFirstBytes();
             if (fb >= 0) {
+                //noinspection NumericCastThatLosesPrecision
                 b[off++] = (byte) (fb & 0xFF);
                 len--;
                 firstCount++;

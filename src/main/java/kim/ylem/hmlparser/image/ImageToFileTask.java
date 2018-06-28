@@ -22,6 +22,7 @@ public class ImageToFileTask extends ImageIOTask {
         this.procMode = procMode;
     }
 
+    @SuppressWarnings("StringConcatenationMissingWhitespace")
     @Override
     protected void writeBufferedImage(BufferedImage subimage, ImageData data) {
         try {

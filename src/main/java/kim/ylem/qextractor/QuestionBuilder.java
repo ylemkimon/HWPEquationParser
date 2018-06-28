@@ -10,13 +10,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("StringBufferField")
 public class QuestionBuilder implements Updatable {
     private static final Pattern ANSWER_PATTERN = Pattern.compile("\\[?\\uc815?[\\ub2f5\\x{f00bc}]]?\\s*\\.?:?\\s*");
     private static final Pattern[] CHOICE_PATTERN = new Pattern[5];
 
     static {
         for (int i = 0; i < 5; i++) {
-            //noinspection Annotator
+            //noinspection Annotator,StringConcatenationMissingWhitespace
             CHOICE_PATTERN[i] = Pattern.compile("[\\u278" + i + "\\u246" + i +
                     "]([^\\n\\u278" + (i + 1) + "\\u246" + (i + 1) + "]*)");
         }
@@ -66,21 +67,22 @@ public class QuestionBuilder implements Updatable {
         String text = textBuilder.toString().trim();
         String expText = expTextBuilder.toString().trim();
 
-        String answer = "";
+        String answer = null;
         try (BufferedReader reader = new BufferedReader(new StringReader(expText))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty() && !line.contains("<img") && !line.contains("<div")) {
-                    Matcher matcher = ANSWER_PATTERN.matcher(line);
-                    if (matcher.find()) {
-                        line = line.substring(matcher.end());
-                    }
-                    answer = line;
-                    break;
-                }
-            }
+            do {
+                answer = reader.readLine();
+            } while (answer != null && (answer.trim().isEmpty() || answer.contains("<img") || answer.contains("<div")));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        if (answer != null) {
+            Matcher matcher = ANSWER_PATTERN.matcher(answer);
+            if (matcher.find()) {
+                answer = answer.substring(matcher.end());
+            }
+        } else {
+            answer = "";
         }
 
         Map<Integer, String> choices = new HashMap<>(5);

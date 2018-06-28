@@ -20,6 +20,7 @@ public class ImageToBase64Task extends ImageIOTask {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              OutputStream os = Base64.getEncoder().wrap(baos)) {
             ImageIO.write(subimage, "png", os);
+            //noinspection StringConcatenationMissingWhitespace
             data.updateUpdatable("<img src=\"data:image/png;base64," + baos.toString("ISO-8859-1")
                     + "\" style=\"width:" + data.getWidth() + "px;height:" + data.getHeight() + "px;\">");
         } catch (IOException e) {

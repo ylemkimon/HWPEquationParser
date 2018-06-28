@@ -157,7 +157,7 @@ public abstract class HMLParser {
     protected void parsePicture(StringBuilder sb) throws ParserException {
         ImageData image = new ImageData(getCurrent());
         sb.append('\n');
-        sb.append(image.getPlaceholder());
+        sb.append(image);
         sb.append('\n');
 
         xmlParser.forEach("PICTURE", name -> {

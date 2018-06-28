@@ -14,7 +14,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 
-public class HMLDOMCloner implements HMLCloner {
+public final class HMLDOMCloner implements HMLCloner {
     private final XMLDOMParser parser;
     private final String path;
     private final Document document;
