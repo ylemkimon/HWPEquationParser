@@ -2,6 +2,8 @@ package kim.ylem.hmlparser.image;
 
 import kim.ylem.hmlparser.BinItem;
 import kim.ylem.hmlparser.ImageData;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -9,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class ImageToFileTask extends ImageIOTask {
+    private static final Logger logger = LogManager.getLogger();
+
     private final File filepath;
     private final String publicPath;
 
@@ -38,9 +42,8 @@ public class ImageToFileTask extends ImageIOTask {
                 data.updateUpdatable("<img src=\"" + publicPath + output.getName()
                     + "\" style=\"width:" + data.getWidth() + "px;height:" + data.getHeight() + "px;\">");
             }
-
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Exception during writing BufferedImage", e);
         }
     }
 }

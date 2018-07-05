@@ -155,7 +155,7 @@ public class GroupParser {
         return new MatrixAtom(command, rows, colCount);
     }
 
-    @Nullable
+    @Nullable // only when mode == ARGUMENT || mode == DELIMITER
     Atom parse() throws ParserException {
         char c = parser.next();
         if (mode == ParserMode.ARGUMENT) {
@@ -163,7 +163,7 @@ public class GroupParser {
                 return null;
             }
         } else {
-            parser.search("");
+            parser.search(""); // skip whitespaces
         }
 
         //noinspection StatementWithEmptyBody
@@ -186,7 +186,7 @@ public class GroupParser {
             if (breakTerm()) {
                 return false;
             }
-            parser.search("");
+            parser.search(""); // skip whitespaces
             c = parser.next();
         }
         if (isGroupTerminator(c)) {

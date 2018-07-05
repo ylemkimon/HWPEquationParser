@@ -2,6 +2,8 @@ package kim.ylem.hmlparser.image;
 
 import kim.ylem.hmlparser.BinItem;
 import kim.ylem.hmlparser.ImageData;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -9,6 +11,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 public abstract class ImageIOTask extends ImageTask {
+    private static final Logger logger = LogManager.getLogger();
+
     private BufferedImage image;
 
     protected ImageIOTask(BinItem binItem, String base64) {
@@ -20,7 +24,7 @@ public abstract class ImageIOTask extends ImageTask {
         try (ByteArrayInputStream is = new ByteArrayInputStream(data)) {
             image = ImageIO.read(is);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Exception during reading image", e);
         }
     }
 

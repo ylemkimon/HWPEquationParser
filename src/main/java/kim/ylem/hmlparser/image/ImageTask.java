@@ -2,6 +2,8 @@ package kim.ylem.hmlparser.image;
 
 import kim.ylem.hmlparser.BinItem;
 import kim.ylem.hmlparser.ImageData;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,6 +13,8 @@ import java.util.zip.Inflater;
 
 @SuppressWarnings("WeakerAccess")
 public abstract class ImageTask implements Runnable {
+    private static final Logger logger = LogManager.getLogger();
+
     protected final BinItem binItem;
     protected final String base64;
 
@@ -34,7 +38,7 @@ public abstract class ImageTask implements Runnable {
             }
             return os.toByteArray();
         } catch (DataFormatException | IOException e) {
-            e.printStackTrace();
+            logger.error("Exception during decompressing image", e);
         } finally {
             inflater.end();
         }

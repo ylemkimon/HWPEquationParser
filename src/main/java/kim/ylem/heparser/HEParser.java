@@ -74,7 +74,7 @@ public final class HEParser {
     }
 
     public void expect(char expected, String name, boolean consume) throws ParserException {
-        search("");
+        search(""); // skip whitespaces
         char c = next();
         if (c != expected) {
             throw newUnexpectedException(name + ", " + expected, Character.toString(c));
@@ -216,7 +216,8 @@ public final class HEParser {
         return parseGroup(mode, getCurrentOptions());
     }
 
-    public @Nullable Atom parseGroup(ParserMode mode, Options options) throws ParserException {
+    public @Nullable // only when mode == ARGUMENT || mode == DELIMITER
+    Atom parseGroup(ParserMode mode, Options options) throws ParserException {
         GroupParser groupParser = new GroupParser(this, mode, options);
         groupParserStack.push(groupParser);
         Atom group = groupParser.parse();

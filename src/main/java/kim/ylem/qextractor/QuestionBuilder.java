@@ -1,6 +1,8 @@
 package kim.ylem.qextractor;
 
 import kim.ylem.hmlparser.Updatable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,6 +14,7 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("StringBufferField")
 public class QuestionBuilder implements Updatable {
+    private static final Logger logger = LogManager.getLogger();
     private static final Pattern ANSWER_PATTERN = Pattern.compile("\\[?\\uc815?[\\ub2f5\\x{f00bc}]]?\\s*\\.?:?\\s*");
     private static final Pattern[] CHOICE_PATTERN = new Pattern[5];
 
@@ -73,7 +76,7 @@ public class QuestionBuilder implements Updatable {
                 answer = reader.readLine();
             } while (answer != null && (answer.trim().isEmpty() || answer.contains("<img") || answer.contains("<div")));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Exception while reading expText", e);
         }
 
         if (answer != null) {
