@@ -105,7 +105,7 @@ public final class HEParser {
             if (AtomMap.containsKey(sub)) {
                 if ("<-".equals(sub) && remaining > 2) {
                     char ch = equation.charAt(pos + 3);
-                    if (!(Character.isWhitespace(ch) || (ch >= '!' && ch <= '=') || ch == '{')) {
+                    if (ch > '=' && ch != '{') {
                         break;
                     }
                 }
@@ -168,7 +168,7 @@ public final class HEParser {
             return false;
         }
         int n = 1;
-        while (Character.isWhitespace(equation.charAt(pos + n))) {
+        while (ASCIIUtil.isWhitespace(equation.charAt(pos + n))) {
             n++;
         }
 

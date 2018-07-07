@@ -1,6 +1,8 @@
 package kim.ylem.heparser;
 
 public final class ASCIIUtil {
+    private static final long WHITESPACE = 1L << 0x0009 | 1L << 0x000A | 1L << 0x000D | 1L << 0x0020;
+
     public static final int UPPER_LOWER_OFFSET = 32;
 
     private ASCIIUtil() {
@@ -16,6 +18,10 @@ public final class ASCIIUtil {
 
     public static char toLowerCase(char c) {
         return isUpperCase(c) ? (char) (c + UPPER_LOWER_OFFSET) : c;
+    }
+
+    public static boolean isWhitespace(char c) {
+        return c <= 0x0020 && (WHITESPACE >> c & 1L) != 0;
     }
 
     public static int getStyle(char first, char second) {

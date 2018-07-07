@@ -2,6 +2,7 @@ package kim.ylem.hmlparser;
 
 import java.util.UUID;
 
+@SuppressWarnings("FieldNotUsedInToString")
 public class ImageData {
     private final String uuid;
     private final Updatable updatable;

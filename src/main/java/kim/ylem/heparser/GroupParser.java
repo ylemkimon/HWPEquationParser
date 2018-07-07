@@ -159,7 +159,7 @@ public class GroupParser {
     Atom parse() throws ParserException {
         char c = parser.next();
         if (mode == ParserMode.ARGUMENT) {
-            if (Character.isWhitespace(c) || c == '`' || c == '~') {
+            if (ASCIIUtil.isWhitespace(c) || c == '`' || c == '~') {
                 return null;
             }
         } else {
@@ -217,7 +217,6 @@ public class GroupParser {
 
     @Contract(pure = true)
     private boolean isTermBreaker(char c) {
-        return Character.isWhitespace(c) ||
-                (c == '`' && textBuilder.length() > 0 && textBuilder.charAt(0) != '`');
+        return ASCIIUtil.isWhitespace(c) || (c == '`' && textBuilder.length() > 0 && textBuilder.charAt(0) != '`');
     }
 }

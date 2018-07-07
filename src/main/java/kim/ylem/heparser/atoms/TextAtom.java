@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@SuppressWarnings("FieldNotUsedInToString")
 public class TextAtom implements Atom {
     private static final long serialVersionUID = -6448670049973372435L;
     private static final Logger logger = LogManager.getLogger();
@@ -63,7 +64,7 @@ public class TextAtom implements Atom {
             char c = parser.next();
             if (!ASCIIUtil.isAlphabet(c)) {
                 parser.consume(null, 1);
-                return new TextAtom(Character.isWhitespace(c) ? "~" : Character.toString(c), options);
+                return new TextAtom(ASCIIUtil.isWhitespace(c) ? "~" : Character.toString(c), options);
             }
 
             StringBuilder sb = new StringBuilder(9);

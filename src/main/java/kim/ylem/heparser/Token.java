@@ -3,6 +3,7 @@ package kim.ylem.heparser;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("FieldNotUsedInToString")
 class Token {
     private final String text;
     private final AtomParser atomParser;
